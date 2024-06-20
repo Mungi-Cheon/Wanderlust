@@ -22,24 +22,24 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String name;
+    private String username;
 
     private String password;
 
     private String email;
 
     @Builder
-    public UserEntity(long id, String email, String name) {
+    public UserEntity(long id, String email, String username) {
         this.id = id;
         this.email = email;
-        this.name = name;
+        this.username = username;
     }
 
     public static UserEntity from(SignupRequest request,
         PasswordEncoder passwordEncoder) {
         UserEntity entity = new UserEntity();
         entity.setEmail(request.getEmail());
-        entity.setName(request.getUsername());
+        entity.setUsername(request.getUsername());
         entity.setPassword(passwordEncoder.encode(request.getPassword()));
         return entity;
     }

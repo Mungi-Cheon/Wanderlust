@@ -11,6 +11,6 @@ public record UserResponse(
     public static UserResponse from(UserEntity entity) {
         return new UserResponse(
             entity.getEmail(),
-            entity.getName());
+            entity.getUsername());
     }
 }
