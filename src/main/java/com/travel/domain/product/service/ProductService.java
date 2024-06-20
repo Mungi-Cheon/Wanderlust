@@ -1,5 +1,6 @@
 package com.travel.domain.product.service;
 
+import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.product.dto.request.AccommodationRequest;
 import com.travel.domain.product.dto.response.*;
 import com.travel.domain.product.entity.Product;
@@ -28,14 +29,14 @@ public class ProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
     private final ProductImageRepository productImageRepository;
-    //private final AccomodationRepository accomodationRepository;
+    private final AccommodationRepository accommodationRepository;
 
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
         Long accommodationId, AccommodationRequest request
-    ) {//TODO acc repo
-        var accomodationEntity = productRepository.findByAccommodationId(accommodationId)
-            .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION)).getAccommodation();
+    ) {
+        var accomodationEntity = accommodationRepository.findById(accommodationId)
+            .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
 
         List<Product> productEntity = productRepository.findAllByAccommodationId(accommodationId);
 
@@ -62,10 +63,7 @@ public class ProductService {
             .pricePerNight()
             .build();
 */
-        List<AccommodationImageResponse> accommodationImageResponses = accomodationEntity.getImages().stream()
-            .map(AccommodationImageResponse::toResponse)
-            .collect(Collectors.toList());
-
+        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.toResponse(accomodationEntity.getImages());
 
         return AccommodationDetailListResponse.builder()
             .id(accommodationId)
@@ -73,7 +71,7 @@ public class ProductService {
             .description(accomodationEntity.getDescription())
             .checkIn(request.getCheckIn().toString())
             .checkOut(request.getCheckOut().toString())
-            .accommodationImageList(accommodationImageResponses)
+            .accommodationImageList(accommodationImageResponse)
             .productResponseList(productEntity.stream().map(
                 ProductResponse::toResponse
             ).collect(Collectors.toList()))
@@ -106,6 +104,7 @@ public class ProductService {
         var total = productInfoPerNightRepository.findTotalPriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
 
         ProductImageResponse productImageResponse = ProductImageResponse.toResponse(productEntity.getProductImage());
+
 
         var totalStay = productInfoPerNightRepository.findByDateBetweenAndProduct(request.getCheckIn(), request.getCheckOut().minusDays(1), productId);
 

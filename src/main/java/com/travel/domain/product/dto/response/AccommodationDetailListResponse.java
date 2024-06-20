@@ -20,7 +20,7 @@ public class AccommodationDetailListResponse {
     private String description;
     private String checkIn;
     private String checkOut;
-    private List<AccommodationImageResponse> accommodationImageList;
+    private AccommodationImageResponse accommodationImageList;
     private List <ProductResponse> productResponseList;
 
 }
