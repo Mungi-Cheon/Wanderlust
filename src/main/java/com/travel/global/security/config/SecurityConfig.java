@@ -22,8 +22,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] AUTH_REQUEST = {"/auth/sign-up"};
-    private static final String[] AUTH_LOGIN = {"/auth/login"};
+    private static final String AUTH_REQUEST = "/auth/signup";
+    private static final String AUTH_LOGIN = "/auth/login";
     private static final String AUTH_LOGOUT = "/auth/logout";
     private static final String[] ACCOMMODATION_GET_REQUEST = {"/accommodations/**"};
     private static final String[] CATEGORY_GET_REQUEST = {"/category/**"};

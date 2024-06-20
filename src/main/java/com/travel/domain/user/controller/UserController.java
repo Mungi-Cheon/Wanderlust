@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,5 +42,17 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         LoginResponse response = userService.login(loginRequest);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/auth/signup")
+    @Operation(summary = "회원 가입 페이지 이동", description = "회원 가입 페이지로 이동합니다.")
+    public String signupPage() {
+        return "signup"; // 예시: signup.html 뷰 페이지 반환
+    }
+
+    @GetMapping("/auth/login")
+    @Operation(summary = "로그인 페이지 이동", description = "로그인 페이지로 이동합니다.")
+    public String loginPage() {
+        return "login"; // 예시: login.html 뷰 페이지 반환
     }
 }
