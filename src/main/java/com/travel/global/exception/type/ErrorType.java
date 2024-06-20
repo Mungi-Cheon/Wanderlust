@@ -15,7 +15,7 @@ public enum ErrorType {
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러입니다."),
     ALREADY_RESERVATION(HttpStatus.CONFLICT, "이미 예약된 숙박 정보가 존재합니다."),
     EMPTY_ACCOMMODATION(HttpStatus.NOT_FOUND, "숙소 정보가 없습니다"),
-
+    EMPTY_PRODUCT(HttpStatus.NOT_FOUND," 숙박 정보가 없습니다"),
     INVALID_NUMBER_OF_PEOPLE(HttpStatus.BAD_REQUEST, "잘못된 인원")
         ;
 

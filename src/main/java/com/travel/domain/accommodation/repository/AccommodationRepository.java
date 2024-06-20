@@ -4,6 +4,9 @@ import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
+import com.travel.domain.product.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,5 +30,8 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
       @Param("checkIn") LocalDate checkIn,
       @Param("checkOut") LocalDate checkOut,
       @Param("guestCount") int guestCount);
+
+  Optional<Product> findByIdAndCategory(Long accommodationId, String category);
+
 
 }
