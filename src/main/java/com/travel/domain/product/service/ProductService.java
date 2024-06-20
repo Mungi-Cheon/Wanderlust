@@ -62,7 +62,7 @@ public class ProductService {
             .pricePerNight()
             .build();
 */
-        List<AccommodationImageResponse> accommodationImageResponses = accomodationEntity.getImages().stream()
+        AccommodationImageResponse accommodationImageResponses = accomodationEntity.getImages()
             .map(AccommodationImageResponse::toResponse)
             .collect(Collectors.toList());
 
