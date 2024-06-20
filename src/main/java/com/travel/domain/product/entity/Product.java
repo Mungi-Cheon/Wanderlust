@@ -44,3 +44,5 @@ public class Product {
     private ProductImage productImage;
 
 }
+//상위 @JsonManagedReference
+//하위 @JsonBackReference

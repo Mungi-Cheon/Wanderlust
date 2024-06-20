@@ -96,17 +96,6 @@ public class ProductService {
             .map(ProductResponse::toResponse)
             .collect(Collectors.toList());
 
-        /*ProductResponse.builder()
-            .name(productEntity.get(0).toString())
-            .checkOutTime(request.getCheckOut().toString())
-            .checkOutTime(request.getCheckIn().toString())
-            .pricePerNight()
-            .standardNumber()
-            .maximumNumber()
-            .productOption()
-            .pricePerNight()
-            .build();
-*/
         AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.toResponse(accomodationEntity.getImages());
 
         return AccommodationDetailListResponse.builder()
