@@ -22,12 +22,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String AUTH_REQUEST = "/auth/signup";
-    private static final String AUTH_LOGIN = "/auth/login";
-    private static final String AUTH_LOGOUT = "/auth/logout";
-    private static final String[] ACCOMMODATION_GET_REQUEST = {"/accommodations/**"};
-    private static final String[] CATEGORY_GET_REQUEST = {"/category/**"};
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
         throws Exception {
@@ -52,13 +46,13 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests((auth) -> auth
-                .requestMatchers(AUTH_REQUEST).permitAll()
-                .requestMatchers(AUTH_LOGIN).permitAll()
-                .requestMatchers(AUTH_LOGOUT).permitAll()
-                .requestMatchers(ACCOMMODATION_GET_REQUEST).permitAll()
-                .requestMatchers(CATEGORY_GET_REQUEST).permitAll()
-                .requestMatchers("/error/**").permitAll()
-                .anyRequest().authenticated());
+                .requestMatchers("/auth/signup").permitAll()
+                .requestMatchers("/auth/login").permitAll()
+//                .requestMatchers("").permitAll()
+//                .requestMatchers(ACCOMMODATION_GET_REQUEST).permitAll()
+//                .requestMatchers(CATEGORY_GET_REQUEST).permitAll()
+//                .requestMatchers("/error/**").permitAll()
+                .anyRequest().permitAll());
 
         http
             .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
