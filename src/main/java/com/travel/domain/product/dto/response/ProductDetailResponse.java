@@ -3,6 +3,7 @@ package com.travel.domain.product.dto.response;
 
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductImage;
+import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.entity.ProductOption;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,13 +23,12 @@ public class ProductDetailResponse {
     private String checkInTime;
     private String checkOutTime;
     private String description;
-    private String totalPrice;
-    private String pricePerNight;// 1박당 가격
+    private int totalPrice;
+    private int pricePerNight;// 1박당 가격
     private int numberOfStay; //숙박일수
     private int standardNumber;
     private int maximumNumber;
     private String type;
     private ProductImageResponse productImageResponse;
     private ProductOption productOption; // 편의시설
-
 }
