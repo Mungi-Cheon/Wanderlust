@@ -31,12 +31,7 @@ public class AccommodationController {
   public ResponseEntity<List<AccommodationResponse>> getAvailableAccommodations(
       @RequestParam(defaultValue = "호텔") String category,
       @RequestBody @Valid AccommodationRequest requestDTO) {
-    List<AccommodationResponse> responses = accommodationService.getAvailableAccommodations(
-        category,
-        requestDTO.getCheckIn(),
-        requestDTO.getCheckOut(),
-        requestDTO.getGuestCount()
-    );
+    List<AccommodationResponse> responses = accommodationService.getAvailableAccommodations(category, requestDTO);
     return ResponseEntity.ok(responses);
   }
 }

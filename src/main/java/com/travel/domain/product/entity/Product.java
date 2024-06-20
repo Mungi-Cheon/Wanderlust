@@ -58,5 +58,4 @@ public class Product {
     @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference
     private ProductImage productImage;
-
 }
