@@ -22,14 +22,14 @@ public class ProductController {
         @PathVariable Long accommodation_id,
         @RequestParam(required = false) LocalDate checkIn,
         @RequestParam(required = false) LocalDate checkOut,
-        @RequestParam(required = false) Integer personNumber
+        @RequestParam(defaultValue = "1") int personNumber
     ) {
         AccommodationRequest request = new AccommodationRequest(checkIn, checkOut, personNumber);
         var response = productService.getAccommodationDetail(accommodation_id, request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{roomType}/{product_id}")
+    @GetMapping("/{product_id}")
     public ResponseEntity<ProductDetailResponse> getProductDetail(
         @PathVariable Long accommodation_id,
         @PathVariable Long product_id,
