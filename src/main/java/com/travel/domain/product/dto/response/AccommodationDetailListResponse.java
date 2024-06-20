@@ -22,5 +22,6 @@ public class AccommodationDetailListResponse {
     private String checkOut;
     private AccommodationImageResponse accommodationImage;
     private List <ProductResponse> productResponseList;
+    private int count;
 
 }

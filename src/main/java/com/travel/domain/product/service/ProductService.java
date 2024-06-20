@@ -56,6 +56,7 @@ public class ProductService {
 
         List<Product> validProductList = new ArrayList<>();
 
+
         for (Product p : productEntity) {
             if (request.getGuestCount() <= p.getMaximumNumber()) {
                 validProductList.add(p);
@@ -99,8 +100,8 @@ public class ProductService {
             .productResponseList(productEntity.stream().map(
                 ProductResponse::toResponse
             ).collect(Collectors.toList()))
+            .count(productEntity.size())
             .build();
-//TODO count
     }
 
     @Transactional(readOnly = true)
@@ -129,7 +130,6 @@ public class ProductService {
         var total = productInfoPerNightRepository.findTotalPriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
 
         ProductImageResponse productImageResponse = ProductImageResponse.toResponse(productEntity.getProductImage());
-
 
         var totalStay = productInfoPerNightRepository.findByDateBetweenAndProduct(request.getCheckIn(), request.getCheckOut().minusDays(1), productId);
 
