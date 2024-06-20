@@ -23,8 +23,9 @@ public class ProductResponse {
     private int maximumNumber;
     private ProductOption productOption;
     private ProductImage images;
-//TODO 옵션 제거
-    public static ProductResponse toResponse(Product product){
+
+    //TODO 옵션 제거
+    public static ProductResponse toResponse(Product product) {
         return ProductResponse.builder()
             .name(product.getName())
             .checkInTime(product.getCheckInTime())
@@ -35,6 +36,5 @@ public class ProductResponse {
             .build();
     }
 }
-
 
 
