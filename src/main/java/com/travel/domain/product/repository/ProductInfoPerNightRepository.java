@@ -12,13 +12,23 @@ import java.util.Optional;
 
 public interface ProductInfoPerNightRepository extends JpaRepository<ProductInfoPerNight, Long> {
 
-    //해당 date 범위에 해당하는
+    //해당 date 범위에 해당하는 product
     @Query("SELECT p FROM ProductInfoPerNight p " +
         "WHERE p.product = :productId " +
         "AND :checkIn <= p.date " +
         "AND :checkOut >= p.date")
     Optional<ProductInfoPerNight> findByProductIdAndDateRange(
         @Param("productId") Long productId,
+        @Param("checkIn") LocalDate checkIn,
+        @Param("checkOut") LocalDate checkOut);
+
+    //해당 date 범위에 해당하는 accommodaiton
+    @Query("SELECT p FROM ProductInfoPerNight p " +
+        "WHERE p.accommodation = :accommodationId " +
+        "AND :checkIn <= p.date " +
+        "AND :checkOut >= p.date")
+    List<ProductInfoPerNight> findByAccommodationIdAndDateRange(
+        @Param("accommodationId") Long accommodationId,
         @Param("checkIn") LocalDate checkIn,
         @Param("checkOut") LocalDate checkOut);
 
@@ -48,4 +58,12 @@ public interface ProductInfoPerNightRepository extends JpaRepository<ProductInfo
         @Param("productId") Long productId
     );
 
+    //평균
+    @Query("SELECT AVG(p.price) FROM ProductInfoPerNight p " +
+        "WHERE p.product = :productId " +
+        "AND p.date BETWEEN :checkIn AND :checkOut")
+    Integer findAveragePriceByProductIdAndDateRange(
+        @Param("productId") Long productId,
+        @Param("checkIn") LocalDate checkIn,
+        @Param("checkOut") LocalDate checkOut);
 }
