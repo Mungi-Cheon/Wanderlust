@@ -48,20 +48,3 @@ public class Product {
     private ProductImage productImage;
 
 }
-
-/*
-
- @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "accommodation_id")
-    private Accommodation accommodation;
-
-  @OneToOne(fetch =FetchType.LAZY)
-    @JoinColumn(name = "product_option")
-    private ProductOption productOption;
-
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<ProductImage> productImageList = new ArrayList<>();
- */

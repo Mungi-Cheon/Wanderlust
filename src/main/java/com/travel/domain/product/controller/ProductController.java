@@ -17,7 +17,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    //숙소 id를 통해 숙소 조회(이미지, 정보, 옵션), 객실 전체 조회 -> 인원수, 날짜 통해 가져옴. 날짜 비교는 accommodationinfopernight
     @GetMapping
     public ResponseEntity<AccommodationDetailListResponse> getAccommodationDetail(
         @PathVariable Long accommodation_id,
@@ -45,13 +44,3 @@ public class ProductController {
     }
 
 }
-
-
-/*
-
-public ResponseEntity<List<AccommodationResponse>> getAllAccommodations()
-AccommodationResponse -> AccommodationListResponse
-AccommodationListResponse
-ResponseEntity
-List<AccommodationResponse>
- */

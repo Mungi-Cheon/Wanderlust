@@ -42,7 +42,7 @@ public class ProductOption {
     @Column(columnDefinition = "bit")
     private Integer hasCable;
     @Column(columnDefinition = "bit")
-    private Integer hasRefigerator; // hasRefrigerator
+    private Integer hasRefrigerator;
     @Column(columnDefinition = "bit")
     private Integer hasSofa;
     @Column(columnDefinition = "bit")
@@ -50,7 +50,7 @@ public class ProductOption {
     @Column(columnDefinition = "bit")
     private Integer hasTable;
     @Column(columnDefinition = "bit")
-    private Integer hasHairdyer;    //hasHairDyer
+    private Integer hasHairdyer;
 }
 
 
