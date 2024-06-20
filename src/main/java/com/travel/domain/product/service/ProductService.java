@@ -4,6 +4,7 @@ import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.product.dto.response.*;
 import com.travel.domain.product.entity.Product;
+import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductImageRepository;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductOptionRepository;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,20 +34,61 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final AccommodationRepository accommodationRepository;
 //TODO  PerNight의 Date정보 불러와서 체크인날짜부터 체크아웃 전날까지 Date가 모두 존재하는지 확인
+
+    /**
+     * PerNight 의 엔티티 전체 조회
+     * PerNight의 엔티티 for문 작성하기
+     * for문내에서 각 PerNigth 엔티티의 date 정보 가져오기
+     * date가 Request에서 받아온 체크인, 체크아웃 날짜의 범위 내에 존재하는지 체크
+     *
+     *대신 그자리에 PerNight의 Date정보 불러와서 체크인날짜부터 체크아웃 전날까지 Date가 모두 존재하는지 확인하는게 필요할거 같아요
+     *
+     *
+     */
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
         Long accommodationId, AccommodationRequest request
     ) {
+        LocalDate checkIn = request.getCheckIn();
+        LocalDate checkOut = request.getCheckOut();
+
         var accomodationEntity = accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
 
         List<Product> productEntity = productRepository.findAllByAccommodationId(accommodationId);
+
+        //모든 per night 정보
+        List<ProductInfoPerNight> allPerNightList = productInfoPerNightRepository.findAll();
+
+        //accommodationId 해당 date range
+        List<ProductInfoPerNight> existPerNightList = productInfoPerNightRepository.findByAccommodationIdAndDateRange(accommodationId, checkIn, checkOut);
 
         List<Product> validProductList = new ArrayList<>();
 
         for (Product p : productEntity) {
             if (request.getGuestCount() <= p.getMaximumNumber()) {
                 validProductList.add(p);
+            }
+
+            for (ProductInfoPerNight pn : allPerNightList) {
+                LocalDate perNightDate = pn.getDate();
+                if (pn.getId().equals(p.getId()) && perNightDate.isAfter(checkIn) && perNightDate.isBefore(checkOut)) {
+                    validProductList.add(p);
+                    break;
+                }
+            }
+        }
+
+        for (Product p : productEntity) {
+            if (request.getGuestCount() <= p.getMaximumNumber()) {
+                validProductList.add(p);
+            }
+        }
+
+        for(ProductInfoPerNight pn: allPerNightList){
+            LocalDate perNightDate = pn.getDate();
+            if(perNightDate.isAfter(checkIn) && perNightDate.isBefore(checkOut)){
+                validProductList.add(pn.getProduct());
             }
         }
 
@@ -91,6 +134,7 @@ public class ProductService {
         var productEntity = productRepository.findByAccommodationId(accommodationId)
             .orElseThrow(()-> new ProductException(ErrorType.EMPTY_ACCOMMODATION));
 
+
         //인원 초과시 exception
         if (request.getGuestCount() > productEntity.getMaximumNumber()) {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
@@ -100,7 +144,7 @@ public class ProductService {
         var availableProduct = productInfoPerNightRepository.findByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut())
             .orElseThrow(() -> new AccommodationException(ErrorType.BAD_REQUEST));
 
-        var minPrice = productInfoPerNightRepository.findMinPriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
+        var avgPrice = productInfoPerNightRepository.findAveragePriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
 
         var total = productInfoPerNightRepository.findTotalPriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
 
@@ -116,8 +160,8 @@ public class ProductService {
             .checkInTime(productEntity.getCheckInTime())
             .checkOutTime(productEntity.getCheckOutTime())
             .description(productEntity.getDescription())
-            .pricePerNight(String.valueOf(minPrice)) //최저가
-            .totalPrice(String.valueOf(total))// 총 가격
+            .pricePerNight(avgPrice) // 말고 평균가
+            .totalPrice(total)// 총 가격
             .numberOfStay(totalStay) //숙박일
             .standardNumber(productEntity.getStandardNumber())
             .maximumNumber(productEntity.getMaximumNumber())
@@ -128,3 +172,13 @@ public class ProductService {
     }
 
 }
+/*
+ /*
+         for (Product p : productEntity) {
+            if (request.getGuestCount() <= p.getMaximumNumber()) {
+                productEntity.add(p);
+            } else if (request.isCheckInValid() && request.isCheckOutValid()) {
+                productEntity.add(p);
+            }
+        }
+         */
