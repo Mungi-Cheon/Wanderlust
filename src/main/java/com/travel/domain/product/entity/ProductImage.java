@@ -40,5 +40,4 @@ public class ProductImage {
 
     private String imageUrl1;
     private String imageUrl2;
-
 }

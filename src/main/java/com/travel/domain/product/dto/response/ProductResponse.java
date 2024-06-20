@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductResponse {
-
   private String name;
   private String checkInTime;
   private String checkOutTime;
