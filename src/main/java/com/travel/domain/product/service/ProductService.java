@@ -9,12 +9,14 @@ import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductOptionRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +31,7 @@ public class ProductService {
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
     private final ProductImageRepository productImageRepository;
     private final AccommodationRepository accommodationRepository;
-
+//TODO  PerNight의 Date정보 불러와서 체크인날짜부터 체크아웃 전날까지 Date가 모두 존재하는지 확인
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
         Long accommodationId, AccommodationRequest request
@@ -39,7 +41,15 @@ public class ProductService {
 
         List<Product> productEntity = productRepository.findAllByAccommodationId(accommodationId);
 
-        //인원, 날짜
+        List<Product> validProductList = new ArrayList<>();
+
+        for (Product p : productEntity) {
+            if (request.getGuestCount() <= p.getMaximumNumber()) {
+                validProductList.add(p);
+            }
+        }
+
+        //인원
         for (Product p : productEntity) {
             if (request.getGuestCount() <= p.getMaximumNumber()) {
                 productEntity.add(p);
@@ -80,18 +90,18 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDetailResponse getProductDetail(
-        Long accommodationId, String roomType, Long productId, AccommodationRequest request
+        Long accommodationId, Long productId, AccommodationRequest request
     ) {
         var accomodationEntity = accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
 
-        //type, id 에 맞는 entity
-        var productEntity = accommodationRepository.findByIdAndCategory(accomodationEntity.getId(), accomodationEntity.getCategory())
-            .orElseThrow(() -> new AccommodationException(ErrorType.BAD_REQUEST));
+
+        var productEntity = productRepository.findByAccommodationId(accommodationId)
+            .orElseThrow(()-> new ProductException(ErrorType.EMPTY_ACCOMMODATION));
 
         //인원 초과시 exception
         if (request.getGuestCount() > productEntity.getMaximumNumber()) {
-            throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
+            throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
         //checkin, out 통해 1박당 정보 조회
