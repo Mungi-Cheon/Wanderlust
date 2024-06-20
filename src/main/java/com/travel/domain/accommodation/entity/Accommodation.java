@@ -2,6 +2,8 @@ package com.travel.domain.accommodation.entity;
 
 import com.travel.domain.product.entity.Product;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.*;
 
@@ -26,7 +28,8 @@ public class Accommodation {
 
   private String category;
 
-  private Double grade;
+  @Column(precision = 2, scale = 1)
+  private BigDecimal grade;
 
   @OneToOne(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
   private AccommodationOption options;
