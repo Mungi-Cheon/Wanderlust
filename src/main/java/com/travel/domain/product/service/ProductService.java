@@ -86,7 +86,7 @@ public class ProductService {
             .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
 
         //type, id 에 맞는 entity
-        var productEntity = productRepository.findByAccommodationIdAndCategory(accomodationEntity.getId(), accomodationEntity.getCategory())
+        var productEntity = accommodationRepository.findByIdAndCategory(accomodationEntity.getId(), accomodationEntity.getCategory())
             .orElseThrow(() -> new AccommodationException(ErrorType.BAD_REQUEST));
 
         //인원 초과시 exception
