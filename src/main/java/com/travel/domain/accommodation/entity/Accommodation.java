@@ -1,11 +1,21 @@
 package com.travel.domain.accommodation.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.travel.domain.product.entity.Product;
-import jakarta.persistence.*;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
 import java.util.List;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -32,12 +42,15 @@ public class Accommodation {
   private BigDecimal grade;
 
   @OneToOne(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+  @JsonManagedReference
   private AccommodationOption options;
 
   @OneToOne(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+  @JsonManagedReference
   private AccommodationImage images;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+  @JsonManagedReference
   private List<Product> products;
 
 }
