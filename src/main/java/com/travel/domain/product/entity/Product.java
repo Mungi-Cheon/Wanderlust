@@ -1,18 +1,32 @@
 package com.travel.domain.product.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.travel.domain.accommodation.entity.Accommodation;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(name ="product") //객실
+@Table(name = "product") //객실
 public class Product {
 
     @Id
@@ -20,6 +34,7 @@ public class Product {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
     @JoinColumn(name = "accommodation_id")
     private Accommodation accommodation;
 
@@ -32,17 +47,15 @@ public class Product {
     private int maximumNumber;
     private String type;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
+    @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonManagedReference
     private ProductOption productOption;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<ProductInfoPerNight> productInfoPerNightsList = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name ="id")
+    @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonManagedReference
     private ProductImage productImage;
-
 }
-//상위 @JsonManagedReference
-//하위 @JsonBackReference
