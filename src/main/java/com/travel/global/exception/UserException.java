@@ -5,7 +5,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 public class UserException extends HttpStatusCodeException {
 
-    protected UserException(HttpStatusCode statusCode, String statusText) {
+    public UserException(HttpStatusCode statusCode, String statusText) {
         super(statusCode, statusText);
     }
 
