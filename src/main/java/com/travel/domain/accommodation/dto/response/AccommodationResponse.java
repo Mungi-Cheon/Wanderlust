@@ -1,6 +1,9 @@
 package com.travel.domain.accommodation.dto.response;
 
+import jakarta.persistence.Column;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
@@ -12,6 +15,6 @@ public class AccommodationResponse {
   private Integer price;
   private String thumbnail;
   private String category;
-  private Double grade;
+  private BigDecimal grade;
 
 }

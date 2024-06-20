@@ -9,17 +9,15 @@ import com.travel.global.exception.type.ErrorType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AccommodationService {
 
   private final AccommodationRepository accommodationRepository;
-
-  public AccommodationService(AccommodationRepository accommodationRepository) {
-    this.accommodationRepository = accommodationRepository;
-  }
 
   @Transactional(readOnly = true)
   public List<AccommodationResponse> getAllAccommodationsByCategory(String category) {

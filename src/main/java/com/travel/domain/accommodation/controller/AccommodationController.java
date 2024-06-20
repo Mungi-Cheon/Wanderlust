@@ -5,6 +5,7 @@ import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.service.AccommodationService;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,13 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/accommodations")
+@RequiredArgsConstructor
 public class AccommodationController {
 
   private final AccommodationService accommodationService;
-
-  public AccommodationController(AccommodationService accommodationService) {
-    this.accommodationService = accommodationService;
-  }
 
   @GetMapping
   public ResponseEntity<List<AccommodationResponse>> getAllAccommodationsByCategory(@RequestParam String category) {
