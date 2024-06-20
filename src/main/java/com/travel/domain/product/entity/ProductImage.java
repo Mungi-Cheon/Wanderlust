@@ -32,9 +32,3 @@ public class ProductImage {
     private String imageUrl2;
 
 }
-/*
-
- @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "accommodation_id")
-    private Accommodation accommodation;
- */

@@ -52,9 +52,3 @@ public class ProductOption {
     @Column(columnDefinition = "bit")
     private Integer hasHairdyer;
 }
-
-
- /* @ManyToOne
-    @JoinColumn(name = "accommodation_id")
-    private Accommodation accomodation;
-*/

@@ -6,14 +6,9 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 public class AccommodationException extends HttpStatusCodeException {
 
-    public AccommodationException(HttpStatusCode statusCode, String statusText) {
-        super(statusCode, statusText);
-    }
-
     public AccommodationException(ErrorType errorType) {
-        super(HttpStatusCode.valueOf(errorType.getStatusCode()));
+        super(errorType.getStatusCode(), errorType.getMessage());
     }
-
 
     @Override
     public String getMessage() {
@@ -21,3 +16,13 @@ public class AccommodationException extends HttpStatusCodeException {
     }
 }
 
+/*
+ public AccommodationException(HttpStatusCode statusCode, String statusText) {
+        super(statusCode, statusText);
+    }
+
+    public AccommodationException(ErrorType errorType) {
+        super(HttpStatusCode.valueOf(errorType.getStatusCode()));
+    }
+
+ */
