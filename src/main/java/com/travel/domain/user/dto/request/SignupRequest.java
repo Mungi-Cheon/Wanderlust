@@ -22,7 +22,7 @@ public class SignupRequest {
     private String email;
 
     @Schema(description = "비밀번호")
-    @Size(min = 8, message = "8자리 이상의 비밀번호를 입력해 주세요")
+//    @Size(min = 8, message = "8자리 이상의 비밀번호를 입력해 주세요")
     @NotBlank(message = "패스워드는 필수 입력 사항입니다.")
     private String password;
 }
