@@ -81,12 +81,12 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDetailResponse getProductDetail(
         Long accommodationId, String roomType, Long productId, AccommodationRequest request
-    ) {//TODO acc repo 로 교체
-        var accomodationEntity = productRepository.findByAccommodationId(accommodationId)
+    ) {
+        var accomodationEntity = accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
 
         //type, id 에 맞는 entity
-        var productEntity = productRepository.findByAccommodationIdAndType(accomodationEntity.getId(), accomodationEntity.getType())
+        var productEntity = productRepository.findByAccommodationIdAndCategory(accomodationEntity.getId(), accomodationEntity.getCategory())
             .orElseThrow(() -> new AccommodationException(ErrorType.BAD_REQUEST));
 
         //인원 초과시 exception
