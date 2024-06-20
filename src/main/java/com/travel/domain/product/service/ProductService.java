@@ -35,16 +35,7 @@ public class ProductService {
     private final AccommodationRepository accommodationRepository;
 //TODO  PerNight의 Date정보 불러와서 체크인날짜부터 체크아웃 전날까지 Date가 모두 존재하는지 확인
 
-    /**
-     * PerNight 의 엔티티 전체 조회
-     * PerNight의 엔티티 for문 작성하기
-     * for문내에서 각 PerNigth 엔티티의 date 정보 가져오기
-     * date가 Request에서 받아온 체크인, 체크아웃 날짜의 범위 내에 존재하는지 체크
-     *
-     *대신 그자리에 PerNight의 Date정보 불러와서 체크인날짜부터 체크아웃 전날까지 Date가 모두 존재하는지 확인하는게 필요할거 같아요
-     *
-     *
-     */
+
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
         Long accommodationId, AccommodationRequest request
@@ -85,9 +76,9 @@ public class ProductService {
             }
         }
 
-        for(ProductInfoPerNight pn: allPerNightList){
+        for (ProductInfoPerNight pn : allPerNightList) {
             LocalDate perNightDate = pn.getDate();
-            if(perNightDate.isAfter(checkIn) && perNightDate.isBefore(checkOut)){
+            if (perNightDate.isAfter(checkIn) && perNightDate.isBefore(checkOut)) {
                 validProductList.add(pn.getProduct());
             }
         }
@@ -109,7 +100,7 @@ public class ProductService {
                 ProductResponse::toResponse
             ).collect(Collectors.toList()))
             .build();
-
+//TODO count
     }
 
     @Transactional(readOnly = true)
@@ -121,7 +112,7 @@ public class ProductService {
 
 
         var productEntity = productRepository.findByAccommodationId(accommodationId)
-            .orElseThrow(()-> new ProductException(ErrorType.EMPTY_ACCOMMODATION));
+            .orElseThrow(() -> new ProductException(ErrorType.EMPTY_ACCOMMODATION));
 
 
         //인원 초과시 exception
