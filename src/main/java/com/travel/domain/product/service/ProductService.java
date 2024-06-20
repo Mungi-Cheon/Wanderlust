@@ -49,14 +49,6 @@ public class ProductService {
             }
         }
 
-        //인원
-        for (Product p : productEntity) {
-            if (request.getGuestCount() <= p.getMaximumNumber()) {
-                productEntity.add(p);
-            } else if (request.isCheckInValid() && request.isCheckOutValid()) {
-                productEntity.add(p);
-            }
-        }
         productEntity.stream()
             .map(ProductResponse::toResponse)
             .collect(Collectors.toList());
