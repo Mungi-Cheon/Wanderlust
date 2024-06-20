@@ -16,13 +16,3 @@ public class AccommodationException extends HttpStatusCodeException {
     }
 }
 
-/*
- public AccommodationException(HttpStatusCode statusCode, String statusText) {
-        super(statusCode, statusText);
-    }
-
-    public AccommodationException(ErrorType errorType) {
-        super(HttpStatusCode.valueOf(errorType.getStatusCode()));
-    }
-
- */

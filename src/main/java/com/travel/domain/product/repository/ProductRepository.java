@@ -13,7 +13,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Optional <Product>findByType(String roomType);
 
-    Optional<Product> findByAccommodationIdAndCategory(Long accommodationId, String category);
-
     List<Product> findAllByAccommodationId(Long accommodationId);
 }
