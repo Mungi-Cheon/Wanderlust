@@ -1,6 +1,6 @@
 package com.travel.domain.product.controller;
 
-import com.travel.domain.product.dto.request.AccommodationRequest;
+import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.product.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.service.ProductService;

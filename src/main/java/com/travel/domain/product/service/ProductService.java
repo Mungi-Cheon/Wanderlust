@@ -1,10 +1,9 @@
 package com.travel.domain.product.service;
 
+import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
-import com.travel.domain.product.dto.request.AccommodationRequest;
 import com.travel.domain.product.dto.response.*;
 import com.travel.domain.product.entity.Product;
-import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.repository.ProductImageRepository;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductOptionRepository;
@@ -42,9 +41,9 @@ public class ProductService {
 
         //인원, 날짜
         for (Product p : productEntity) {
-            if (request.getPersonnel() <= p.getMaximumNumber()) {
+            if (request.getGuestCount() <= p.getMaximumNumber()) {
                 productEntity.add(p);
-            } else if (request.isValidPeriod()) {
+            } else if (request.isCheckInValid() && request.isCheckOutValid()) {
                 productEntity.add(p);
             }
         }
@@ -91,7 +90,7 @@ public class ProductService {
             .orElseThrow(() -> new AccommodationException(ErrorType.BAD_REQUEST));
 
         //인원 초과시 exception
-        if (request.getPersonnel() > productEntity.getMaximumNumber()) {
+        if (request.getGuestCount() > productEntity.getMaximumNumber()) {
             throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
