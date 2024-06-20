@@ -71,7 +71,7 @@ public class ProductService {
             .description(accomodationEntity.getDescription())
             .checkIn(request.getCheckIn().toString())
             .checkOut(request.getCheckOut().toString())
-            .accommodationImageList(accommodationImageResponse)
+            .accommodationImage(accommodationImageResponse)
             .productResponseList(productEntity.stream().map(
                 ProductResponse::toResponse
             ).collect(Collectors.toList()))
