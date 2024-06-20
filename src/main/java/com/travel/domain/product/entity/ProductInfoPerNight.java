@@ -1,6 +1,5 @@
 package com.travel.domain.product.entity;
 
-//식별관고계는 pk
 import com.travel.domain.accommodation.entity.Accommodation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +30,7 @@ public class ProductInfoPerNight {
     @JoinColumn(name = "accommodation_id")
     private Accommodation accommodation;
 
-    private LocalDate date; //이걸로비교
+    private LocalDate date;
     private int price;
     private int count;
 }

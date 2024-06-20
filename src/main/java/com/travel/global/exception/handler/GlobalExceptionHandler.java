@@ -16,4 +16,6 @@ public class GlobalExceptionHandler {
         log.error("error message : {}", e.getMessage());
        return ResponseEntity.internalServerError().build();
     }
+
+
 }
