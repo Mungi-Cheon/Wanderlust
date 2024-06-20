@@ -4,16 +4,22 @@ import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.product.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.service.ProductService;
+import jakarta.validation.Valid;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/accommodations/{accommodation_id}")
+@RequestMapping("/api/accommodations/{accommodation_id}")
 public class ProductController {
 
     private final ProductService productService;
@@ -30,7 +36,7 @@ public class ProductController {
         }
 
         if (checkOut == null) {
-            checkOut.now().plusDays(1);
+            checkOut = LocalDate.now().plusDays(1);
         }
 
         AccommodationRequest request = new AccommodationRequest(checkIn, checkOut, personNumber);
@@ -51,11 +57,19 @@ public class ProductController {
         }
 
         if (checkOut == null) {
-            checkOut.now().plusDays(1);
+            checkOut = LocalDate.now().plusDays(1);
         }
         AccommodationRequest request = new AccommodationRequest(checkIn, checkOut, personNumber);
         var response = productService.getProductDetail(accommodation_id, product_id, request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<AccommodationDetailListResponse> getAvailableProducts(
+        @PathVariable Long accommodation_id,
+        @RequestBody @Valid AccommodationRequest requestDTO) {
+        AccommodationDetailListResponse responses = productService.getAccommodationDetail(accommodation_id, requestDTO);
+        return ResponseEntity.ok(responses);
     }
 
 }

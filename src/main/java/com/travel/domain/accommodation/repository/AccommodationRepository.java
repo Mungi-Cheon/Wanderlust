@@ -31,7 +31,4 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
       @Param("checkOut") LocalDate checkOut,
       @Param("guestCount") int guestCount);
 
-  Optional<Product> findByIdAndCategory(Long accommodationId, String category);
-
-
 }

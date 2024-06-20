@@ -17,18 +17,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDetailResponse {
-    private Long id;
-    private String name;
-    private String accommodationName;
-    private String checkInTime;
-    private String checkOutTime;
-    private String description;
-    private int totalPrice;
-    private int pricePerNight;// 1박당 가격
-    private int numberOfStay; //숙박일수
-    private int standardNumber;
-    private int maximumNumber;
-    private String type;
-    private ProductImageResponse productImageResponse;
-    private ProductOption productOption; // 편의시설
+  private Long id;
+  private String name;
+  private String accommodationName;
+  private String description;
+  private int totalPrice;
+  private int pricePerNight;// 1박당 가격
+  private int numberOfStay; //숙박일수
+  private int standardNumber;
+  private int maximumNumber;
+  private String type;
+  private ProductImageResponse productImageResponse;
+  private ProductOption productOption; // 편의시설
 }
