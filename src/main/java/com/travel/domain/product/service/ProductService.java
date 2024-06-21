@@ -2,38 +2,34 @@ package com.travel.domain.product.service;
 
 import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
-import com.travel.domain.product.dto.response.*;
+import com.travel.domain.product.dto.response.AccommodationDetailListResponse;
+import com.travel.domain.product.dto.response.AccommodationImageResponse;
+import com.travel.domain.product.dto.response.ProductDetailResponse;
+import com.travel.domain.product.dto.response.ProductImageResponse;
+import com.travel.domain.product.dto.response.ProductResponse;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
-import com.travel.domain.product.repository.ProductImageRepository;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
-import com.travel.domain.product.repository.ProductOptionRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductOptionRepository productOptionRepository;
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
-    private final ProductImageRepository productImageRepository;
     private final AccommodationRepository accommodationRepository;
-
 
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
@@ -42,64 +38,50 @@ public class ProductService {
         LocalDate checkIn = request.getCheckIn();
         LocalDate checkOut = request.getCheckOut();
 
-        var accomodationEntity = accommodationRepository.findById(accommodationId)
+        var accommodationEntity = accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
 
-        List<Product> productEntity = productRepository.findAllByAccommodationId(accommodationId);
-
-        //모든 per night 정보
-        List<ProductInfoPerNight> allPerNightList = productInfoPerNightRepository.findAll();
-
-        //accommodationId 해당 date range
-        List<ProductInfoPerNight> existPerNightList = productInfoPerNightRepository.findByAccommodationIdAndDateRange(accommodationId, checkIn, checkOut);
+        List<Product> productEntityList = productRepository.findAllByAccommodationId(accommodationId);
 
         List<Product> validProductList = new ArrayList<>();
 
+        for (Product product : productEntityList) {
+            boolean allDatesExist = true;
 
-        for (Product p : productEntity) {
-            if (request.getGuestCount() <= p.getMaximumNumber()) {
-                validProductList.add(p);
-            }
-
-            for (ProductInfoPerNight pn : allPerNightList) {
-                LocalDate perNightDate = pn.getDate();
-                if (pn.getId().equals(p.getId()) && perNightDate.isAfter(checkIn) && perNightDate.isBefore(checkOut)) {
-                    validProductList.add(p);
+            for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
+                if (!productInfoPerNightRepository.existsByProductIdAndDate(product.getId(), date)) {
+                    allDatesExist = false;
                     break;
                 }
             }
-        }
 
-        for (Product p : productEntity) {
-            if (request.getGuestCount() <= p.getMaximumNumber()) {
-                validProductList.add(p);
+            if (allDatesExist && request.getGuestCount() <= product.getMaximumNumber()) {
+                validProductList.add(product);
             }
         }
 
-        for (ProductInfoPerNight pn : allPerNightList) {
-            LocalDate perNightDate = pn.getDate();
-            if (perNightDate.isAfter(checkIn) && perNightDate.isBefore(checkOut)) {
-                validProductList.add(pn.getProduct());
-            }
+        if(validProductList.isEmpty()) {
+            throw new ProductException(ErrorType.EMPTY_PRODUCT);
         }
 
-        productEntity.stream()
-            .map(ProductResponse::toResponse)
+        List<ProductResponse> productResponses = validProductList.stream()
+            .map(product -> {
+                int minCount = productInfoPerNightRepository.findMinCountByProductIdAndDateRange(
+                    product.getId(), checkIn, checkOut);
+                return ProductResponse.toResponse(product, minCount);
+            })
             .collect(Collectors.toList());
 
-        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.toResponse(accomodationEntity.getImages());
+        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.toResponse(accommodationEntity.getImages());
 
         return AccommodationDetailListResponse.builder()
             .id(accommodationId)
-            .name(accomodationEntity.getName())
-            .description(accomodationEntity.getDescription())
+            .name(accommodationEntity.getName())
+            .description(accommodationEntity.getDescription())
             .checkIn(request.getCheckIn().toString())
             .checkOut(request.getCheckOut().toString())
             .accommodationImage(accommodationImageResponse)
-            .productResponseList(productEntity.stream().map(
-                ProductResponse::toResponse
-            ).collect(Collectors.toList()))
-            .count(productEntity.size())
+            .productResponseList(productResponses)
             .build();
     }
 
@@ -107,24 +89,27 @@ public class ProductService {
     public ProductDetailResponse getProductDetail(
         Long accommodationId, Long productId, AccommodationRequest request
     ) {
-        var accomodationEntity = accommodationRepository.findById(accommodationId)
+
+        var accommodationEntity = accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
 
+        var productEntity = productRepository.findById(productId)
+            .orElseThrow(() -> new ProductException(ErrorType.EMPTY_PRODUCT));
 
-        var productEntity = productRepository.findByAccommodationId(accommodationId)
-            .orElseThrow(() -> new ProductException(ErrorType.EMPTY_ACCOMMODATION));
-
-
-        //인원 초과시 exception
         if (request.getGuestCount() > productEntity.getMaximumNumber()) {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
-        //checkin, out 통해 1박당 정보 조회
-        var availableProduct = productInfoPerNightRepository.findByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut())
-            .orElseThrow(() -> new AccommodationException(ErrorType.BAD_REQUEST));
+        LocalDate checkIn = request.getCheckIn();
+        LocalDate checkOut = request.getCheckOut();
 
-        var avgPrice = productInfoPerNightRepository.findAveragePriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
+        for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
+            if (!productInfoPerNightRepository.existsByProductIdAndDate(productId, date)) {
+                throw new ProductException(ErrorType.EMPTY_PRODUCT);
+            }
+        }
+
+        ProductInfoPerNight availableProductPerNight = productInfoPerNightRepository.findByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut()).get(0);
 
         var total = productInfoPerNightRepository.findTotalPriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
 
@@ -135,13 +120,11 @@ public class ProductService {
         return ProductDetailResponse.builder()
             .id(productId)
             .name(productEntity.getName())
-            .accommodationName(accomodationEntity.getName())
-            .checkInTime(productEntity.getCheckInTime())
-            .checkOutTime(productEntity.getCheckOutTime())
+            .accommodationName(accommodationEntity.getName())
             .description(productEntity.getDescription())
-            .pricePerNight(avgPrice) // 말고 평균가
-            .totalPrice(total)// 총 가격
-            .numberOfStay(totalStay) //숙박일
+            .pricePerNight(availableProductPerNight.getPrice())
+            .totalPrice(total)
+            .numberOfStay(totalStay)
             .standardNumber(productEntity.getStandardNumber())
             .maximumNumber(productEntity.getMaximumNumber())
             .type(productEntity.getType())

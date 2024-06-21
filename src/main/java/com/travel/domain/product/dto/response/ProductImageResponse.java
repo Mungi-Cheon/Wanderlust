@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductImageResponse {
 
-    private String imageUrl1;
-    private String imageUrl2;
+  private String imageUrl1;
+  private String imageUrl2;
 
-    public static ProductImageResponse toResponse(ProductImage productImage){
-        return ProductImageResponse.builder()
-            .imageUrl1(productImage.getImageUrl1())
-            .imageUrl2(productImage.getImageUrl2())
-            .build();
-    }
+  public static ProductImageResponse toResponse(ProductImage productImage){
+    return ProductImageResponse.builder()
+        .imageUrl1(productImage.getImageUrl1())
+        .imageUrl2(productImage.getImageUrl2())
+        .build();
+  }
 }

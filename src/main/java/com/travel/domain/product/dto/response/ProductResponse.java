@@ -14,26 +14,25 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductResponse {
+  private String name;
+  private String checkInTime;
+  private String checkOutTime;
+  private int pricePerNight;// 1박당 가격
+  private int standardNumber;
+  private int maximumNumber;
+  private ProductImage images;
+  private int count;
 
-    private String name;
-    private String checkInTime;
-    private String checkOutTime;
-    private String pricePerNight;// 1박당 가격
-    private int standardNumber;
-    private int maximumNumber;
-    private ProductOption productOption;
-    private ProductImage images;
-
-    public static ProductResponse toResponse(Product product) {
-        return ProductResponse.builder()
-            .name(product.getName())
-            .checkInTime(product.getCheckInTime())
-            .checkOutTime(product.getCheckOutTime())
-            .standardNumber(product.getStandardNumber())
-            .maximumNumber(product.getMaximumNumber())
-            .images(product.getProductImage())
-            .build();
-    }
+  public static ProductResponse toResponse(Product product, int count){
+    return ProductResponse.builder()
+        .name(product.getName())
+        .checkInTime(product.getCheckInTime())
+        .checkOutTime(product.getCheckOutTime())
+        .pricePerNight(product.getProductInfoPerNightsList().get(0).getPrice())
+        .standardNumber(product.getStandardNumber())
+        .maximumNumber(product.getMaximumNumber())
+        .images(product.getProductImage())
+        .count(count)
+        .build();
+  }
 }
-
-

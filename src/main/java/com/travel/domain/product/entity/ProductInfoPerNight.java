@@ -43,4 +43,8 @@ public class ProductInfoPerNight {
     private LocalDate date;
     private int price;
     private int count;
+
+    public void decreaseCountByOne() {
+        this.count--;
+    }
 }
