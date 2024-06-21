@@ -24,7 +24,6 @@ public class ProductResponse {
     private ProductOption productOption;
     private ProductImage images;
 
-    //TODO 옵션 제거
     public static ProductResponse toResponse(Product product) {
         return ProductResponse.builder()
             .name(product.getName())

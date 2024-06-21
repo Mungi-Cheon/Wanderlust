@@ -33,7 +33,6 @@ public class ProductService {
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
     private final ProductImageRepository productImageRepository;
     private final AccommodationRepository accommodationRepository;
-//TODO  PerNight의 Date정보 불러와서 체크인날짜부터 체크아웃 전날까지 Date가 모두 존재하는지 확인
 
 
     @Transactional(readOnly = true)

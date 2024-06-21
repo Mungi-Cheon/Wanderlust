@@ -30,7 +30,7 @@ public class ProductController {
         }
 
         if (checkOut == null) {
-            checkOut.now().plusDays(1);
+            checkOut = checkIn.plusDays(1);
         }
 
         AccommodationRequest request = new AccommodationRequest(checkIn, checkOut, personNumber);
@@ -51,7 +51,7 @@ public class ProductController {
         }
 
         if (checkOut == null) {
-            checkOut.now().plusDays(1);
+            checkOut = checkIn.plusDays(1);
         }
         AccommodationRequest request = new AccommodationRequest(checkIn, checkOut, personNumber);
         var response = productService.getProductDetail(accommodation_id, product_id, request);
