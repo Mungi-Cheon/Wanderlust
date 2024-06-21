@@ -61,5 +61,5 @@ public class ProductOption {
     @Column(columnDefinition = "bit")
     private Integer hasTable;
     @Column(columnDefinition = "bit")
-    private Integer hasHairdyer;
+    private Integer hasHairdryer;
 }

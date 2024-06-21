@@ -23,7 +23,7 @@ public class ProductOptionResponse {
   private Integer hasSofa;
   private Integer canCook;
   private Integer hasTable;
-  private Integer hasHairdyer;
+  private Integer hasHairdryer;
 
   public static ProductOptionResponse toResponse(ProductOption productOption){
     return ProductOptionResponse.builder()
@@ -36,7 +36,7 @@ public class ProductOptionResponse {
         .hasSofa(productOption.getHasSofa())
         .canCook(productOption.getCanCook())
         .hasTable(productOption.getHasTable())
-        .hasHairdyer(productOption.getHasHairdyer())
+        .hasHairdryer(productOption.getHasHairdryer())
         .build();
   }
 }
