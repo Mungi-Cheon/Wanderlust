@@ -20,9 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Entity
-@Table(name = "product_option")
 public class ProductOption {
 
     @Id
@@ -40,26 +38,15 @@ public class ProductOption {
     @JoinColumn(name = "accommodation_id")
     private Accommodation accommodation;
 
-    @Column(columnDefinition = "bit")
-    private Integer hasBath;
-    @Column(columnDefinition = "bit")
-    private Integer hasAirCondition;
-    @Column(columnDefinition = "bit")
-    private Integer hasTv;
-    @Column(columnDefinition = "bit")
-    private Integer hasPc;
-    @Column(columnDefinition = "bit")
-    private Integer hasWifi;
-    @Column(columnDefinition = "bit")
-    private Integer hasCable;
-    @Column(columnDefinition = "bit")
-    private Integer hasRefrigerator;
-    @Column(columnDefinition = "bit")
-    private Integer hasSofa;
-    @Column(columnDefinition = "bit")
-    private Integer canCook;
-    @Column(columnDefinition = "bit")
-    private Integer hasTable;
-    @Column(columnDefinition = "bit")
-    private Integer hasHairdryer;
+    private boolean hasBath;
+    private boolean hasAirCondition;
+    private boolean hasTv;
+    private boolean hasPc;
+    private boolean hasWifi;
+    private boolean hasCable;
+    private boolean hasRefrigerator;
+    private boolean hasSofa;
+    private boolean canCook;
+    private boolean hasTable;
+    private boolean hasHairdryer;
 }

@@ -13,30 +13,31 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductOptionResponse {
-  private Integer hasBath;
-  private Integer hasAirCondition;
-  private Integer hasTv;
-  private Integer hasPc;
-  private Integer hasWifi;
-  private Integer hasCable;
-  private Integer hasRefrigerator;
-  private Integer hasSofa;
-  private Integer canCook;
-  private Integer hasTable;
-  private Integer hasHairdryer;
+  private boolean hasBath;
+  private boolean hasAirCondition;
+  private boolean hasTv;
+  private boolean hasPc;
+  private boolean hasWifi;
+  private boolean hasCable;
+  private boolean hasRefrigerator;
+  private boolean hasSofa;
+  private boolean canCook;
+  private boolean hasTable;
+  private boolean hasHairdryer;
 
-  public static ProductOptionResponse toResponse(ProductOption productOption){
+  public static ProductOptionResponse toResponse(ProductOption productOption) {
     return ProductOptionResponse.builder()
-        .hasBath(productOption.getHasBath())
-        .hasAirCondition(productOption.getHasAirCondition())
-        .hasTable(productOption.getHasTable())
-        .hasWifi(productOption.getHasWifi())
-        .hasCable(productOption.getHasCable())
-        .hasRefrigerator(productOption.getHasRefrigerator())
-        .hasSofa(productOption.getHasSofa())
-        .canCook(productOption.getCanCook())
-        .hasTable(productOption.getHasTable())
-        .hasHairdryer(productOption.getHasHairdryer())
+        .hasBath(productOption.isHasBath())
+        .hasAirCondition(productOption.isHasAirCondition())
+        .hasTv(productOption.isHasTv())
+        .hasPc(productOption.isHasPc())
+        .hasWifi(productOption.isHasWifi())
+        .hasCable(productOption.isHasCable())
+        .hasRefrigerator(productOption.isHasRefrigerator())
+        .hasSofa(productOption.isHasSofa())
+        .canCook(productOption.isCanCook())
+        .hasTable(productOption.isHasTable())
+        .hasHairdryer(productOption.isHasHairdryer())
         .build();
   }
 }

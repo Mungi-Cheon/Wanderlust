@@ -1,8 +1,7 @@
-package com.travel.domain.product.dto.response;
+package com.travel.domain.accommodation.dto.response;
 
 
 import com.travel.domain.accommodation.entity.AccommodationImage;
-import com.travel.domain.product.entity.ProductImage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -20,9 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Entity
-@Table(name = "product_info_per_night")
 public class ProductInfoPerNight {
 
     @Id
