@@ -48,12 +48,14 @@ public class Reservations {
     @Builder
     public Reservations(UserEntity user, Accommodation accommodation, Product product,
         Integer personNumber, Integer price,
-        Integer night) {
+        Integer night, LocalDate checkInDate, LocalDate checkOutDate) {
         this.user = user;
         this.accommodation = accommodation;
         this.product = product;
         this.personNumber = personNumber;
         this.price = price;
         this.night = night;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
     }
 }
