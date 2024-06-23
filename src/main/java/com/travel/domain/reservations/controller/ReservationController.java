@@ -19,8 +19,8 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping("/reservations")
-    public ResponseEntity<ReservationHistoryListResponse> getReservations() {
-        ReservationHistoryListResponse response = reservationService.getReservation(
+    public ResponseEntity<ReservationHistoryListResponse> getReservationHistories() {
+        ReservationHistoryListResponse response = reservationService.getReservationHistories(
             "test@gmail.com");
         return ResponseEntity.ok(response);
     }
@@ -34,8 +34,10 @@ public class ReservationController {
     }
 
 //    @GetMapping("/reservations")
-//    public ResponseEntity<ReservationResponse> getReservations(Authentication authentication) {
-//        ReservationResponse response = reservationService.getReservation(authentication.getName());
+//    public ResponseEntity<ReservationHistoryListResponse> getReservations(
+//        Authentication authentication) {
+//        ReservationHistoryListResponse response = reservationService.getReservation(
+//            authentication.getName());
 //        return ResponseEntity.ok(response);
 //    }
 //

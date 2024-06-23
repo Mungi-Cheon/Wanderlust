@@ -28,5 +28,22 @@ public class ProductDetailResponse {
   private int maximumNumber;
   private String type;
   private ProductImageResponse productImageResponse;
-  private ProductOption productOption; // 편의시설
+  private ProductOptionResponse productOption; // 편의시설
+
+  public static ProductDetailResponse toResponse(Product product, String accommodationName, int pricePerNight, int totalPrice, int numberOfStay, ProductImageResponse productImageResponse, ProductOptionResponse productOptionResponse) {
+    return ProductDetailResponse.builder()
+        .id(product.getId())
+        .name(product.getName())
+        .accommodationName(accommodationName)
+        .description(product.getDescription())
+        .pricePerNight(pricePerNight)
+        .totalPrice(totalPrice)
+        .numberOfStay(numberOfStay)
+        .standardNumber(product.getStandardNumber())
+        .maximumNumber(product.getMaximumNumber())
+        .type(product.getType())
+        .productImageResponse(productImageResponse)
+        .productOption(productOptionResponse)
+        .build();
+  }
 }

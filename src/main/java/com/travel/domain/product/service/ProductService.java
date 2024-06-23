@@ -2,10 +2,12 @@ package com.travel.domain.product.service;
 
 import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
-import com.travel.domain.product.dto.response.AccommodationDetailListResponse;
-import com.travel.domain.product.dto.response.AccommodationImageResponse;
+import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
+import com.travel.domain.accommodation.dto.response.AccommodationImageResponse;
+import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductImageResponse;
+import com.travel.domain.product.dto.response.ProductOptionResponse;
 import com.travel.domain.product.dto.response.ProductResponse;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
@@ -66,23 +68,17 @@ public class ProductService {
 
         List<ProductResponse> productResponses = validProductList.stream()
             .map(product -> {
+                ProductImageResponse productImageResponse = ProductImageResponse.toResponse(product.getProductImage());
                 int minCount = productInfoPerNightRepository.findMinCountByProductIdAndDateRange(
                     product.getId(), checkIn, checkOut);
-                return ProductResponse.toResponse(product, minCount);
+                return ProductResponse.toResponse(product, minCount, productImageResponse);
             })
             .collect(Collectors.toList());
 
         AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.toResponse(accommodationEntity.getImages());
+        AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse.toResponse(accommodationEntity.getOptions());
 
-        return AccommodationDetailListResponse.builder()
-            .id(accommodationId)
-            .name(accommodationEntity.getName())
-            .description(accommodationEntity.getDescription())
-            .checkIn(request.getCheckIn().toString())
-            .checkOut(request.getCheckOut().toString())
-            .accommodationImage(accommodationImageResponse)
-            .productResponseList(productResponses)
-            .build();
+        return AccommodationDetailListResponse.toResponse(accommodationEntity, checkIn.toString(), checkOut.toString(), accommodationImageResponse, accommodationOptionResponse, productResponses);
     }
 
     @Transactional(readOnly = true)
@@ -110,27 +106,12 @@ public class ProductService {
         }
 
         ProductInfoPerNight availableProductPerNight = productInfoPerNightRepository.findByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut()).get(0);
-
         var total = productInfoPerNightRepository.findTotalPriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
-
-        ProductImageResponse productImageResponse = ProductImageResponse.toResponse(productEntity.getProductImage());
-
         var totalStay = productInfoPerNightRepository.findByDateBetweenAndProduct(request.getCheckIn(), request.getCheckOut().minusDays(1), productId);
+        ProductImageResponse productImageResponse = ProductImageResponse.toResponse(productEntity.getProductImage());
+        ProductOptionResponse productOptionResponse = ProductOptionResponse.toResponse(productEntity.getProductOption());
 
-        return ProductDetailResponse.builder()
-            .id(productId)
-            .name(productEntity.getName())
-            .accommodationName(accommodationEntity.getName())
-            .description(productEntity.getDescription())
-            .pricePerNight(availableProductPerNight.getPrice())
-            .totalPrice(total)
-            .numberOfStay(totalStay)
-            .standardNumber(productEntity.getStandardNumber())
-            .maximumNumber(productEntity.getMaximumNumber())
-            .type(productEntity.getType())
-            .productOption(productEntity.getProductOption())
-            .productImageResponse(productImageResponse)
-            .build();
+        return ProductDetailResponse.toResponse(productEntity, accommodationEntity.getName(), availableProductPerNight.getPrice(), total, totalStay, productImageResponse, productOptionResponse);
     }
 
 }
