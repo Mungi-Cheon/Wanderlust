@@ -20,7 +20,7 @@ public class AccommodationOptionResponse {
   private boolean hasFitness;
   private boolean hasBeauty;
 
-  public static AccommodationOptionResponse toResponse(AccommodationOption accommodationOption) {
+  public static AccommodationOptionResponse from(AccommodationOption accommodationOption) {
     return AccommodationOptionResponse.builder()
         .hasSmokingRoom(accommodationOption.isHasSmokingRoom())
         .hasCooking(accommodationOption.isHasCooking())

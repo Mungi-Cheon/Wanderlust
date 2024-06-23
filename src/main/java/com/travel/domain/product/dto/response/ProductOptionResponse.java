@@ -25,7 +25,7 @@ public class ProductOptionResponse {
   private boolean hasTable;
   private boolean hasHairdryer;
 
-  public static ProductOptionResponse toResponse(ProductOption productOption) {
+  public static ProductOptionResponse from(ProductOption productOption) {
     return ProductOptionResponse.builder()
         .hasBath(productOption.isHasBath())
         .hasAirCondition(productOption.isHasAirCondition())

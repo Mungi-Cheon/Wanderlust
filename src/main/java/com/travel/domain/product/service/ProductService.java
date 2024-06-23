@@ -68,17 +68,17 @@ public class ProductService {
 
         List<ProductResponse> productResponses = validProductList.stream()
             .map(product -> {
-                ProductImageResponse productImageResponse = ProductImageResponse.toResponse(product.getProductImage());
+                ProductImageResponse productImageResponse = ProductImageResponse.from(product.getProductImage());
                 int minCount = productInfoPerNightRepository.findMinCountByProductIdAndDateRange(
                     product.getId(), checkIn, checkOut);
-                return ProductResponse.toResponse(product, minCount, productImageResponse);
+                return ProductResponse.from(product, minCount, productImageResponse);
             })
             .collect(Collectors.toList());
 
-        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.toResponse(accommodationEntity.getImages());
-        AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse.toResponse(accommodationEntity.getOptions());
+        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.from(accommodationEntity.getImages());
+        AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse.from(accommodationEntity.getOptions());
 
-        return AccommodationDetailListResponse.toResponse(accommodationEntity, checkIn.toString(), checkOut.toString(), accommodationImageResponse, accommodationOptionResponse, productResponses);
+        return AccommodationDetailListResponse.from(accommodationEntity, checkIn.toString(), checkOut.toString(), accommodationImageResponse, accommodationOptionResponse, productResponses);
     }
 
     @Transactional(readOnly = true)
@@ -108,10 +108,10 @@ public class ProductService {
         ProductInfoPerNight availableProductPerNight = productInfoPerNightRepository.findByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut()).get(0);
         var total = productInfoPerNightRepository.findTotalPriceByProductIdAndDateRange(productId, request.getCheckIn(), request.getCheckOut());
         var totalStay = productInfoPerNightRepository.findByDateBetweenAndProduct(request.getCheckIn(), request.getCheckOut().minusDays(1), productId);
-        ProductImageResponse productImageResponse = ProductImageResponse.toResponse(productEntity.getProductImage());
-        ProductOptionResponse productOptionResponse = ProductOptionResponse.toResponse(productEntity.getProductOption());
+        ProductImageResponse productImageResponse = ProductImageResponse.from(productEntity.getProductImage());
+        ProductOptionResponse productOptionResponse = ProductOptionResponse.from(productEntity.getProductOption());
 
-        return ProductDetailResponse.toResponse(productEntity, accommodationEntity.getName(), availableProductPerNight.getPrice(), total, totalStay, productImageResponse, productOptionResponse);
+        return ProductDetailResponse.from(productEntity, accommodationEntity.getName(), availableProductPerNight.getPrice(), total, totalStay, productImageResponse, productOptionResponse);
     }
 
 }

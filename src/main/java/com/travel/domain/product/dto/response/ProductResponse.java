@@ -22,7 +22,7 @@ public class ProductResponse {
   private ProductImageResponse images;
   private int count;
 
-  public static ProductResponse toResponse(Product product, int count, ProductImageResponse productImageResponse){
+  public static ProductResponse from(Product product, int count, ProductImageResponse productImageResponse){
     return ProductResponse.builder()
         .id(product.getId())
         .name(product.getName())

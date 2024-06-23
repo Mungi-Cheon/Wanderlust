@@ -16,7 +16,7 @@ public class AccommodationImageResponse {
     private String imageUrl1;
     private String imageUrl2;
 
-    public static AccommodationImageResponse toResponse(AccommodationImage accommodationImage){
+    public static AccommodationImageResponse from(AccommodationImage accommodationImage){
         return AccommodationImageResponse.builder()
             .imageUrl1(accommodationImage.getImageUrl1())
             .imageUrl2(accommodationImage.getImageUrl2())

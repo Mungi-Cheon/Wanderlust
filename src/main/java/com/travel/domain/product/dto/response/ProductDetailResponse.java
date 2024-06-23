@@ -30,7 +30,7 @@ public class ProductDetailResponse {
   private ProductImageResponse productImageResponse;
   private ProductOptionResponse productOption; // 편의시설
 
-  public static ProductDetailResponse toResponse(Product product, String accommodationName, int pricePerNight, int totalPrice, int numberOfStay, ProductImageResponse productImageResponse, ProductOptionResponse productOptionResponse) {
+  public static ProductDetailResponse from(Product product, String accommodationName, int pricePerNight, int totalPrice, int numberOfStay, ProductImageResponse productImageResponse, ProductOptionResponse productOptionResponse) {
     return ProductDetailResponse.builder()
         .id(product.getId())
         .name(product.getName())
