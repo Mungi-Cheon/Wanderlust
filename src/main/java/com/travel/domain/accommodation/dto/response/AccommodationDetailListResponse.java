@@ -24,7 +24,7 @@ public class AccommodationDetailListResponse {
     private AccommodationOptionResponse accommodationOption;
     private List <ProductResponse> productResponseList;
 
-    public static AccommodationDetailListResponse toResponse(Accommodation accommodation, String checkIn, String checkOut, AccommodationImageResponse accommodationImage, AccommodationOptionResponse accommodationOption, List<ProductResponse> productResponseList) {
+    public static AccommodationDetailListResponse from(Accommodation accommodation, String checkIn, String checkOut, AccommodationImageResponse accommodationImage, AccommodationOptionResponse accommodationOption, List<ProductResponse> productResponseList) {
         return AccommodationDetailListResponse.builder()
             .id(accommodation.getId())
             .name(accommodation.getName())

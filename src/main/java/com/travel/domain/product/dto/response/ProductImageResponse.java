@@ -15,7 +15,7 @@ public class ProductImageResponse {
   private String imageUrl1;
   private String imageUrl2;
 
-  public static ProductImageResponse toResponse(ProductImage productImage){
+  public static ProductImageResponse from(ProductImage productImage){
     return ProductImageResponse.builder()
         .imageUrl1(productImage.getImageUrl1())
         .imageUrl2(productImage.getImageUrl2())
