@@ -1,7 +1,6 @@
 package com.travel.domain.product.dto.response;
 
 import com.travel.domain.product.entity.ProductOption;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

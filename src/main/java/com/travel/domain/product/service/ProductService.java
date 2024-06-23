@@ -16,10 +16,12 @@ import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +64,7 @@ public class ProductService {
             }
         }
 
-        if(validProductList.isEmpty()) {
+        if (validProductList.isEmpty()) {
             throw new ProductException(ErrorType.EMPTY_PRODUCT);
         }
 
