@@ -2,15 +2,10 @@ package com.travel.domain.product.dto.response;
 
 
 import com.travel.domain.product.entity.Product;
-import com.travel.domain.product.entity.ProductImage;
-import com.travel.domain.product.entity.ProductInfoPerNight;
-import com.travel.domain.product.entity.ProductOption;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Builder
 @Getter
@@ -30,7 +25,7 @@ public class ProductDetailResponse {
   private ProductImageResponse productImageResponse;
   private ProductOptionResponse productOption; // 편의시설
 
-  public static ProductDetailResponse toResponse(Product product, String accommodationName, int pricePerNight, int totalPrice, int numberOfStay, ProductImageResponse productImageResponse, ProductOptionResponse productOptionResponse) {
+  public static ProductDetailResponse from(Product product, String accommodationName, int pricePerNight, int totalPrice, int numberOfStay, ProductImageResponse productImageResponse, ProductOptionResponse productOptionResponse) {
     return ProductDetailResponse.builder()
         .id(product.getId())
         .name(product.getName())

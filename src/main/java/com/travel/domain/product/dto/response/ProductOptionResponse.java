@@ -1,7 +1,6 @@
 package com.travel.domain.product.dto.response;
 
 import com.travel.domain.product.entity.ProductOption;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +24,7 @@ public class ProductOptionResponse {
   private boolean hasTable;
   private boolean hasHairdryer;
 
-  public static ProductOptionResponse toResponse(ProductOption productOption) {
+  public static ProductOptionResponse from(ProductOption productOption) {
     return ProductOptionResponse.builder()
         .hasBath(productOption.isHasBath())
         .hasAirCondition(productOption.isHasAirCondition())
