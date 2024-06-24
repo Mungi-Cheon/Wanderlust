@@ -7,8 +7,6 @@ import java.time.LocalDate;
 import lombok.*;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
 public class AccommodationRequest {
 
   @NotNull(message = "체크인 날짜를 입력해주세요.")
