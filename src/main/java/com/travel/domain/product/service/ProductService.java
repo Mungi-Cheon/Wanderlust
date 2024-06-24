@@ -49,7 +49,7 @@ public class ProductService {
         }
 
         var accommodationEntity = accommodationRepository.findById(accommodationId)
-            .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
+            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
 
         List<Product> productEntityList = productRepository.findAllByAccommodationId(accommodationId);
 
@@ -71,7 +71,7 @@ public class ProductService {
         }
 
         if (validProductList.isEmpty()) {
-            throw new ProductException(ErrorType.EMPTY_PRODUCT);
+            throw new ProductException(ErrorType.NOT_FOUND);
         }
 
         LocalDate finalCheckIn = checkIn;
@@ -104,10 +104,10 @@ public class ProductService {
         }
 
         var accommodationEntity = accommodationRepository.findById(accommodationId)
-            .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
+            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
 
         var productEntity = productRepository.findById(productId)
-            .orElseThrow(() -> new ProductException(ErrorType.EMPTY_PRODUCT));
+            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
         if (personNumber > productEntity.getMaximumNumber()) {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
@@ -115,7 +115,7 @@ public class ProductService {
 
         for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
             if (!productInfoPerNightRepository.existsByProductIdAndDate(productId, date)) {
-                throw new ProductException(ErrorType.EMPTY_PRODUCT);
+                throw new ProductException(ErrorType.NOT_FOUND);
             }
         }
 
