@@ -37,10 +37,16 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
-        Long accommodationId, AccommodationRequest request
+        Long accommodationId, LocalDate checkIn, LocalDate checkOut, int personNumber
     ) {
-        LocalDate checkIn = request.getCheckIn();
-        LocalDate checkOut = request.getCheckOut();
+
+        if (checkIn == null) {
+            checkIn = LocalDate.now();
+        }
+
+        if (checkOut == null) {
+            checkOut = LocalDate.now().plusDays(1);
+        }
 
         var accommodationEntity = accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.EMPTY_ACCOMMODATION));
@@ -59,7 +65,7 @@ public class ProductService {
                 }
             }
 
-            if (allDatesExist && request.getGuestCount() <= product.getMaximumNumber()) {
+            if (allDatesExist && personNumber <= product.getMaximumNumber()) {
                 validProductList.add(product);
             }
         }
@@ -68,11 +74,13 @@ public class ProductService {
             throw new ProductException(ErrorType.EMPTY_PRODUCT);
         }
 
+        LocalDate finalCheckIn = checkIn;
+        LocalDate finalCheckOut = checkOut;
         List<ProductResponse> productResponses = validProductList.stream()
             .map(product -> {
                 ProductImageResponse productImageResponse = ProductImageResponse.from(product.getProductImage());
                 int minCount = productInfoPerNightRepository.findMinCountByProductIdAndDateRange(
-                    product.getId(), checkIn, checkOut);
+                    product.getId(), finalCheckIn, finalCheckOut);
                 return ProductResponse.from(product, minCount, productImageResponse);
             })
             .collect(Collectors.toList());

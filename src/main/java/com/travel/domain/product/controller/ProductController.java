@@ -30,16 +30,8 @@ public class ProductController {
         @RequestParam(required = false) LocalDate checkOut,
         @RequestParam(defaultValue = "2") int personNumber
     ) {
-        if (checkIn == null) {
-            checkIn = LocalDate.now();
-        }
 
-        if (checkOut == null) {
-            checkOut = LocalDate.now().plusDays(1);
-        }
-
-        AccommodationRequest request = new AccommodationRequest(checkIn, checkOut, personNumber);
-        var response = productService.getAccommodationDetail(accommodation_id, request);
+        var response = productService.getAccommodationDetail(accommodation_id, checkIn, checkOut, personNumber);
         return ResponseEntity.ok(response);
     }
 
@@ -61,14 +53,6 @@ public class ProductController {
         AccommodationRequest request = new AccommodationRequest(checkIn, checkOut, personNumber);
         var response = productService.getProductDetail(accommodation_id, product_id, request);
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping
-    public ResponseEntity<AccommodationDetailListResponse> getAvailableProducts(
-        @PathVariable Long accommodation_id,
-        @RequestBody @Valid AccommodationRequest requestDTO) {
-        AccommodationDetailListResponse responses = productService.getAccommodationDetail(accommodation_id, requestDTO);
-        return ResponseEntity.ok(responses);
     }
 
 }
