@@ -22,14 +22,4 @@ public class TravelApiExceptionHandler {
         log.error("error message : {}", e.getMessage());
         return ResponseEntity.status(e.getStatusCode()).build();
     }
-
-    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException e) {
-        Map<String, String> errors = e.getBindingResult().getFieldErrors().stream()
-            .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-
-        String errorMessage = String.join(", ", errors.values());
-        log.error("error message : {}", errorMessage);
-        return ResponseEntity.status(e.getStatusCode()).build();
-    }
 }

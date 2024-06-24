@@ -1,6 +1,8 @@
 package com.travel.domain.accommodation.service;
 
-import com.travel.domain.accommodation.dto.request.AccommodationRequest;
+import static com.travel.global.util.DateValidationUtil.isCheckInValid;
+import static com.travel.global.util.DateValidationUtil.isCheckOutValid;
+
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
@@ -28,20 +30,20 @@ public class AccommodationService {
   private final ProductInfoPerNightRepository productInfoPerNightRepository;
 
   @Transactional(readOnly = true)
-  public List<AccommodationResponse> getAllAccommodationsByCategory(String category) {
-    List<Accommodation> accommodations = accommodationRepository.findByCategory(category);
-    if (accommodations.isEmpty()) {
-      throw new AccommodationException(ErrorType.NOT_FOUND);
+  public List<AccommodationResponse> getAvailableAccommodations(String category, LocalDate checkIn, LocalDate checkOut, int guestCount) {
+    if(!isCheckInValid(checkIn)) {
+      throw new AccommodationException(ErrorType.INVALID_CHECK_IN);
     }
-    return accommodations.stream()
-        .map(this::convertToResponse)
-        .collect(Collectors.toList());
-  }
 
-  @Transactional(readOnly = true)
-  public List<AccommodationResponse> getAvailableAccommodations(String category, AccommodationRequest request) {
-    List<Accommodation> accommodations = accommodationRepository.findAvailableAccommodations(category,
-        request.getCheckIn(), request.getCheckOut(), request.getGuestCount());
+    if(!isCheckOutValid(checkIn, checkOut)) {
+      throw new AccommodationException(ErrorType.INVALID_CHECK_OUT);
+    }
+
+    if(guestCount<1) {
+      throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
+    }
+
+    List<Accommodation> accommodations = accommodationRepository.findAvailableAccommodations(category, checkIn, checkOut, guestCount);
     if (accommodations.isEmpty()) {
       throw new AccommodationException(ErrorType.NOT_FOUND);
     }
@@ -54,7 +56,7 @@ public class AccommodationService {
       for (Product product : productEntityList) {
         boolean allDatesExist = true;
 
-        for (LocalDate date = request.getCheckIn(); date.isBefore(request.getCheckOut()); date = date.plusDays(1)) {
+        for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
           if (!productInfoPerNightRepository.existsByProductIdAndDate(product.getId(), date)) {
             allDatesExist = false;
             break;
@@ -72,7 +74,7 @@ public class AccommodationService {
       throw new ProductException(ErrorType.NOT_FOUND);
     }
 
-    return accommodations.stream()
+    return validAccommodationList.stream()
         .map(this::convertToResponse)
         .collect(Collectors.toList());
   }
