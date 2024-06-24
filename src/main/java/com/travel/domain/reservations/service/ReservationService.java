@@ -2,6 +2,7 @@ package com.travel.domain.reservations.service;
 
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
+import com.travel.domain.email.service.EmailService;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.reservations.dto.request.ReservationRequest;
@@ -35,6 +36,7 @@ public class ReservationService {
     private final AccommodationRepository accommodationRepository;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public ReservationHistoryListResponse getReservationHistories(String email) {
@@ -79,13 +81,16 @@ public class ReservationService {
             .accommodation(accommodation)
             .product(product)
             .personNumber(request.getPersonNumber())
-            .price(request.getPrice())
+            .price(product.getProductInfoPerNightsList().get(0).getPrice())
             .night(night)
             .checkInDate(checkInDate)
             .checkOutDate(checkOutDate)
             .build();
 
         Reservations savedReservations = reservationRepository.save(reservations);
+
+        // 이메일 전송 로직 추가
+        emailService.sendReservationConfirmation(email, savedReservations);
 
         log.info("Saved reservation: {}", LocalDateTime.now());
         return ReservationResponse.from(savedReservations);

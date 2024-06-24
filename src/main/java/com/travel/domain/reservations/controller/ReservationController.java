@@ -29,7 +29,7 @@ public class ReservationController {
     public ResponseEntity<ReservationResponse> reservation(
         @Valid @RequestBody ReservationRequest reservationRequest) {
         ReservationResponse response = reservationService.saveReservation(reservationRequest,
-            "test@gmail.com");
+            "sneor4807@gmail.com");
         return ResponseEntity.ok(response);
     }
 

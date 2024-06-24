@@ -18,8 +18,6 @@ public class ReservationRequest {
     private LocalDate checkInDate;
     @NotNull(message = "체크아웃 날짜를 입력해주세요.")
     private LocalDate checkOutDate;
-    @NotNull
-    private Integer price;
     @Min(value = 1, message = "숙박 인원 수는 최소 1명 이상이어야 합니다.")
     private Integer personNumber;
 
