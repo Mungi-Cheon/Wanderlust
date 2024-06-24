@@ -83,16 +83,16 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          password: ${{ secrets.EC2_PASSWORD }}
+          key: ${{ secrets.EC2_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
           timeout: 60s
           script: | #Docker Image명 기입, port 기입
             whoami
-            sudo docker stop ${{ secrets.DOCKER_IMAGE_NAME }}
+            sudo docker stop ${{ secrets.DOCKER_IMAGE_NAME }} || true
             whoami
-            sudo docker rm ${{ secrets.DOCKER_IMAGE_NAME }}
+            sudo docker rm ${{ secrets.DOCKER_IMAGE_NAME }} || true
             whoami
-            sudo docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}     
+            sudo docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }} || true
                     
             sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
             whoami
