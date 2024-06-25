@@ -10,12 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Entity
 public class ProductImage {
@@ -35,5 +31,6 @@ public class ProductImage {
     private Accommodation accommodation;
 
     private String imageUrl1;
+
     private String imageUrl2;
 }
