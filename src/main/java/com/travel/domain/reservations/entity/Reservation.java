@@ -12,43 +12,53 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Reservations {
+public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Integer personNumber;
+
     private Integer price;
+
     private Integer night;
-    @Setter
+
     private LocalDate checkInDate;
-    @Setter
+
     private LocalDate checkOutDate;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private UserEntity user;
+
     @ManyToOne
     @JoinColumn(name = "accommodation_id")
     @JsonIgnore
     private Accommodation accommodation;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     @JsonIgnore
     private Product product;
 
+    // 인자 개행
     @Builder
-    public Reservations(UserEntity user, Accommodation accommodation, Product product,
-        Integer personNumber, Integer price,
-        Integer night, LocalDate checkInDate, LocalDate checkOutDate) {
+    public Reservation(
+        UserEntity user, Accommodation accommodation,
+        Product product, Integer personNumber,
+        Integer price, Integer night,
+        LocalDate checkInDate, LocalDate checkOutDate) {
         this.user = user;
         this.accommodation = accommodation;
         this.product = product;
