@@ -17,7 +17,9 @@ public enum ErrorType {
     INVALID_NUMBER_OF_PEOPLE(HttpStatus.BAD_REQUEST, "잘못된 인원"),
     INCLUDES_FULLY_BOOKED_PRODUCT(HttpStatus.BAD_REQUEST, "예약 마감된 객실이 포함되어 있습니다."),
     INVALID_CHECK_IN(HttpStatus.BAD_REQUEST, "체크인 날짜는 오늘 또는 이후 날짜여야 합니다."),
-    INVALID_CHECK_OUT(HttpStatus.BAD_REQUEST, "체크아웃 날짜는 체크인 날짜 이후여야 합니다.");
+    INVALID_CHECK_OUT(HttpStatus.BAD_REQUEST, "체크아웃 날짜는 체크인 날짜 이후여야 합니다."),
+    EMAIL_SEND_FAILURE(HttpStatus.SERVICE_UNAVAILABLE, "이메일 전송에 실패했습니다."),
+    TEMPLATE_LOAD_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "템플릿 로드에 실패했습니다.");
 
 
     private final HttpStatusCode statusCode;
