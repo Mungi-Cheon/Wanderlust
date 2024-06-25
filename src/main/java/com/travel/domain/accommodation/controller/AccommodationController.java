@@ -16,24 +16,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AccommodationController {
 
-  private final AccommodationService accommodationService;
+    private final AccommodationService accommodationService;
 
-  @GetMapping
-  public ResponseEntity<List<AccommodationResponse>> getAvailableAccommodations(
-      @RequestParam(defaultValue = "호텔") String category,
-      @RequestParam(required = false) LocalDate checkIn,
-      @RequestParam(required = false) LocalDate checkOut,
-      @RequestParam(defaultValue = "1") int guestCount) {
+    @GetMapping
+    public ResponseEntity<List<AccommodationResponse>> getAvailableAccommodations(
+        @RequestParam(defaultValue = "호텔") String category,
+        @RequestParam(required = false) LocalDate checkInDate,
+        @RequestParam(required = false) LocalDate checkOutDate,
+        @RequestParam(defaultValue = "2") int personNumber) {
 
-    if (checkIn == null) {
-      checkIn = LocalDate.now();
+        if (checkInDate == null) {
+            checkInDate = LocalDate.now();
+        }
+
+        if (checkOutDate == null) {
+            checkOutDate = checkInDate.plusDays(1);
+        }
+
+        List<AccommodationResponse> responses = accommodationService
+            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber);
+        return ResponseEntity.ok(responses);
     }
-
-    if (checkOut == null) {
-      checkOut = checkIn.plusDays(1);
-    }
-
-    List<AccommodationResponse> responses = accommodationService.getAvailableAccommodations(category, checkIn, checkOut, guestCount);
-    return ResponseEntity.ok(responses);
-  }
 }

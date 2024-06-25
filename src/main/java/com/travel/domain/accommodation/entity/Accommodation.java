@@ -14,6 +14,7 @@ import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,36 +22,37 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Accommodation {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String name;
+    private String name;
 
-  private String contact;
+    private String contact;
 
-  @Column(columnDefinition = "TEXT")
-  private String description;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-  private String address;
+    private String address;
 
-  private String category;
+    private String category;
 
-  @Column(precision = 2, scale = 1)
-  private BigDecimal grade;
+    @Column(precision = 2, scale = 1)
+    private BigDecimal grade;
 
-  @OneToOne(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
-  @JsonManagedReference
-  private AccommodationOption options;
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private AccommodationOption options;
 
-  @OneToOne(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
-  @JsonManagedReference
-  private AccommodationImage images;
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private AccommodationImage images;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
-  @JsonManagedReference
-  private List<Product> products;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Product> products;
 
 }

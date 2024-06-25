@@ -24,66 +24,68 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AccommodationService {
 
-  private final ProductRepository productRepository;
-  private final AccommodationRepository accommodationRepository;
-  private final ProductInfoPerNightRepository productInfoPerNightRepository;
+    private final ProductRepository productRepository;
+    private final AccommodationRepository accommodationRepository;
+    private final ProductInfoPerNightRepository productInfoPerNightRepository;
 
-  @Transactional(readOnly = true)
-  public List<AccommodationResponse> getAvailableAccommodations(String category, LocalDate checkIn, LocalDate checkOut, int guestCount) {
-    validateInputs(checkIn, checkOut, guestCount);
-    List<Accommodation> accommodations = accommodationRepository.findAvailableAccommodations(category, checkIn, checkOut, guestCount);
+    @Transactional(readOnly = true)
+    public List<AccommodationResponse> getAvailableAccommodations(String category,
+        LocalDate checkIn, LocalDate checkOut, int guestCount) {
+        validateInputs(checkIn, checkOut, guestCount);
+        List<Accommodation> accommodations = accommodationRepository.findAvailableAccommodations(
+            category, checkIn, checkOut, guestCount);
 
-    if (accommodations.isEmpty()) {
-      throw new AccommodationException(ErrorType.NOT_FOUND);
+        if (accommodations.isEmpty()) {
+            throw new AccommodationException(ErrorType.NOT_FOUND);
+        }
+
+        List<Accommodation> validAccommodationList = accommodations.stream()
+            .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut))
+            .toList();
+
+        if (validAccommodationList.isEmpty()) {
+            throw new ProductException(ErrorType.NOT_FOUND);
+        }
+
+        return validAccommodationList.stream()
+            .map(this::createAccommodationResponse)
+            .collect(Collectors.toList());
     }
 
-    List<Accommodation> validAccommodationList = accommodations.stream()
-        .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut))
-        .collect(Collectors.toList());
-
-    if (validAccommodationList.isEmpty()) {
-      throw new ProductException(ErrorType.NOT_FOUND);
+    private void validateInputs(LocalDate checkIn, LocalDate checkOut, int guestCount) {
+        if (!isCheckInValid(checkIn)) {
+            throw new AccommodationException(ErrorType.INVALID_CHECK_IN);
+        }
+        if (!isCheckOutValid(checkIn, checkOut)) {
+            throw new AccommodationException(ErrorType.INVALID_CHECK_OUT);
+        }
+        if (guestCount < 1) {
+            throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
+        }
     }
 
-    return validAccommodationList.stream()
-        .map(this::convertToResponse)
-        .collect(Collectors.toList());
-  }
-
-  private void validateInputs(LocalDate checkIn, LocalDate checkOut, int guestCount) {
-    if (!isCheckInValid(checkIn)) {
-      throw new AccommodationException(ErrorType.INVALID_CHECK_IN);
+    private boolean hasValidProducts(Accommodation accommodation, LocalDate checkIn,
+        LocalDate checkOut) {
+        List<Product> productEntityList = productRepository.findAllByAccommodationId(
+            accommodation.getId());
+        return productEntityList.stream()
+            .anyMatch(product -> areAllDatesAvailable(product.getId(), checkIn, checkOut));
     }
-    if (!isCheckOutValid(checkIn, checkOut)) {
-      throw new AccommodationException(ErrorType.INVALID_CHECK_OUT);
+
+    private boolean areAllDatesAvailable(Long productId, LocalDate checkIn, LocalDate checkOut) {
+        return checkIn.datesUntil(checkOut)
+            .allMatch(
+                date -> productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
     }
-    if (guestCount < 1) {
-      throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
+
+    private AccommodationResponse createAccommodationResponse(Accommodation accommodation) {
+        int price = accommodation.getProducts().stream()
+            .filter(product -> "standard".equalsIgnoreCase(product.getType()))
+            .flatMap(product -> product.getProductInfoPerNightsList().stream())
+            .mapToInt(ProductInfoPerNight::getPrice)
+            .findFirst()
+            .orElse(0);
+
+        return AccommodationResponse.from(accommodation, price);
     }
-  }
-
-  private boolean hasValidProducts(Accommodation accommodation, LocalDate checkIn, LocalDate checkOut) {
-    List<Product> productEntityList = productRepository.findAllByAccommodationId(accommodation.getId());
-    return productEntityList.stream()
-        .anyMatch(product -> areAllDatesAvailable(product.getId(), checkIn, checkOut));
-  }
-
-  private boolean areAllDatesAvailable(Long productId, LocalDate checkIn, LocalDate checkOut) {
-    return checkIn.datesUntil(checkOut)
-        .allMatch(date -> productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
-  }
-
-  private AccommodationResponse convertToResponse(Accommodation accommodation) {
-    int price = accommodation.getProducts().stream()
-        .filter(product -> "standard".equalsIgnoreCase(product.getType()))
-        .flatMap(product -> product.getProductInfoPerNightsList().stream())
-        .mapToInt(ProductInfoPerNight::getPrice)
-        .findFirst()
-        .orElse(0);
-
-    String thumbnail = accommodation.getImages().getThumbnail();
-
-    return new AccommodationResponse(accommodation.getId(), accommodation.getName(), price, thumbnail,
-        accommodation.getCategory(), accommodation.getGrade());
-  }
 }
