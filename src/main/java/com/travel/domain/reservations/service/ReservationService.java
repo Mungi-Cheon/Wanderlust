@@ -2,7 +2,7 @@ package com.travel.domain.reservations.service;
 
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
-import com.travel.domain.email.service.EmailService;
+//import com.travel.domain.email.service.EmailService;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.reservations.dto.request.ReservationRequest;
@@ -11,7 +11,7 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
-import com.travel.domain.user.entity.UserEntity;
+import com.travel.domain.user.entity.User;
 import com.travel.domain.user.repository.UserRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
@@ -36,11 +36,11 @@ public class ReservationService {
     private final AccommodationRepository accommodationRepository;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
-    private final EmailService emailService;
+//    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public ReservationHistoryListResponse getReservationHistories(String email) {
-        UserEntity user = findUser(email);
+        User user = findUser(email);
 
         List<Reservation> reservations = reservationRepository.findByUserId(user.getId());
         if (reservations.isEmpty()) {
@@ -62,7 +62,7 @@ public class ReservationService {
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         long productId = request.getProductId();
 
-        UserEntity user = findUser(email);
+        User user = findUser(email);
 
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
@@ -91,13 +91,13 @@ public class ReservationService {
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        emailService.sendReservationConfirmation(email, savedReservation);
+//        emailService.sendReservationConfirmation(email, savedReservation);
 
         log.debug("Saved reservation: {}", LocalDateTime.now());
         return ReservationResponse.from(savedReservation);
     }
 
-    private UserEntity findUser(String email) {
+    private User findUser(String email) {
         return userRepository.findByEmail(email).get();
     }
 
@@ -123,7 +123,7 @@ public class ReservationService {
 
     // 인자 개행
     private void checkAlreadyReserved(
-        UserEntity user, Long productId,
+        User user, Long productId,
         LocalDate checkInDate, LocalDate checkOutDate) {
         Optional<Reservation> already = reservationRepository.findAlreadyReservation(
             user.getId(), productId, checkInDate, checkOutDate);
