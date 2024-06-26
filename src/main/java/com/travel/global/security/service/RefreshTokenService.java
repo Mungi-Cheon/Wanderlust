@@ -1,10 +1,14 @@
 package com.travel.global.security.service;
 
+import com.travel.KdtBe8MiniProjectApplication;
+import com.travel.global.exception.UserException;
+import com.travel.global.exception.type.ErrorType;
 import com.travel.global.security.entity.RefreshToken;
 
 import com.travel.global.security.repositroy.RefreshTokenRepository;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,25 +24,14 @@ public class RefreshTokenService {
 
     @Transactional
     public String updateRefreshToken(String email) {
-
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(email);
-
         String refreshTokenValue = UUID.randomUUID().toString();
 
-//        LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
-//
-//        String clientIp = details.getClientIp();
-//
-//        String userAgent = details.getUserAgent();
+        RefreshToken refreshToken = refreshTokenRepository.findByEmail(email)
+            // todo refactoring "" 애초에 임시 ;;;
+            // todo: insert한번 나가게 없다면 save() - 1개 줄이는거니까. 고려
+            .orElse(refreshTokenRepository.save(new RefreshToken(email,"")));
 
-        if (refreshToken.isPresent()) {
-            refreshToken.get().update(email, refreshTokenValue);
-            refreshTokenRepository.saveAndFlush(refreshToken.get());
-
-        } else {
-            refreshTokenRepository.saveAndFlush(
-                new RefreshToken(email, refreshTokenValue));
-        }
+        refreshToken.update(email, refreshTokenValue);
         return refreshTokenValue;
     }
 

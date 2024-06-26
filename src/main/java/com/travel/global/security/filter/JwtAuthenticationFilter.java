@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.core.log.LogMessage;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -34,22 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationDetailsSource<HttpServletRequest, ?>
         authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
-    private final AuthenticationSuccessHandler successHandler;
 
-    private final AuthenticationFailureHandler failureHandler;
 
     private final Map<String, String> excludeUrls;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
-        AuthenticationSuccessHandler successHandler,
-
-        AuthenticationFailureHandler failureHandler,
 
         Map<String, String> excludeUrls) {
 
         this.authenticationManager = authenticationManager;
-        this.successHandler = successHandler;
-        this.failureHandler = failureHandler;
         this.excludeUrls = excludeUrls;
     }
 
@@ -131,9 +125,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 context.setAuthentication(authResult);
 
                 this.securityContextHolderStrategy.setContext(context);
-                this.successHandler.onAuthenticationSuccess(request, response, chain, authResult);
+                System.out.println("true");
             } catch (AuthenticationException ex) {
-                this.failureHandler.onAuthenticationFailure(request, response, ex);
+                System.out.println("false");
             }
         }
         // 다음 필터로 요청 전달

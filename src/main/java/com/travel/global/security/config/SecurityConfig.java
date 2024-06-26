@@ -1,8 +1,6 @@
 package com.travel.global.security.config;
 
 import com.travel.global.security.filter.JwtAuthenticationFilter;
-import com.travel.global.security.handler.JwtAuthenticationFailureHandler;
-import com.travel.global.security.handler.JwtAuthenticationSuccessHandler;
 import com.travel.global.security.handler.JwtLogoutHandler;
 import com.travel.global.security.handler.JwtLogoutSuccessHandler;
 import com.travel.global.security.provider.JwtProvider;
@@ -34,10 +32,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig {
-
-    private final JwtAuthenticationSuccessHandler successHandler;
-
-    private final JwtAuthenticationFailureHandler failureHandler;
 
     private final JwtProvider jwtProvider;
 
@@ -74,6 +68,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/auth/signup", "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/accommodations/**").permitAll()
+                .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated());
 
         http
@@ -87,8 +82,7 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new JwtLogoutSuccessHandler()));
 
         http.addFilterBefore(
-            new JwtAuthenticationFilter(authenticationManager(configuration)
-                , successHandler,failureHandler, excludeUrls)
+            new JwtAuthenticationFilter(authenticationManager(configuration), excludeUrls)
             , UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

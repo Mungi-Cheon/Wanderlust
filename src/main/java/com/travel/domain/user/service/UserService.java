@@ -2,15 +2,13 @@ package com.travel.domain.user.service;
 
 import com.travel.domain.user.dto.request.LoginRequest;
 import com.travel.domain.user.dto.request.SignupRequest;
-import com.travel.domain.user.dto.response.LoginResponse;
+import com.travel.domain.user.dto.response.LoginDto;
 import com.travel.domain.user.dto.response.UserResponse;
 import com.travel.domain.user.entity.User;
 import com.travel.domain.user.repository.UserRepository;
 import com.travel.global.exception.UserException;
 import com.travel.global.security.provider.JwtProvider;
 import com.travel.global.security.service.RefreshTokenService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,8 +42,8 @@ public class UserService {
         return UserResponse.from(savedUser);
     }
 
-    public LoginResponse login(LoginRequest request, HttpServletResponse response) {
-        User user = userRepository.findByEmail(request.getEmail())
+    public LoginDto login(LoginRequest request) {
+        User user = userRepository.findByEmailOrderByIdDesc(request.getEmail())
             .orElseThrow(() -> new UserException(HttpStatusCode.valueOf(400),
                 "사용자를 찾을 수 없습니다."));
 
@@ -54,28 +52,16 @@ public class UserService {
                 "비밀번호가 일치하지 않습니다.");
         }
 
-        String accessToken = jwtProvider.generateAccessToken(user.getEmail());
-
+        String accessToken = jwtProvider.generateAccessToken(user.getId());
         String refreshToken = refreshTokenService.updateRefreshToken(user.getEmail());
-
-        Cookie refreshCookie = new Cookie("refresh-token", refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true); // HTTPS에서만 사용하도록 설정
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(60 * 60 * 24 * 7); // 7일 동안 유효
-        // 클라이언트에게 JWT 토큰을 전달하기 전에 저장할 수 있습니다.
-        saveTokenInCookie(response, accessToken);
-
-        response.addCookie(refreshCookie);
-
-        return new LoginResponse(accessToken);
+        return new LoginDto(accessToken, refreshToken);
     }
     // 클라이언트의 쿠키에 토큰을 저장하는 메서드
-    private void saveTokenInCookie(HttpServletResponse response, String accessToken) {
-        Cookie cookie = new Cookie("access-token", accessToken);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 24); // 24시간 유효한 쿠키 설정
-        response.addCookie(cookie);
-    }
+//    private void saveTokenInCookie(HttpServletResponse response, String accessToken) {
+//        Cookie cookie = new Cookie("access-token", accessToken);
+//        cookie.setPath("/");
+//        cookie.setHttpOnly(true);
+//        cookie.setMaxAge(60 * 24); // 24시간 유효한 쿠키 설정
+//        response.addCookie(cookie);
+//    }
 }

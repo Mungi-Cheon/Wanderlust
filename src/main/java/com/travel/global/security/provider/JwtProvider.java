@@ -23,19 +23,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtProvider implements AuthenticationProvider {
 
-    private final String issuer;
-
-    private final Algorithm algorithm;
-
-    private final JWTVerifier verifier;
-
-    private final RefreshTokenService refreshTokenService;
-
-    private final long refreshTokenValidityInMs;
-
-    private long accessTokenValidityInMs;
-
     private static final String SECRET_KEY = "0123456789";
+    private final String issuer;
+    private final Algorithm algorithm;
+    private final JWTVerifier verifier;
+    private final RefreshTokenService refreshTokenService;
+    private final long refreshTokenValidityInMs;
+    private long accessTokenValidityInMs;
 
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
 
@@ -56,17 +50,15 @@ public class JwtProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication)
+        throws AuthenticationException {
         String accessTokenValue = (String) authentication.getPrincipal();
 
-        String refreshTokenValue = (String) authentication.getCredentials();
-
-        JwtAuthenticationToken authResult = null;
+        JwtAuthenticationToken authResult;
 
         try {
             // accessToken 검증
             DecodedJWT decodedJwt = verifier.verify(accessTokenValue);
-
             String email = decodedJwt.getSubject();
 
             List<SimpleGrantedAuthority> authorities = decodedJwt
@@ -76,49 +68,25 @@ public class JwtProvider implements AuthenticationProvider {
             authResult = JwtAuthenticationToken.authenticated(email, authorities);
         } catch (TokenExpiredException ex) {
             // accessToken이 만료된 경우
-            DecodedJWT decodedJwt = JWT.decode(accessTokenValue);
-
-            String email = decodedJwt.getSubject();
-
-            List<SimpleGrantedAuthority> authorities = decodedJwt
-                .getClaim("authgr")
-                .asList(SimpleGrantedAuthority.class);
-
-            // refreshToken을 통해 새로운 accessToken 발급
-            if (refreshTokenService.isStoredRefreshToken(refreshTokenValue, email)) {
-                String newAccessToken = generateAccessToken(email);
-
-                String newRefreshToken = refreshTokenService.updateRefreshToken(email);
-
-                authResult = JwtAuthenticationToken
-                    .authenticated(email, authorities, newAccessToken, newRefreshToken);
-            } else {
-                throw new InvalidJwtException("Invalid refresh token");
-            }
+            throw new TokenExpiredException(ex.getMessage(), ex.getExpiredOn());
         } catch (JWTVerificationException ex) {
             throw new InvalidJwtException(ex.getMessage(), ex);
         }
 
-        if (authResult != null) {
-            authResult.setDetails(authentication.getDetails());
-        } else {
-            throw new InvalidJwtException("Authentication result is null");
-        }
-
+        authResult.setDetails(authentication.getDetails());
         return authResult;
     }
-
 
     @Override
     public boolean supports(Class<?> authentication) {
         return JwtAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(Long id) {
         LocalDateTime now = LocalDateTime.now();
         return JWT.create()
             .withIssuer(issuer)
-            .withSubject(email)
+            .withSubject(String.valueOf(id))
             .withIssuedAt(now.atZone(ZoneId.systemDefault()).toInstant())
             .withExpiresAt(
                 now.plus(accessTokenValidityInMs, ChronoUnit.MILLIS)
@@ -127,13 +95,21 @@ public class JwtProvider implements AuthenticationProvider {
             .sign(algorithm);
     }
 
-    public String refreshAccessToken(String refreshToken) {
-        try {
-            DecodedJWT decodedJWT = verifier.verify(refreshToken);
-            String email = decodedJWT.getSubject();
-            return generateAccessToken(email);
-        } catch (JWTVerificationException e) {
-            throw new InvalidJwtException("Invalid refresh token", e);
-        }
-    }
+//    public String refreshAccessToken(Long userId) {
+//        try {
+//            DecodedJWT decodedJWT = verifier.verify(String.valueOf(userId));
+//            String tokenId = decodedJWT.getSubject();
+//            return generateAccessToken(Long.valueOf(tokenId));
+//        } catch (TokenExpiredException ex) {
+//            // access ->
+//            // <- 액세트 토큰 만료
+//            // ---------------------------------------------
+//            // reissue (access update) >->
+//            // <-  재로그인 하라고 요청 HttpStatus.UNAUTHORIZED
+//            // 로그인페이지갈게
+//            throw new TokenExpiredException(ex.getMessage(), ex.getExpiredOn());
+//        } catch (JWTVerificationException e) {
+//            throw new InvalidJwtException("Invalid refresh token", e);
+//        }
+//    }
 }
