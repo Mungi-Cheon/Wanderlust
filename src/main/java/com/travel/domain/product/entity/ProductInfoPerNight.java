@@ -11,10 +11,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductInfoPerNight {
 
     @Id
@@ -37,19 +43,6 @@ public class ProductInfoPerNight {
     private int price;
 
     private int count;
-
-    public ProductInfoPerNight(Long id, Product product, Accommodation accommodation,
-        LocalDate date, int price, int count) {
-        this.id = id;
-        this.product = product;
-        this.accommodation = accommodation;
-        this.date = date;
-        this.price = price;
-        this.count = count;
-    }
-
-    public ProductInfoPerNight() {
-    }
 
     public void decreaseCountByOne() {
         this.count--;

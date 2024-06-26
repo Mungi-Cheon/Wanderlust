@@ -30,21 +30,16 @@ public class AccommodationService {
 
     @Transactional(readOnly = true)
     public List<AccommodationResponse> getAvailableAccommodations(String category,
-        LocalDate checkIn, LocalDate checkOut, int guestCount) {
-        validateInputs(checkIn, checkOut, guestCount);
-        List<Accommodation> accommodations = accommodationRepository.findAvailableAccommodations(
-            category, checkIn, checkOut, guestCount);
-
-        if (accommodations.isEmpty()) {
-            throw new AccommodationException(ErrorType.NOT_FOUND);
-        }
+        LocalDate checkIn, LocalDate checkOut, int personNumber) {
+        validateInputs(checkIn, checkOut, personNumber);
+        List<Accommodation> accommodations = accommodationRepository.findByCategory(category);
 
         List<Accommodation> validAccommodationList = accommodations.stream()
             .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut))
             .toList();
 
         if (validAccommodationList.isEmpty()) {
-            throw new ProductException(ErrorType.NOT_FOUND);
+            throw new AccommodationException(ErrorType.NOT_FOUND);
         }
 
         return validAccommodationList.stream()
@@ -52,14 +47,14 @@ public class AccommodationService {
             .collect(Collectors.toList());
     }
 
-    private void validateInputs(LocalDate checkIn, LocalDate checkOut, int guestCount) {
+    private void validateInputs(LocalDate checkIn, LocalDate checkOut, int personNumber) {
         if (!isCheckInValid(checkIn)) {
             throw new AccommodationException(ErrorType.INVALID_CHECK_IN);
         }
         if (!isCheckOutValid(checkIn, checkOut)) {
             throw new AccommodationException(ErrorType.INVALID_CHECK_OUT);
         }
-        if (guestCount < 1) {
+        if (personNumber < 1) {
             throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
     }
