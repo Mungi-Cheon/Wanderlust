@@ -24,6 +24,9 @@ public enum ErrorType {
     NOT_CORRECT_PASSWORD(HttpStatus.BAD_REQUEST,  "비밀번호가 일치하지 않습니다."),
 
 
+    // auth
+    TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰이 존재하지 않음"),
+    TOKEN_AUTHORIZATION_FAIL(HttpStatus.NOT_FOUND,"토큰 인증 실패"),
 
     ;
 

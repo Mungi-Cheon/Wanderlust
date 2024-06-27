@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class UserController {
 
     private final UserService userService;
@@ -34,7 +34,7 @@ public class UserController {
     public ResponseEntity<UserResponse> signup(
         @RequestBody @Valid SignupRequest signupRequest) {
         UserResponse response = userService.join(signupRequest);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.accepted().body(response);
     }
 
     @ApiResponses(@ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginDto.class))))
@@ -45,6 +45,6 @@ public class UserController {
         HttpServletResponse response) {
         LoginDto loginDto = userService.login(loginRequest);
         response.setHeader("access-token", loginDto.accessToken());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }
