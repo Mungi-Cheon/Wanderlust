@@ -31,7 +31,7 @@ public class ReservationController {
     public ResponseEntity<ReservationResponse> reservation(
         @Valid @RequestBody ReservationRequest reservationRequest) {
         ReservationResponse response = reservationService.createReservation(reservationRequest,
-            "c.mungi7421@gmail.com");
+            "sneor4807@gmail.com");
         return ResponseEntity.ok(response);
     }
 

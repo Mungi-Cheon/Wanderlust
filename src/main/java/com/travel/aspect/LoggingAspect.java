@@ -1,5 +1,6 @@
 package com.travel.aspect;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -10,8 +11,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
-import java.lang.reflect.Method;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @Aspect
 @Component
@@ -78,14 +81,31 @@ public class LoggingAspect {
     public void afterThrowingLog(JoinPoint joinPoint, Throwable exception) {
         // 메서드 정보 받아오기
         Method method = getMethod(joinPoint);
-        errorLogger.error("======= Exception in method: {} =======", method.getName());
-        errorLogger.error("Exception type: {}", exception.getClass().getSimpleName());
-        errorLogger.error("Exception message: {}", exception.getMessage());
+
+        HttpStatusCode status = getStatusCode(exception);
+        if (status.is4xxClientError()) {
+            warnLogger.warn("======= Exception in method: {} =======", method.getName());
+            warnLogger.warn("Exception type: {}", exception.getClass().getSimpleName());
+            warnLogger.warn("Exception message: {}", exception.getMessage());
+        } else {
+            errorLogger.error("======= Exception in method: {} =======", method.getName());
+            errorLogger.error("Exception type: {}", exception.getClass().getSimpleName());
+            errorLogger.error("Exception message: {}", exception.getMessage());
+        }
     }
 
     // JoinPoint로 메서드 정보 가져오기
     private Method getMethod(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         return signature.getMethod();
+    }
+
+    // 예외로부터 HttpStatus를 가져오는 메서드
+    private HttpStatusCode getStatusCode(Throwable exception) {
+        if (exception instanceof HttpStatusCodeException) {
+            return ((HttpStatusCodeException) exception).getStatusCode();
+        } else {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
     }
 }
