@@ -87,7 +87,7 @@ class ReservationRepositoryTest {
     }
 
     @Test
-    @DisplayName(value = "")
+    @DisplayName(value = "동일한 예약한 날짜와 예약 상품이 존재하는 경우")
     void findAlreadyReservation() {
         User user = createUser("test101@gmail.com");
 
