@@ -23,7 +23,7 @@ public class ReservationController {
     @GetMapping("/history")
     public ResponseEntity<ReservationHistoryListResponse> getReservationHistories() {
         ReservationHistoryListResponse response = reservationService.getReservationHistories(
-            "c.mungi7421@gmail.com");
+            "test@gmail.com");
         return ResponseEntity.ok(response);
     }
 
@@ -31,7 +31,7 @@ public class ReservationController {
     public ResponseEntity<ReservationResponse> reservation(
         @Valid @RequestBody ReservationRequest reservationRequest) {
         ReservationResponse response = reservationService.createReservation(reservationRequest,
-            "c.mungi7421@gmail.com");
+            "test@gmail.com");
         return ResponseEntity.ok(response);
     }
 

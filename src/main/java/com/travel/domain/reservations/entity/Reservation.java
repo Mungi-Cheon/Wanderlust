@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -50,20 +51,4 @@ public class Reservation {
     @JoinColumn(name = "product_id")
     @JsonIgnore
     private Product product;
-
-    @Builder
-    public Reservation(
-        User user, Accommodation accommodation,
-        Product product, Integer personNumber,
-        Integer price, Integer night,
-        LocalDate checkInDate, LocalDate checkOutDate) {
-        this.user = user;
-        this.accommodation = accommodation;
-        this.product = product;
-        this.personNumber = personNumber;
-        this.price = price;
-        this.night = night;
-        this.checkInDate = checkInDate;
-        this.checkOutDate = checkOutDate;
-    }
 }

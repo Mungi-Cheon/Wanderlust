@@ -4,8 +4,10 @@ import com.travel.domain.reservations.entity.Reservation;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 @Builder // 어노테이션 정리, from 메서드 인자 개행 정리
 public class ReservationHistoryResponse {
 
