@@ -131,9 +131,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 context.setAuthentication(authResult);
 
                 this.securityContextHolderStrategy.setContext(context);
-                this.successHandler.onAuthenticationSuccess(request, response, chain, authResult);
+                // this.successHandler.onAuthenticationSuccess(request, response, chain, authResult);
             } catch (AuthenticationException ex) {
-                this.failureHandler.onAuthenticationFailure(request, response, ex);
+               // this.failureHandler.onAuthenticationFailure(request, response, ex);
             }
         }
         // 다음 필터로 요청 전달

@@ -11,7 +11,6 @@ import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
-import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
 import java.time.LocalDate;
 import java.util.List;

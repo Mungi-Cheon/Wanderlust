@@ -5,9 +5,11 @@ import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Builder
 @Getter
+@ToString
 @AllArgsConstructor
 public class AccommodationResponse {
 
@@ -36,5 +38,4 @@ public class AccommodationResponse {
             .grade(accommodation.getGrade())
             .build();
     }
-
 }
