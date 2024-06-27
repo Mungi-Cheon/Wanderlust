@@ -4,9 +4,11 @@ package com.travel.domain.product.dto.response;
 import com.travel.domain.product.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @AllArgsConstructor
+@Getter
 public class ProductDetailResponse {
 
     private Long id;

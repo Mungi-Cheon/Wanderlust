@@ -4,7 +4,7 @@ package com.travel.domain.reservations.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.product.entity.Product;
-import com.travel.domain.user.entity.UserEntity;
+import com.travel.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,8 +40,7 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    private UserEntity user;
-
+    private User user;
     @ManyToOne
     @JoinColumn(name = "accommodation_id")
     @JsonIgnore
@@ -52,10 +51,9 @@ public class Reservation {
     @JsonIgnore
     private Product product;
 
-    // 인자 개행
     @Builder
     public Reservation(
-        UserEntity user, Accommodation accommodation,
+        User user, Accommodation accommodation,
         Product product, Integer personNumber,
         Integer price, Integer night,
         LocalDate checkInDate, LocalDate checkOutDate) {
