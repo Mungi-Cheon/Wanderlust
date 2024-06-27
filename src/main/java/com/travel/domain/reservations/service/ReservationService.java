@@ -16,6 +16,7 @@ import com.travel.domain.user.repository.UserRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
+import com.travel.global.exception.UserException;
 import com.travel.global.exception.type.ErrorType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,8 +40,9 @@ public class ReservationService {
 //    private final EmailService emailService;
 
     @Transactional(readOnly = true)
-    public ReservationHistoryListResponse getReservationHistories(String email) {
-        User user = findUser(email);
+    public ReservationHistoryListResponse getReservationHistories(Long tokenUserId) {
+        User user = userRepository.findById(tokenUserId)
+            .orElseThrow(() -> new UserException(ErrorType.NOT_FOUND));
 
         List<Reservation> reservations = reservationRepository.findByUserId(user.getId());
         if (reservations.isEmpty()) {
@@ -56,19 +58,26 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse createReservation(
-        ReservationRequest request, String email) {
+        Long tokenUserId,
+        ReservationRequest request) {
         LocalDate checkInDate = request.getCheckInDate();
         LocalDate checkOutDate = request.getCheckOutDate();
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         long productId = request.getProductId();
 
-        User user = findUser(email);
+//        User user = findUser(email);
+//        Optional<User> byId = userRepository.findById(tokenUserId);
+        User user = userRepository.findById(tokenUserId)
+            .orElseThrow(() -> new UserException(ErrorType.NOT_FOUND));
 
+        System.out.println("user = " + user);
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
 
+        System.out.println("accommodation = " + accommodation);
         checkAlreadyReserved(user, productId, checkInDate, checkOutDate);
 
+        System.out.println("accommodation = " + accommodation);
         Product product = accommodation.getProducts()
             .stream()
             .filter(p -> p.getId().equals(productId))
@@ -97,9 +106,9 @@ public class ReservationService {
         return ReservationResponse.from(savedReservation);
     }
 
-    private User findUser(String email) {
-        return userRepository.findByEmail(email).get();
-    }
+//    private User findUser(String email) {
+//        return userRepository.findByEmail(email).get();
+//    }
 
     private List<ReservationHistoryResponse> createReservationHistoryList(
         List<Reservation> reservations) {

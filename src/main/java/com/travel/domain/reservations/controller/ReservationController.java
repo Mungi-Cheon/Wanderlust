@@ -4,6 +4,7 @@ import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.service.ReservationService;
+import com.travel.global.annotation.TokenUserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,17 +22,22 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping("/history")
-    public ResponseEntity<ReservationHistoryListResponse> getReservationHistories() {
-        ReservationHistoryListResponse response = reservationService.getReservationHistories(
-            "c.mungi7421@gmail.com");
+    public ResponseEntity<ReservationHistoryListResponse> getReservationHistories(
+        @TokenUserId Long tokenUserId
+    ) {
+        ReservationHistoryListResponse response = reservationService.getReservationHistories(tokenUserId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping()
     public ResponseEntity<ReservationResponse> reservation(
-        @Valid @RequestBody ReservationRequest reservationRequest) {
-        ReservationResponse response = reservationService.createReservation(reservationRequest,
-            "c.mungi7421@gmail.com");
+        @TokenUserId Long tokenUserId,
+        @Valid
+        @RequestBody
+        ReservationRequest reservationRequest
+        ) {
+        System.out.println("tokenUserId = " + tokenUserId);
+        ReservationResponse response = reservationService.createReservation(tokenUserId, reservationRequest);
         return ResponseEntity.ok(response);
     }
 
