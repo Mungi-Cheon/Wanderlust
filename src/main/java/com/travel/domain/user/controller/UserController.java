@@ -3,7 +3,6 @@ package com.travel.domain.user.controller;
 import com.travel.domain.user.dto.request.LoginRequest;
 import com.travel.domain.user.dto.request.SignupRequest;
 import com.travel.domain.user.dto.response.LoginDto;
-import com.travel.domain.user.dto.response.LoginResponse;
 import com.travel.domain.user.dto.response.UserResponse;
 import com.travel.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,22 +40,11 @@ public class UserController {
     @ApiResponses(@ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginDto.class))))
     @Operation(summary = "로그인 ", description = "이메일과 비밀번호로 로그인합니다.")
     @PostMapping("/login")
-    public ResponseEntity<LoginDto> login(
+    public ResponseEntity<Void> login(
         @RequestBody @Valid LoginRequest loginRequest,
-        HttpServletResponse httpServletResponse) {
+        HttpServletResponse response) {
         LoginDto loginDto = userService.login(loginRequest);
-
-//        // accesstoken - refreshtoken
-//        // todo LoginResponse 에서 빼오기
-//        Cookie cookie = new Cookie("refresh-token", loginDto.refreshToken());
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true); // HTTPS에서만 사용하도록 설정
-//        cookie.setPath("/");
-//        cookie.setMaxAge(60 * 60 * 24 * 7); // 7일 동안 유효
-//        // 클라이언트에게 JWT 토큰을 전달하기 전에 저장할 수 있습니다.
-//        httpServletResponse.addCookie(cookie);
-
-        LoginResponse response = LoginResponse.from(loginDto.accessToken());
-        return ResponseEntity.ok(loginDto);
+        response.setHeader("access-token", loginDto.accessToken());
+        return ResponseEntity.noContent().build();
     }
 }
