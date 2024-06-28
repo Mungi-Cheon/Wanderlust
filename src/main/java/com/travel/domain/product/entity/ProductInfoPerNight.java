@@ -10,17 +10,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+@Entity
+@Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Entity
 public class ProductInfoPerNight {
 
     @Id
@@ -39,7 +39,9 @@ public class ProductInfoPerNight {
     private Accommodation accommodation;
 
     private LocalDate date;
+
     private int price;
+
     private int count;
 
     public void decreaseCountByOne() {

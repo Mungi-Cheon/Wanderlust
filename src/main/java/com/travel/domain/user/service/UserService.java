@@ -1,47 +1,54 @@
 package com.travel.domain.user.service;
 
+import static com.travel.global.exception.type.ErrorType.DUPLICATED_USER;
+import static com.travel.global.exception.type.ErrorType.NOT_CORRECT_PASSWORD;
+
 import com.travel.domain.user.dto.request.LoginRequest;
 import com.travel.domain.user.dto.request.SignupRequest;
-import com.travel.domain.user.dto.response.LoginResponse;
+import com.travel.domain.user.dto.response.LoginDto;
 import com.travel.domain.user.dto.response.UserResponse;
-import com.travel.domain.user.entity.UserEntity;
+import com.travel.domain.user.entity.User;
 import com.travel.domain.user.repository.UserRepository;
 import com.travel.global.exception.UserException;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatusCode;
+import com.travel.global.jwt.JwtProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
+    private final JwtProvider jwtProvider;
 
     public UserResponse join(SignupRequest request) {
         String email = request.getEmail();
-        Boolean isExist = userRepository.existsByEmail(email);
 
-        if (isExist) {
-            throw new UserException(HttpStatusCode.valueOf(400), "이미 존재하는 사용자입니다.");
+        boolean isExist = userRepository.existsByEmail(email);
+
+        if (isExist) { //error type 에서 보고 수정
+            throw new UserException(DUPLICATED_USER);
         }
+        String password = passwordEncoder.encode(request.getPassword());
+        User entity = User.from(request, password);
 
-        UserEntity entity = UserEntity.from(request, passwordEncoder);
-        UserEntity savedUser = userRepository.save(entity);
+        User savedUser = userRepository.save(entity);
         return UserResponse.from(savedUser);
     }
 
-    public LoginResponse login(LoginRequest request) {
-        UserEntity user = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new UserException(HttpStatusCode.valueOf(400), "사용자를 찾을 수 없습니다."));
+    public LoginDto login(LoginRequest request) {
+        User user = userRepository.findByEmailOrderByIdDesc(request.getEmail())
+            .orElseThrow(() -> new UserException(DUPLICATED_USER));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new UserException(HttpStatusCode.valueOf(400), "비밀번호가 일치하지 않습니다.");
+            throw new UserException(NOT_CORRECT_PASSWORD);
         }
 
-        // 실제 구현에서는 JWT 등의 토큰 생성 로직이 필요합니다.
-        String accessToken = "generated-jwt-token";
-        return new LoginResponse(accessToken);
+        String accessToken = jwtProvider.generateAccessToken(user.getId());
+        return new LoginDto(accessToken);
     }
 }

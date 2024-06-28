@@ -11,16 +11,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductOption {
 
     @Id
@@ -38,15 +38,25 @@ public class ProductOption {
     @JoinColumn(name = "accommodation_id")
     private Accommodation accommodation;
 
-    private boolean hasBath;
-    private boolean hasAirCondition;
-    private boolean hasTv;
-    private boolean hasPc;
-    private boolean hasWifi;
-    private boolean hasCable;
-    private boolean hasRefrigerator;
-    private boolean hasSofa;
-    private boolean canCook;
-    private boolean hasTable;
-    private boolean hasHairdryer;
+    private Boolean hasBath;
+
+    private Boolean hasAirCondition;
+
+    private Boolean hasTv;
+
+    private Boolean hasPc;
+
+    private Boolean hasWifi;
+
+    private Boolean hasCable;
+
+    private Boolean hasRefrigerator;
+
+    private Boolean hasSofa;
+
+    private Boolean canCook;
+
+    private Boolean hasTable;
+
+    private Boolean hasHairdryer;
 }

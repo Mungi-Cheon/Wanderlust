@@ -4,20 +4,27 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-
+import lombok.NoArgsConstructor;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReservationRequest {
 
     @NotNull
     private long accommodationId;
+
     @NotNull
     private long productId;
+
     @NotNull(message = "체크인 날짜를 입력해주세요.")
     private LocalDate checkInDate;
+
     @NotNull(message = "체크아웃 날짜를 입력해주세요.")
     private LocalDate checkOutDate;
+
     @Min(value = 1, message = "숙박 인원 수는 최소 1명 이상이어야 합니다.")
     private Integer personNumber;
 

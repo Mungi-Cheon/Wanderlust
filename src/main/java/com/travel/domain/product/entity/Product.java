@@ -13,16 +13,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Entity
+@Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Entity
 public class Product {
 
     @Id
@@ -35,12 +36,18 @@ public class Product {
     private Accommodation accommodation;
 
     private String name;
+
     @Column(columnDefinition = "TEXT")
     private String description;
+
     private String checkInTime;
-    private String checkOutTime; // 16:00
+
+    private String checkOutTime;
+
     private int standardNumber;
+
     private int maximumNumber;
+
     private String type;
 
     @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
@@ -49,7 +56,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<ProductInfoPerNight> productInfoPerNightsList = new ArrayList<>();
+    private List<ProductInfoPerNight> productInfoPerNightsList;
 
     @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference

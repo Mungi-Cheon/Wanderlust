@@ -1,12 +1,12 @@
 package com.travel.global.exception;
 
-import org.springframework.http.HttpStatusCode;
+import com.travel.global.exception.type.ErrorType;
 import org.springframework.web.client.HttpStatusCodeException;
 
 public class UserException extends HttpStatusCodeException {
 
-    public UserException(HttpStatusCode statusCode, String statusText) {
-        super(statusCode, statusText);
+    public UserException(ErrorType errorType) {
+        super(errorType.getStatusCode(), errorType.getMessage());
     }
 
     @Override
