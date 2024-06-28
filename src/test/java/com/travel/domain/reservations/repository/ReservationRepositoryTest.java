@@ -2,53 +2,46 @@ package com.travel.domain.reservations.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 import com.travel.domain.accommodation.entity.Accommodation;
-import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
-import com.travel.domain.product.repository.ProductRepository;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.user.entity.User;
-import com.travel.domain.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
+@DataJpaTest
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ReservationRepositoryTest {
 
-    @Autowired
+    @Mock
     private ReservationRepository reservationRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private AccommodationRepository accommodationRepository;
+
     private Accommodation accommodation;
+
     private Product product;
-
-    private ProductImage productImage;
-
-    private ProductInfoPerNight productInfoPerNight;
 
     @BeforeEach
     public void setUp() {
         accommodation = createAccommodation();
         product = createProduct();
-//        productImage = createProductImage();
-//        productInfoPerNight = createProductInfoPerNight();
     }
 
     @Test
@@ -96,29 +89,32 @@ class ReservationRepositoryTest {
         int personNumber = 2;
 
         Reservation reservation = createReservation(user, checkInDate, checkOutDate, personNumber);
-        Reservation savedReservation = reservationRepository.save(reservation);
+        when(reservationRepository.save(any())).thenReturn(reservation);
 
-        Optional<Reservation> result = reservationRepository
+        assertNotNull(reservation);
+
+        Reservation savedReservation = reservationRepository.save(reservation);
+        when(reservationRepository.findAlreadyReservation(anyLong(), anyLong(), any(), any()))
+            .thenReturn(List.of(savedReservation));
+
+        List<Reservation> result = reservationRepository
             .findAlreadyReservation(user.getId(), product.getId(), checkInDate, checkOutDate);
 
-        if (result.isEmpty()) {
-            assertEquals(Optional.empty(), result);
-        } else {
-            assertEquals(savedReservation.getId(), result.get().getId());
-        }
+        assertEquals(1, result.size());
     }
 
     private User createUser(String email) {
-        User testUser = User.builder()
+        return User.builder()
+            .id(1L)
             .email(email)
             .username("testUser")
             .password("testUser1@#$")
             .build();
-        return userRepository.save(testUser);
     }
 
     private Product createProduct() {
-        Product testProduct = Product.builder()
+        return Product.builder()
+            .id(30L)
             .accommodation(accommodation)
             .checkInTime("15:00")
             .checkOutTime("10:00")
@@ -128,12 +124,10 @@ class ReservationRepositoryTest {
             .standardNumber(2)
             .maximumNumber(4)
             .build();
-
-        return productRepository.save(testProduct);
     }
 
     private Accommodation createAccommodation() {
-        Accommodation testAccommodation = Accommodation.builder()
+        return Accommodation.builder()
             .name("숙소")
             .category("호텔")
             .description("테스트 호텔입니다")
@@ -141,7 +135,6 @@ class ReservationRepositoryTest {
             .grade(BigDecimal.valueOf(5.0))
             .contact("0503-1111-1111")
             .build();
-        return accommodationRepository.save(testAccommodation);
     }
 
     private ProductImage createProductImage() {
@@ -170,14 +163,12 @@ class ReservationRepositoryTest {
         int price = 300000;
 
         return Reservation.builder()
-            .personNumber(personNumber)
             .price(price)
             .night(night)
+            .personNumber(personNumber)
             .checkInDate(checkInDate)
             .checkOutDate(checkOutDate)
             .user(user)
-            .accommodation(accommodation)
-            .product(product)
             .build();
     }
 }

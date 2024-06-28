@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,7 @@ import com.travel.domain.email.service.EmailService;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
+import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
@@ -54,6 +56,9 @@ class ReservationServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private ProductInfoPerNightRepository productInfoPerNightRepository;
+
+    @Mock
     private EmailService emailService;
 
     private User user;
@@ -90,13 +95,13 @@ class ReservationServiceTest {
     @DisplayName("예약 내역 조회")
     void testGetReservationHistories_success() {
 
-        when(userRepository.findByEmail(any())).thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
         when(reservationRepository.findByUserId(any())).thenReturn(List.of(reservation));
 
         ReservationHistoryListResponse result = reservationService.getReservationHistories(
-            "testuser@gmail.com");
+            user.getId());
 
-        verify(userRepository).findByEmail(any());
+        verify(userRepository).findById(any());
         verify(reservationRepository).findByUserId(user.getId());
 
         assertNotNull(result);
@@ -107,16 +112,22 @@ class ReservationServiceTest {
     @Test
     @DisplayName("예약 생성")
     void testCreateReservation_success() {
-        when(userRepository.findByEmail(any())).thenReturn(Optional.ofNullable(user));
-        when(accommodationRepository.findById(any())).thenReturn(
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(productRepository.findByIdWithPessimisticLock(any()))
+            .thenReturn(Optional.ofNullable(product));
+        when(productInfoPerNightRepository
+            .findByProductIdAndDateRangeWithPessimisticLock(anyLong(), any(), any()))
+            .thenReturn(List.of(productInfoPerNight));
+
+        when(accommodationRepository.findByIdWithPessimisticLock(any())).thenReturn(
             Optional.ofNullable(accommodation));
         when(reservationRepository.save(any())).thenReturn(reservation);
 
         ReservationRequest req = new ReservationRequest(
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
-        ReservationResponse result = reservationService.createReservation(req, user.getEmail());
+        ReservationResponse result = reservationService.createReservation(req, user.getId());
 
-        verify(userRepository).findByEmail(any());
+        verify(userRepository).findById(any());
         verify(reservationRepository).save(any());
 
         assertNotNull(result);
@@ -131,19 +142,19 @@ class ReservationServiceTest {
     @Test
     @DisplayName("예약 생성 시 이미 예약된 경우 예외 발생")
     void createReservation_alreadyReserved() {
-        when(userRepository.findByEmail(any())).thenReturn(Optional.ofNullable(user));
-        when(accommodationRepository.findById(any()))
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(accommodationRepository.findByIdWithPessimisticLock(any()))
             .thenReturn(Optional.ofNullable(accommodation));
         when(reservationRepository.findAlreadyReservation(any(), any(), any(), any()))
-            .thenReturn(Optional.ofNullable(reservation));
+            .thenReturn(List.of(reservation));
 
         ReservationRequest request = new ReservationRequest(
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
 
         ReservationsException exception = assertThrows(ReservationsException.class,
-            () -> reservationService.createReservation(request, user.getEmail()));
+            () -> reservationService.createReservation(request, user.getId()));
 
-        verify(userRepository).findByEmail(any());
+        verify(userRepository).findById(any());
         verify(reservationRepository).findAlreadyReservation(any(), any(), any(), any());
 
         assertEquals(ErrorType.ALREADY_RESERVATION.getStatusCode(), exception.getStatusCode());
