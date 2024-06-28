@@ -63,7 +63,6 @@ class ReservationControllerTest {
         ReservationHistoryListResponse listResponse = createHistoryListResponse(
             reservationResponse);
 
-//        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
         when(reservationService.getReservationHistories(user.getId()))
             .thenReturn(listResponse);
 
@@ -82,9 +81,8 @@ class ReservationControllerTest {
         User user = createUser();
 
         ReservationRequest reservationRequest = createReservationRequest();
-
         ReservationResponse response = createReservationResponse();
-//        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
         when(reservationService.createReservation(any(ReservationRequest.class),
             eq(user.getId()))).thenReturn(response);
 

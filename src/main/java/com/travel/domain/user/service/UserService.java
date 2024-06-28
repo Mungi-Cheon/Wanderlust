@@ -25,12 +25,12 @@ public class UserService {
 
     private final JwtProvider jwtProvider;
 
-    public UserResponse join(SignupRequest request) {
+    public UserResponse signup(SignupRequest request) {
         String email = request.getEmail();
 
         boolean isExist = userRepository.existsByEmail(email);
 
-        if (isExist) { //error type 에서 보고 수정
+        if (isExist) {
             throw new UserException(DUPLICATED_USER);
         }
         String password = passwordEncoder.encode(request.getPassword());

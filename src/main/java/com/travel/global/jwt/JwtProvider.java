@@ -33,7 +33,7 @@ public class JwtProvider {
             .withSubject(String.valueOf(id))
             .withIssuedAt(now.atZone(ZoneId.systemDefault()).toInstant())
             .withExpiresAt(
-                now.plus(accessTokenValidityInMs, ChronoUnit.SECONDS)
+                now.plus(accessTokenValidityInMs, ChronoUnit.HOURS)
                     .atZone(ZoneId.systemDefault())
                     .toInstant())
             .sign(algorithm);

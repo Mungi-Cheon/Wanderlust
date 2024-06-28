@@ -1,5 +1,7 @@
 package com.travel.global.exception.handler;
 
+import com.travel.global.exception.UserException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -41,5 +43,13 @@ public class TravelApiExceptionHandler {
         log.error("error message : {}", errorMessage);
 
         return ResponseEntity.status(e.getStatusCode()).build();
+    }
+
+    @ExceptionHandler(value = {UserException.class})
+    public ResponseEntity<?> handleValidationExceptions(UserException e) {
+        log.error("error message : {}", e.getMessage());
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", "이미 존재하는 유저입니다.");
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 }

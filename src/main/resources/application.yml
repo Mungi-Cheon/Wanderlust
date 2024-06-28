@@ -39,8 +39,7 @@ spring:
 jwt:
   secret-key: ${jwt_secret_key}
   issuer: ${jwt_issuer}
-  access-token-expire-time: 900000
-  refresh-token-expire-time: 604800000
+  access-token-expire-time: ${jwt_access_token_expired_time}
 
 
 ## s3 이미지 저장
