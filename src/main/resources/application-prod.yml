@@ -5,12 +5,15 @@ spring:
     username: ${username}
     password: ${password}
 
-#jwt:
-#  secret-key: ${jwt-secret-key}
-#  access-token:
-#    plus-hour: ${jwt-access-token-plus-hour}
-#  refresh-token:
-#    plus-hour: ${jwt-refresh-token-plus-hour}
+
+  mail:
+    username: ${mail_username}
+    password: ${mail_password}
+
+jwt:
+  secret-key: ${jwt_secret_key}
+  issuer: ${jwt_issuer}
+  access-token-expire-time: ${jwt_access_token_expired_time}
 
 # 스웨거 때문에 존재
 servers:
