@@ -23,21 +23,19 @@ public class ReservationController {
 
     @GetMapping("/history")
     public ResponseEntity<ReservationHistoryListResponse> getReservationHistories(
-        @TokenUserId Long tokenUserId
     ) {
-        ReservationHistoryListResponse response = reservationService.getReservationHistories(tokenUserId);
+        ReservationHistoryListResponse response = reservationService.getReservationHistories(
+            "wanderlust.help.center@gmail.com"
+        );
         return ResponseEntity.ok(response);
     }
 
     @PostMapping()
     public ResponseEntity<ReservationResponse> reservation(
-        @TokenUserId Long tokenUserId,
-        @Valid
-        @RequestBody
-        ReservationRequest reservationRequest
+        @TokenUserId Long tokenUserId, @Valid @RequestBody ReservationRequest reservationRequest
         ) {
         System.out.println("tokenUserId = " + tokenUserId);
-        ReservationResponse response = reservationService.createReservation(tokenUserId, reservationRequest);
+        ReservationResponse response = reservationService.saveReservation(tokenUserId, reservationRequest);
         return ResponseEntity.ok(response);
     }
 
