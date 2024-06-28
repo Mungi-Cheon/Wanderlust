@@ -19,11 +19,14 @@ import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +51,54 @@ public class ProductService {
 
         List<Product> productEntityList = productRepository.findAllByAccommodationId(
             accommodationId);
-        List<Product> validProductList = new ArrayList<>();
+
+        // 날짜 범위 내의 모든 ProductInfoPerNight 데이터를 한 번에 가져와 메모리에서 처리한다.
+        // 전 버전: 각 제품에 대해 날짜별로 개별 쿼리를 실행하여 데이터베이스에서 확인
+        List<ProductInfoPerNight> productInfoPerNightList = productInfoPerNightRepository
+            .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate);
+
+        //유효 정보 필터링
+        //요청 인원수 personNumber가 product.getMaximumNumber 보다 크면 false
+        Map<Long, List<ProductInfoPerNight>> productInfoPerNightsMap = productInfoPerNightList.stream()
+            .collect(Collectors.groupingBy(p -> p.getProduct().getId()));
+
+        List<Product> validProductList = productEntityList.stream()
+            .filter(product -> {
+                List<ProductInfoPerNight> infoPerNights = productInfoPerNightsMap.get(product.getId());
+                if (infoPerNights == null || infoPerNights.size() < ChronoUnit.DAYS.between(checkInDate, checkOutDate)) {
+                    return false;
+                }
+                return personNumber <= product.getMaximumNumber();
+            })
+            .collect(Collectors.toList());
+
+        if (validProductList.isEmpty()) {
+            throw new ProductException(ErrorType.NOT_FOUND);
+        }
+
+        //유효 정보 응답 생성
+        List<ProductResponse> productResponses = validProductList.stream()
+            .map(product -> {
+                ProductImageResponse productImageResponse = ProductImageResponse.from(product.getProductImage());
+                int minCount = productInfoPerNightsMap.get(product.getId()).stream()
+                    .mapToInt(ProductInfoPerNight::getCount)
+                    .min()
+                    .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
+                return ProductResponse.from(product, minCount, productImageResponse);
+            })
+            .collect(Collectors.toList());
+
+        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse
+            .from(accommodationEntity.getImages());
+
+        AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse
+            .from(accommodationEntity.getOptions());
+
+        return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
+            checkOutDate, accommodationImageResponse,
+            accommodationOptionResponse, productResponses);
+
+     /*  List<Product> validProductList = new ArrayList<>();
         for (Product product : productEntityList) {
             boolean allDatesExist = true;
 
@@ -91,7 +141,7 @@ public class ProductService {
 
         return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
             checkOutDate, accommodationImageResponse, accommodationOptionResponse,
-            productResponses);
+            productResponses);*/
     }
 
     @Transactional(readOnly = true)
@@ -111,7 +161,30 @@ public class ProductService {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
-        for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
+        List<ProductInfoPerNight> availableProductPerNights = productInfoPerNightRepository
+            .findByProductIdAndDateRange(productId, checkInDate, checkOutDate);
+
+        // 날짜 범위 내의 모든 날짜가 존재하는지 확인하고 메모리서 처리
+        long expectedNights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        if (availableProductPerNights.size() < expectedNights) {
+            throw new ProductException(ErrorType.NOT_FOUND);
+        }
+
+        // 총 가격 계산
+        int totalPrice = availableProductPerNights.stream()
+            .mapToInt(ProductInfoPerNight::getPrice)
+            .sum();
+
+        ProductImageResponse productImageResponse = ProductImageResponse.from(
+            productEntity.getProductImage());
+        ProductOptionResponse productOptionResponse = ProductOptionResponse.from(
+            productEntity.getProductOption());
+
+        return ProductDetailResponse.from(productEntity, accommodationEntity.getName(),
+            availableProductPerNights.get(0).getPrice(), totalPrice, (int) expectedNights,
+            productImageResponse, productOptionResponse);
+
+       /* for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
             if (!productInfoPerNightRepository.existsByProductIdAndDate(productId, date)) {
                 throw new ProductException(ErrorType.NOT_FOUND);
             }
@@ -130,11 +203,11 @@ public class ProductService {
 
         return ProductDetailResponse.from(productEntity, accommodationEntity.getName(),
             availableProductPerNight.getPrice(), totalPrice, night, productImageResponse,
-            productOptionResponse);
+            productOptionResponse);*/
     }
 
     private void validateInputs(LocalDate checkInDate, LocalDate checkOutDate,
-        int personNumber) {
+                                int personNumber) {
         if (!isCheckInValid(checkInDate)) {
             throw new AccommodationException(ErrorType.INVALID_CHECK_IN);
         }
