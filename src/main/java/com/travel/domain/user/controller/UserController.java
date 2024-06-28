@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +33,7 @@ public class UserController {
             schema = @Schema(implementation = UserResponse.class))))
     public ResponseEntity<UserResponse> signup(
         @RequestBody @Valid SignupRequest signupRequest) {
-        UserResponse response = userService.join(signupRequest);
+        UserResponse response = userService.signup(signupRequest);
         return ResponseEntity.accepted().body(response);
     }
 
