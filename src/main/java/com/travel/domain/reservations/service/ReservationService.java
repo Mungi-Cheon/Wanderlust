@@ -2,16 +2,16 @@ package com.travel.domain.reservations.service;
 
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
-import com.travel.domain.email.service.EmailService;
+//import com.travel.domain.email.service.EmailService;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
-import com.travel.domain.reservations.entity.Reservation;
+import com.travel.domain.reservations.entity.Reservations;
 import com.travel.domain.reservations.repository.ReservationRepository;
-import com.travel.domain.user.entity.User;
+import com.travel.domain.user.entity.UserEntity;
 import com.travel.domain.user.repository.UserRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
@@ -36,13 +36,13 @@ public class ReservationService {
     private final AccommodationRepository accommodationRepository;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
-    private final EmailService emailService;
+//    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public ReservationHistoryListResponse getReservationHistories(String email) {
-        User user = findUser(email);
+        UserEntity user = findUser(email);
 
-        List<Reservation> reservations = reservationRepository.findByUserId(user.getId());
+        List<Reservations> reservations = reservationRepository.findByUserId(user.getId());
         if (reservations.isEmpty()) {
             return ReservationHistoryListResponse.builder()
                 .reservationHistoryList(new ArrayList<>()).build();
@@ -55,14 +55,13 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponse createReservation(
-        ReservationRequest request, String email) {
+    public ReservationResponse saveReservation(ReservationRequest request, String email) {
         LocalDate checkInDate = request.getCheckInDate();
         LocalDate checkOutDate = request.getCheckOutDate();
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         long productId = request.getProductId();
 
-        User user = findUser(email);
+        UserEntity user = findUser(email);
 
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
@@ -75,34 +74,34 @@ public class ReservationService {
             .findAny()
             .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
-        List<ProductInfoPerNight> piList = product.getProductInfoPerNightsList();
-        decreaseCountByOne(piList, checkInDate, checkOutDate);
+        decreaseCountByOne(product.getProductInfoPerNightsList(), checkInDate, checkOutDate);
 
-        Reservation reservation = Reservation.builder()
+        Reservations reservations = Reservations.builder()
             .user(user)
             .accommodation(accommodation)
             .product(product)
             .personNumber(request.getPersonNumber())
-            .price(piList.get(0).getPrice())
+            .price(product.getProductInfoPerNightsList().get(0).getPrice())
             .night(night)
             .checkInDate(checkInDate)
             .checkOutDate(checkOutDate)
             .build();
 
-        Reservation savedReservation = reservationRepository.save(reservation);
+        Reservations savedReservations = reservationRepository.save(reservations);
 
-        emailService.sendReservationConfirmation(email, savedReservation);
+        // 이메일 전송 로직 추가
+//        emailService.sendReservationConfirmation(email, savedReservations);
 
-        log.debug("Saved reservation: {}", LocalDateTime.now());
-        return ReservationResponse.from(savedReservation);
+        log.info("Saved reservation: {}", LocalDateTime.now());
+        return ReservationResponse.from(savedReservations);
     }
 
-    private User findUser(String email) {
-        return userRepository.findByEmail(email).get();
+    private UserEntity findUser(String email) {
+        return userRepository.findByEmail(email).orElseThrow();
     }
 
     private List<ReservationHistoryResponse> createReservationHistoryList(
-        List<Reservation> reservations) {
+        List<Reservations> reservations) {
         List<ReservationHistoryResponse> rhList = new ArrayList<>();
 
         reservations.forEach(reservation -> {
@@ -110,7 +109,7 @@ public class ReservationService {
             rhList.add(
                 ReservationHistoryResponse.from(
                     reservation,
-                    reservation.getAccommodation().getName(),
+                    product.getAccommodation().getName(),
                     product.getType(),
                     product.getStandardNumber(),
                     product.getMaximumNumber(),
@@ -121,21 +120,17 @@ public class ReservationService {
         return rhList;
     }
 
-    // 인자 개행
-    private void checkAlreadyReserved(
-        User user, Long productId,
-        LocalDate checkInDate, LocalDate checkOutDate) {
-        Optional<Reservation> already = reservationRepository.findAlreadyReservation(
+    private void checkAlreadyReserved(UserEntity user, Long productId, LocalDate checkInDate,
+        LocalDate checkOutDate) {
+        Optional<Reservations> already = reservationRepository.findAlreadyReservation(
             user.getId(), productId, checkInDate, checkOutDate);
-
         if (already.isPresent()) {
             throw new ReservationsException(ErrorType.ALREADY_RESERVATION);
         }
     }
 
-    private void decreaseCountByOne(
-        List<ProductInfoPerNight> productInfoPerNightsList, LocalDate checkInDate,
-        LocalDate checkOutDate) {
+    private void decreaseCountByOne(List<ProductInfoPerNight> productInfoPerNightsList,
+        LocalDate checkInDate, LocalDate checkOutDate) {
         for (ProductInfoPerNight pi : productInfoPerNightsList) {
             if (!isValidDate(checkInDate, checkOutDate.minusDays(1), pi.getDate())) {
                 continue;
@@ -147,9 +142,7 @@ public class ReservationService {
         }
     }
 
-    private boolean isValidDate(
-        LocalDate checkInDate, LocalDate checkOutDate,
-        LocalDate date) {
+    private boolean isValidDate(LocalDate checkInDate, LocalDate checkOutDate, LocalDate date) {
         return (date.isEqual(checkInDate) || date.isAfter(checkInDate)) &&
             (date.isEqual(checkOutDate) || date.isBefore(checkOutDate));
     }
