@@ -1,11 +1,13 @@
 package com.travel.global.jwt;
 
 import static com.travel.global.exception.type.ErrorType.TOKEN_AUTHORIZATION_FAIL;
+import static com.travel.global.exception.type.ErrorType.TOKEN_EXPIRED;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.travel.global.exception.AuthException;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,10 +45,13 @@ public class JwtTokenUtility {
         return Long.parseLong(tokeId);
     }
 
-    // todo : 유효기간 만료된 경우 - 정훈님 하실부분
     private void validAccessTokenWithThrow(final String token) {
         try {
-            DecodedJWT decodedJwt =verifier.verify(token);
+            DecodedJWT decodedJwt = verifier.verify(token);
+            // 만료
+        } catch (TokenExpiredException e) {
+            throw new AuthException(TOKEN_EXPIRED);
+            // 유효하지
         } catch (JWTVerificationException e) {
             throw new AuthException(TOKEN_AUTHORIZATION_FAIL);
         }
