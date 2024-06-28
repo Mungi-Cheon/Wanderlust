@@ -1,0 +1,33 @@
+# 해당 application-prod 는 배포를 위한 yml 파일입니다. 절대 Never 수정하시면 안됩니다.
+spring:
+  datasource:
+    url: ${url}
+    username: ${username}
+    password: ${password}
+
+
+  mail:
+    username: ${mail_username}
+    password: ${mail_password}
+
+jwt:
+  secret-key: ${jwt_secret_key}
+  issuer: ${jwt_issuer}
+  access-token-expire-time: ${jwt_access_token_expired_time}
+
+# 스웨거 때문에 존재
+servers:
+  url: ${servers-url}
+
+## s3 이미지 저장
+#cloud:
+#  aws:
+#    s3:
+#      bucket: ${s3-bucket}
+#
+#    credentials:
+#      access-key: ${s3-access-key}
+#      secret-key: ${s3-secret-key}
+#
+#    region:
+#      static: ${s3-region-static}

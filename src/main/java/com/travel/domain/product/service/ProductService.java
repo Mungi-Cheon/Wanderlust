@@ -22,7 +22,6 @@ import com.travel.domain.user.repository.UserRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
-import com.travel.global.security.provider.UserPrincipal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -96,7 +95,7 @@ public class ProductService {
         AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse.from(
             accommodationEntity.getOptions());
 
-        Boolean liked = getLikedStatus(accommodationEntity);
+        Boolean liked = false;
         int likeCount = likeRepository.countByAccommodation(accommodationEntity);
 
         return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
@@ -153,28 +152,6 @@ public class ProductService {
         }
         if (personNumber < 1) {
             throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
-        }
-    }
-
-    private Boolean getLikedStatus(Accommodation accommodation) {
-        String email = getUserIdFromSecurityContext();
-
-        if (email != null) {
-            User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user"));
-
-            return likeRepository.findByUserAndAccommodation(user, accommodation).isPresent();
-        }
-        return false;
-    }
-
-    private String getUserIdFromSecurityContext() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        System.out.println("Principal class: " + principal);
-        if (principal instanceof UserPrincipal) {
-            return ((UserPrincipal) principal).getName();
-        } else {
-            return null;
         }
     }
 }
