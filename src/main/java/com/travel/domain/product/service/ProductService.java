@@ -54,6 +54,7 @@ public class ProductService {
 
         // 날짜 범위 내의 모든 ProductInfoPerNight 데이터를 한 번에 가져와 메모리에서 처리한다.
         // 전 버전: 각 제품에 대해 날짜별로 개별 쿼리를 실행하여 데이터베이스에서 확인
+        //뭐지
         List<ProductInfoPerNight> productInfoPerNightList = productInfoPerNightRepository
             .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate);
 
@@ -205,7 +206,6 @@ public class ProductService {
             availableProductPerNight.getPrice(), totalPrice, night, productImageResponse,
             productOptionResponse);*/
     }
-
     private void validateInputs(LocalDate checkInDate, LocalDate checkOutDate,
                                 int personNumber) {
         if (!isCheckInValid(checkInDate)) {
