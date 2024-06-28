@@ -25,7 +25,7 @@ public class ReservationController {
     public ResponseEntity<ReservationHistoryListResponse> getReservationHistories(
     ) {
         ReservationHistoryListResponse response = reservationService.getReservationHistories(
-            "wanderlust.help.center@gmail.com"
+            "string@gmail.com"
         );
         return ResponseEntity.ok(response);
     }
