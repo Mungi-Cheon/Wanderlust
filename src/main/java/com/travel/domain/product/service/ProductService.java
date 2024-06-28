@@ -8,6 +8,7 @@ import com.travel.domain.accommodation.dto.response.AccommodationImageResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
+import com.travel.domain.like.repository.LikeRepository;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductImageResponse;
 import com.travel.domain.product.dto.response.ProductOptionResponse;
@@ -16,15 +17,19 @@ import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
+import com.travel.domain.user.entity.User;
+import com.travel.domain.user.repository.UserRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
+import com.travel.global.security.provider.UserPrincipal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +41,8 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
     private final AccommodationRepository accommodationRepository;
+    private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
@@ -89,9 +96,12 @@ public class ProductService {
         AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse.from(
             accommodationEntity.getOptions());
 
+        Boolean liked = getLikedStatus(accommodationEntity);
+        int likeCount = likeRepository.countByAccommodation(accommodationEntity);
+
         return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
             checkOutDate, accommodationImageResponse, accommodationOptionResponse,
-            productResponses);
+            productResponses, liked, likeCount);
     }
 
     @Transactional(readOnly = true)
@@ -143,6 +153,28 @@ public class ProductService {
         }
         if (personNumber < 1) {
             throw new AccommodationException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
+        }
+    }
+
+    private Boolean getLikedStatus(Accommodation accommodation) {
+        String email = getUserIdFromSecurityContext();
+
+        if (email != null) {
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user"));
+
+            return likeRepository.findByUserAndAccommodation(user, accommodation).isPresent();
+        }
+        return false;
+    }
+
+    private String getUserIdFromSecurityContext() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("Principal class: " + principal);
+        if (principal instanceof UserPrincipal) {
+            return ((UserPrincipal) principal).getName();
+        } else {
+            return null;
         }
     }
 }

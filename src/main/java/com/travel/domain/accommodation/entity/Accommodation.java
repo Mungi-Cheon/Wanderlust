@@ -1,6 +1,7 @@
 package com.travel.domain.accommodation.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.travel.domain.like.entity.Like;
 import com.travel.domain.product.entity.Product;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -55,4 +56,7 @@ public class Accommodation {
     @JsonManagedReference
     private List<Product> products;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Like> likes;
 }

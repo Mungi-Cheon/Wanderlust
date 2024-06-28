@@ -22,12 +22,14 @@ public class AccommodationDetailListResponse {
     private AccommodationImageResponse accommodationImage;
     private AccommodationOptionResponse accommodationOption;
     private List<ProductResponse> productResponseList;
+    private Boolean liked;
+    private int likeCount;
 
     public static AccommodationDetailListResponse from(Accommodation accommodation,
         LocalDate checkInDate,
         LocalDate checkOutDate, AccommodationImageResponse accommodationImage,
         AccommodationOptionResponse accommodationOption,
-        List<ProductResponse> productResponseList) {
+        List<ProductResponse> productResponseList, Boolean liked, int likeCount) {
         return AccommodationDetailListResponse.builder()
             .id(accommodation.getId())
             .name(accommodation.getName())
@@ -37,6 +39,8 @@ public class AccommodationDetailListResponse {
             .accommodationImage(accommodationImage)
             .accommodationOption(accommodationOption)
             .productResponseList(productResponseList)
+            .liked(liked)
+            .likeCount(likeCount)
             .build();
     }
 }
