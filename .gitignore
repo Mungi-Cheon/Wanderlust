@@ -5,10 +5,12 @@ src/main/resources/application.yaml
 # Compiled class file
 *.class
 
+# application.yml
+*.yml
+*.yaml
 
 # Log file
 *.log
-*.xml
 
 # BlueJ files
 *.ctxt

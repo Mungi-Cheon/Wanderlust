@@ -1,8 +1,8 @@
 package com.travel.domain.product.controller;
 
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
-import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.service.ProductService;
+import com.travel.global.annotation.TokenUserId;
 import com.travel.global.util.DateValidationUtil;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/accommodations/{accommodationId}")
-public class ProductController {
+@RequestMapping("/api/auth/accommodations/{accommodationId}")
+public class AuthProductController {
 
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<AccommodationDetailListResponse> getAccommodationDetail(
+    public ResponseEntity<AccommodationDetailListResponse> getAccommodationDetailByAuth(
+        @TokenUserId Long tokenUserId,
         @PathVariable Long accommodationId,
         @RequestParam(required = false) LocalDate checkInDate,
         @RequestParam(required = false) LocalDate checkOutDate,
@@ -31,24 +32,8 @@ public class ProductController {
         checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
 
         var response = productService
-            .getAccommodationDetail(accommodationId, checkInDate, checkOutDate, personNumber);
+            .getAccommodationDetailByAuth(accommodationId, checkInDate, checkOutDate, personNumber, tokenUserId);
 
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductDetailResponse> getProductDetail(
-        @PathVariable Long accommodationId,
-        @PathVariable Long productId,
-        @RequestParam(required = false) LocalDate checkInDate,
-        @RequestParam(required = false) LocalDate checkOutDate,
-        @RequestParam(defaultValue = "2") Integer personNumber
-    ) {
-        checkInDate = DateValidationUtil.checkInDate(checkInDate);
-        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
-
-        var response = productService.getProductDetail(accommodationId, productId,
-            checkInDate, checkOutDate, personNumber);
         return ResponseEntity.ok(response);
     }
 
