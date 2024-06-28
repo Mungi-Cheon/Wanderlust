@@ -46,8 +46,8 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew build
       
-      - name: 단위 테스트, 통합 테스트
-        run: ./gradlew test
+#      - name: 단위 테스트, 통합 테스트
+#        run: ./gradlew test
 
       # Docker 이미지 build
       - name: docker image build
