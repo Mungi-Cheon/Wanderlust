@@ -22,16 +22,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +45,9 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 class ProductServiceTest {
 
+    @Autowired
+    private AccommodationService accommodationService;
+
     @MockBean
     ProductRepository productRepository;
 
@@ -58,20 +60,18 @@ class ProductServiceTest {
     Long accommodationId = 1L;
     Long productId = 1L;
     LocalDate checkInDate = LocalDate.now();
-    LocalDate checkOutDate = LocalDate.now().plusDays(2);
+    LocalDate checkOutDate = LocalDate.now().plusDays(1);
     int personNumber = 2;
     Long productImageId = 1L;
     Long productInfoPerNightId = 1L;
     Long accommodationOptionId = 1L;
     Long accommodationImageId = 1L;
-    LocalDate infoDate = checkInDate.plusDays(1);
     String checkInTime = "15:00";
     String checkOutTime = "11:00";
     int standardNumber = 2;
     int maximumNumber = 3;
+    int price = 100000;
 
-    @Autowired
-    private AccommodationService accommodationService;
     @Autowired
     private ProductService productService;
 
@@ -117,7 +117,7 @@ class ProductServiceTest {
             .name(product.getName())
             .checkInTime(product.getCheckInTime())
             .checkOutTime(product.getCheckOutTime())
-            .pricePerNight(100000)
+            .pricePerNight(price)
             .standardNumber(product.getStandardNumber())
             .maximumNumber(product.getMaximumNumber())
             .images(productImageResponse)
@@ -192,11 +192,13 @@ class ProductServiceTest {
             .productInfoPerNightsList(productInfoPerNightList)
             .productImage(productImage)
             .build();
-
     }
 
-    private ProductOption createProductOption() {
+    private ProductOption createProductOption(Product product, Accommodation accommodation) {
         return ProductOption.builder()
+            .id(1L)
+            .product(product)
+            .accommodation(accommodation)
             .hasBath(true)
             .hasAirCondition(true)
             .hasTv(true)
@@ -221,13 +223,13 @@ class ProductServiceTest {
             .build();
     }
 
-    private ProductInfoPerNight createProductInfoPerNight(Product product, Accommodation accommodation) {
+    private ProductInfoPerNight createProductInfoPerNight(Product product, Accommodation accommodation, LocalDate date) {
         return ProductInfoPerNight.builder()
             .id(productInfoPerNightId)
             .product(product)
             .accommodation(accommodation)
-            .date(infoDate)
-            .price(400000)
+            .date(date)
+            .price(price)
             .count(2)
             .build();
     }
@@ -238,13 +240,13 @@ class ProductServiceTest {
         return ProductDetailResponse.builder()
             .id(productId)
             .name(product.getName())
-            .accommodationName("accommodationName")
+            .accommodationName(product.getAccommodation().getName())
             .description(product.getDescription())
             .pricePerNight(100000)
             .totalPrice(200000)
             .numberOfStay(2)
-            .standardNumber(2)
-            .maximumNumber(3)
+            .standardNumber(product.getStandardNumber())
+            .maximumNumber(product.getMaximumNumber())
             .type(product.getType())
             .productImageResponse(productImageResponse)
             .productOption(productOptionResponse)
@@ -274,49 +276,52 @@ class ProductServiceTest {
 
     @Test
     @DisplayName("숙박 디테일, 객실 리스트 조회")
-    void getAccommodationDetail() {
+    void getAccommodationDetail() { //product 가 null 로
         //given
         Accommodation accommodation = new Accommodation();
         AccommodationOption accommodationOption = createAccommodationOption(accommodation);
         AccommodationImage accommodationImage = createAccommodationImage(accommodation);
         Product product = new Product();
         List<Product> productList = new ArrayList<>();
-        List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
         accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
-        ProductOption productOption = createProductOption();
+        ProductOption productOption = createProductOption(product, accommodation);
         ProductImage productImage = createProductImage(product, accommodation);
-        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation);
-        productInfoPerNightList.add(productInfoPerNight);
+        List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
         product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
         productList.add(product);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation, checkInDate);
+        ProductInfoPerNight productInfoPerNight2 = createProductInfoPerNight(product, accommodation, checkOutDate);
+        productInfoPerNightList.add(productInfoPerNight);
+        productInfoPerNightList.add(productInfoPerNight2);
         AccommodationOptionResponse accommodationOptionResponse = createAccommodationOptionResponse();
         AccommodationImageResponse accommodationImageResponse = createAccommodationImageResponse();
         ProductImageResponse productImageResponse = createProductImageResponse();
         ProductResponse productResponse = createProductResponse(productImageResponse, product);
         List<ProductResponse> productResponsesList = new ArrayList<>();
         productResponsesList.add(productResponse);
-        AccommodationDetailListResponse accommodationDetailListResponse
-            = createAccommodationDetailListResponse(accommodation, accommodationImageResponse,
-            accommodationOptionResponse, productResponsesList);
+
 
         //when
         when(accommodationRepository
             .findById(accommodationId)).thenReturn(Optional.of(accommodation));
         when(productRepository
             .findAllByAccommodationId(accommodationId)).thenReturn(productList);
-        when(productInfoPerNightRepository
-            .existsByProductIdAndDate(eq(productId), any(LocalDate.class))).thenReturn(true);
-        when(productInfoPerNightRepository
-            .findMinCountByProductIdAndDateRange(eq(productId), eq(checkInDate), eq(checkOutDate))).thenReturn(2);
+        when(productInfoPerNightRepository.findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate))
+            .thenReturn(productInfoPerNightList);
+
+        AccommodationDetailListResponse accommodationDetailListResponse
+            = createAccommodationDetailListResponse(accommodation, accommodationImageResponse,
+            accommodationOptionResponse, productResponsesList);
 
         AccommodationDetailListResponse response
             = productService.getAccommodationDetail(accommodationId, checkInDate, checkOutDate, personNumber);
 
-        assertNotNull(response);
+
+        assertNotNull(accommodationDetailListResponse);
         assertEquals(accommodationId, accommodation.getId());
         assertEquals(accommodationId, product.getAccommodation().getId());
-        assertEquals(1, response.getProductResponseList().size());
-        assertEquals(2, response.getProductResponseList().get(0).getStandardNumber());
+        assertEquals(1, accommodationDetailListResponse.getProductResponseList().size());
+        assertEquals(2, accommodationDetailListResponse.getProductResponseList().get(0).getStandardNumber());
     }
 
     @Test
@@ -328,26 +333,37 @@ class ProductServiceTest {
         AccommodationImage accommodationImage = createAccommodationImage(accommodation);
         Product product = new Product();
         List<Product> productList = new ArrayList<>();
-        ProductInfoPerNight productInfoPerNight = new ProductInfoPerNight();
         List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
         accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
-        ProductOption productOption = createProductOption();
+        ProductOption productOption = createProductOption(product, accommodation);
         ProductImage productImage = createProductImage(product, accommodation);
-        productInfoPerNight = createProductInfoPerNight(product, accommodation);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation,checkInDate);
+        ProductInfoPerNight productInfoPerNight2 = createProductInfoPerNight(product, accommodation,checkOutDate);
         productInfoPerNightList.add(productInfoPerNight);
+        productInfoPerNightList.add(productInfoPerNight2);
         product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
         productList.add(product);
         accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
 
         when(accommodationRepository
             .findById(accommodationId)).thenReturn(Optional.of(accommodation));
+
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+
         when(productInfoPerNightRepository
-            .existsByProductIdAndDate(eq(productId), any(LocalDate.class))).thenReturn(true);
-        when(productInfoPerNightRepository.findMinCountByProductIdAndDateRange(eq(productId), eq(checkInDate), eq(checkOutDate)))
+            .findMinCountByProductIdAndDateRange(eq(productId), eq(checkInDate), eq(checkOutDate)))
             .thenReturn(productInfoPerNight.getPrice());
+
+        when(productInfoPerNightRepository
+            .findByProductIdAndDateRange(productId, checkInDate, checkOutDate)).thenReturn(productInfoPerNightList);
+
         ProductDetailResponse response
-            = createProductDetailResponse(product,productImageResponse, productOptionResponse);
+            = createProductDetailResponse(product, productImageResponse, productOptionResponse);
+
+        response = productService.getProductDetail(accommodationId, productId,checkInDate,checkOutDate,personNumber);
+
+
 
         assertNotNull(response);
         assertEquals(productList.get(0).getName(), response.getName());
