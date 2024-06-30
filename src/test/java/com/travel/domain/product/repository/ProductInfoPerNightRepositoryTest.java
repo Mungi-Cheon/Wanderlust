@@ -17,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -223,14 +222,40 @@ class ProductInfoPerNightRepositoryTest {
         productList.add(product);
 
         lenient().when(productInfoPerNightRepository
-                .findMinCountByProductIdAndDateRange(eq(productId),eq(checkInDate), eq(checkOutDate)))
+                .findMinCountByProductIdAndDateRange(eq(productId), eq(checkInDate), eq(checkOutDate)))
             .thenReturn(2);
 
         Integer minCount = productInfoPerNightRepository
             .findMinCountByProductIdAndDateRange(productId, checkInDate, checkOutDate);
 
         assertEquals(2, minCount);
-
-
     }
+
+    @Test
+    @DisplayName("숙소 ID와 날짜 범위로 ProductInfoPerNight 조회")
+    void findByAccommodationIdAndDateRange() {
+        Accommodation accommodation = new Accommodation();
+        AccommodationOption accommodationOption = createAccommodationOption(accommodation);
+        AccommodationImage accommodationImage = createAccommodationImage(accommodation);
+        Product product = new Product();
+        List<Product> productList = new ArrayList<>();
+        List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
+        accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
+        ProductOption productOption = createProductOption();
+        ProductImage productImage = createProductImage(product, accommodation);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation);
+        productInfoPerNightList.add(productInfoPerNight);
+        product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
+        productList.add(product);
+
+        when(productInfoPerNightRepository
+            .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate))
+            .thenReturn(productInfoPerNightList);
+
+        List<ProductInfoPerNight> result = productInfoPerNightRepository.findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate);
+
+        assertEquals(1, result.size());
+        assertEquals(productInfoPerNight, result.get(0));
+    }
+
 }

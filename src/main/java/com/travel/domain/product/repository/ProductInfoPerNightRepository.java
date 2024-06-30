@@ -39,6 +39,15 @@ public interface ProductInfoPerNightRepository extends JpaRepository<ProductInfo
         @Param("checkInDate") LocalDate checkInDate,
         @Param("checkOutDate") LocalDate checkOutDate);
 
+   @Query("SELECT p FROM ProductInfoPerNight p " +
+        "WHERE p.product.accommodation.id = :accommodationId " +
+        "AND p.date BETWEEN :startDate AND :endDate " +
+        "AND p.count > 0")
+    List<ProductInfoPerNight> findByAccommodationIdAndDateRange(
+        @Param("accommodationId") Long accommodationId,
+        @Param("startDate") LocalDate checkInDate,
+        @Param("endDate") LocalDate checkOutDate);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM ProductInfoPerNight p " +
         "WHERE p.product.id = :productId " +

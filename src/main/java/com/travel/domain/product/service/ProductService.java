@@ -19,11 +19,13 @@ import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,50 +50,47 @@ public class ProductService {
 
         List<Product> productEntityList = productRepository.findAllByAccommodationId(
             accommodationId);
-        List<Product> validProductList = new ArrayList<>();
-        for (Product product : productEntityList) {
-            boolean allDatesExist = true;
 
-            // select * from productInfoPerNight p where p.productId = id and between checkInDate and date and checkOutDate
-            // 객실 1개당 6월~8월까지 데이터, -> 얘네들을 하나씩 비교검사를 하고 있어요
-            for (LocalDate date = checkInDate; date.isBefore(checkOutDate);
-                date = date.plusDays(1)) {
-                if (!productInfoPerNightRepository
-                    .existsByProductIdAndDate(product.getId(),
-                        date)) {
-                    allDatesExist = false;
-                    break;
+        List<ProductInfoPerNight> productInfoPerNightList = productInfoPerNightRepository
+            .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate);
+
+        Map<Long, List<ProductInfoPerNight>> productInfoPerNightsMap = productInfoPerNightList.stream()
+            .collect(Collectors.groupingBy(p -> p.getProduct().getId()));
+
+        List<Product> validProductList = productEntityList.stream()
+            .filter(product -> {
+                List<ProductInfoPerNight> infoPerNights = productInfoPerNightsMap.get(product.getId());
+                if (infoPerNights == null || infoPerNights.size() < ChronoUnit.DAYS.between(checkInDate, checkOutDate)) {
+                    return false;
                 }
-            }
-
-            if (allDatesExist && personNumber <= product.getMaximumNumber()) {
-                validProductList.add(product);
-            }
-        }
+                return personNumber <= product.getMaximumNumber();
+            })
+            .collect(Collectors.toList());
 
         if (validProductList.isEmpty()) {
-            throw new ProductException(ErrorType.NOT_FOUND);
+            throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
         List<ProductResponse> productResponses = validProductList.stream()
             .map(product -> {
-                ProductImageResponse productImageResponse = ProductImageResponse.from(
-                    product.getProductImage());
-                int minCount = productInfoPerNightRepository
-                    .findMinCountByProductIdAndDateRange(
-                        product.getId(), checkInDate, checkOutDate);
+                ProductImageResponse productImageResponse = ProductImageResponse.from(product.getProductImage());
+                int minCount = productInfoPerNightsMap.get(product.getId()).stream()
+                    .mapToInt(ProductInfoPerNight::getCount)
+                    .min()
+                    .orElse(0);
                 return ProductResponse.from(product, minCount, productImageResponse);
             })
             .collect(Collectors.toList());
 
-        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse.from(
-            accommodationEntity.getImages());
-        AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse.from(
-            accommodationEntity.getOptions());
+        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse
+            .from(accommodationEntity.getImages());
+
+        AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse
+            .from(accommodationEntity.getOptions());
 
         return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
-            checkOutDate, accommodationImageResponse, accommodationOptionResponse,
-            productResponses);
+            checkOutDate, accommodationImageResponse,
+            accommodationOptionResponse, productResponses);
     }
 
     @Transactional(readOnly = true)
@@ -104,24 +103,24 @@ public class ProductService {
         Accommodation accommodationEntity = accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
 
-        Product productEntity = productRepository.findById(productId)
+        Product productEntity = productRepository.findByIdAndAccommodationId(productId, accommodationId)
             .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
         if (personNumber > productEntity.getMaximumNumber()) {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
-        for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
-            if (!productInfoPerNightRepository.existsByProductIdAndDate(productId, date)) {
-                throw new ProductException(ErrorType.NOT_FOUND);
-            }
+        List<ProductInfoPerNight> availableProductPerNights = productInfoPerNightRepository
+            .findByProductIdAndDateRange(productId, checkInDate, checkOutDate);
+
+        long expectedNights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        if (availableProductPerNights.size() < expectedNights) {
+            throw new ProductException(ErrorType.NOT_FOUND);
         }
 
-        ProductInfoPerNight availableProductPerNight = productInfoPerNightRepository
-            .findByProductIdAndDateRange(productId, checkInDate, checkOutDate).get(0);
-
-        int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-        int totalPrice = night * availableProductPerNight.getPrice();
+        int totalPrice = availableProductPerNights.stream()
+            .mapToInt(ProductInfoPerNight::getPrice)
+            .sum();
 
         ProductImageResponse productImageResponse = ProductImageResponse.from(
             productEntity.getProductImage());
@@ -129,12 +128,12 @@ public class ProductService {
             productEntity.getProductOption());
 
         return ProductDetailResponse.from(productEntity, accommodationEntity.getName(),
-            availableProductPerNight.getPrice(), totalPrice, night, productImageResponse,
-            productOptionResponse);
+            availableProductPerNights.get(0).getPrice(), totalPrice, (int) expectedNights,
+            productImageResponse, productOptionResponse);
     }
 
     private void validateInputs(LocalDate checkInDate, LocalDate checkOutDate,
-        int personNumber) {
+                                int personNumber) {
         if (!isCheckInValid(checkInDate)) {
             throw new AccommodationException(ErrorType.INVALID_CHECK_IN);
         }

@@ -3,7 +3,9 @@ package com.travel.domain.product.dto.response;
 import com.travel.domain.product.entity.ProductImage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder
 @AllArgsConstructor
 public class ProductImageResponse {
