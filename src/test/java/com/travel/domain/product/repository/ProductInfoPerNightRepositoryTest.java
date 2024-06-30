@@ -252,10 +252,38 @@ class ProductInfoPerNightRepositoryTest {
             .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate))
             .thenReturn(productInfoPerNightList);
 
-        List<ProductInfoPerNight> result = productInfoPerNightRepository.findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate);
+        List<ProductInfoPerNight> result = productInfoPerNightRepository
+            .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate);
 
         assertEquals(1, result.size());
         assertEquals(productInfoPerNight, result.get(0));
+    }
+
+    @Test
+    @DisplayName("productId와 날짜 범위에 해당하는 ProductInfoPerNight 엔티 목록 반환")
+    void findByProductIdAndDateRangeWithPessimisticLock() {
+        Accommodation accommodation = new Accommodation();
+        AccommodationOption accommodationOption = createAccommodationOption(accommodation);
+        AccommodationImage accommodationImage = createAccommodationImage(accommodation);
+        Product product = new Product();
+        List<Product> productList = new ArrayList<>();
+        List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
+        accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
+        ProductOption productOption = createProductOption();
+        ProductImage productImage = createProductImage(product, accommodation);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation);
+        productInfoPerNightList.add(productInfoPerNight);
+        product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
+        productList.add(product);
+
+        when(productInfoPerNightRepository.findByProductIdAndDateRangeWithPessimisticLock(productId, checkInDate, checkOutDate))
+            .thenReturn(productInfoPerNightList);
+
+        List<ProductInfoPerNight> result = productInfoPerNightRepository
+            .findByProductIdAndDateRangeWithPessimisticLock(productId, checkInDate, checkOutDate);
+
+        assertEquals(productInfoPerNightList.size(), result.size());
+        assertEquals(productInfoPerNightList.get(0).getId(),result.get(0).getId());
     }
 
 }
