@@ -63,8 +63,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponse createReservation(
-        ReservationRequest request, Long userId) {
+    public ReservationResponse createReservation(ReservationRequest request, Long userId) {
         LocalDate checkInDate = request.getCheckInDate();
         LocalDate checkOutDate = request.getCheckOutDate();
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
@@ -72,38 +71,18 @@ public class ReservationService {
 
         User user = findUser(userId);
 
-        Accommodation accommodation = accommodationRepository.findByIdWithPessimisticLock(
-                request.getAccommodationId())
-            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
-
+        Accommodation accommodation = findAccommodation(request.getAccommodationId());
         checkAlreadyReserved(userId, productId, checkInDate, checkOutDate);
 
-//        Product product = accommodation.getProducts()
-//            .stream()
-//            .filter(p -> p.getId().equals(productId))
-//            .findAny()
-//            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
-        Product product = productRepository.findByIdWithPessimisticLock(productId)
-            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
+        Product product = findProduct(productId);
 
-        List<ProductInfoPerNight> piList = productInfoPerNightRepository
-            .findByProductIdAndDateRangeWithPessimisticLock(productId, checkInDate,
-                checkOutDate.minusDays(1));
+        List<ProductInfoPerNight> piList = findProductInfoPerNightList(productId, checkInDate,
+            checkOutDate.minusDays(1));
         decreaseCountByOne(piList);
 
-//        List<ProductInfoPerNight> piList = product.getProductInfoPerNightsList();
-//        decreaseCountByOne(piList, checkInDate, checkOutDate);
-
-        Reservation reservation = Reservation.builder()
-            .user(user)
-            .accommodation(accommodation)
-            .product(product)
-            .personNumber(request.getPersonNumber())
-            .price(piList.get(0).getPrice())
-            .night(night)
-            .checkInDate(checkInDate)
-            .checkOutDate(checkOutDate)
-            .build();
+        Reservation reservation = createReservation(user, accommodation,
+            product, request.getPersonNumber(), piList.get(0).getPrice(),
+            night, checkInDate, checkOutDate);
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
@@ -142,7 +121,7 @@ public class ReservationService {
     private void checkAlreadyReserved(
         Long userId, Long productId,
         LocalDate checkInDate, LocalDate checkOutDate) {
-        List<Reservation> already = reservationRepository.findAlreadyReservation(
+        List<Reservation> already = reservationRepository.findAlreadyReservationWithPessimisticLock(
             userId, productId, checkInDate, checkOutDate);
 
         if (!already.isEmpty()) {
@@ -153,9 +132,6 @@ public class ReservationService {
     private void decreaseCountByOne(
         List<ProductInfoPerNight> productInfoPerNightsList) {
         for (ProductInfoPerNight pi : productInfoPerNightsList) {
-//            if (!isValidDate(checkInDate, checkOutDate.minusDays(1), pi.getDate())) {
-//                continue;
-//            }
             if (pi.getCount() <= 0) {
                 throw new ReservationsException(ErrorType.INCLUDES_FULLY_BOOKED_PRODUCT);
             }
@@ -163,10 +139,38 @@ public class ReservationService {
         }
     }
 
-//    private boolean isValidDate(
-//        LocalDate checkInDate, LocalDate checkOutDate,
-//        LocalDate date) {
-//        return (date.isEqual(checkInDate) || date.isAfter(checkInDate)) &&
-//            (date.isEqual(checkOutDate) || date.isBefore(checkOutDate));
-//    }
+    private Accommodation findAccommodation(Long accommodationId) {
+        return accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(
+                accommodationId)
+            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
+    }
+
+    private Product findProduct(long productId) {
+        return productRepository.findByIdWithPessimisticLock(productId)
+            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
+    }
+
+    private List<ProductInfoPerNight> findProductInfoPerNightList(long productId,
+        LocalDate checkInDate, LocalDate checkOutDate) {
+        return productInfoPerNightRepository
+            .findByProductIdAndDateRangeWithPessimisticLock(productId, checkInDate,
+                checkOutDate);
+    }
+
+    private Reservation createReservation(
+        User user, Accommodation accommodation,
+        Product product, Integer personNumber,
+        int price, int night,
+        LocalDate checkInDate, LocalDate checkOutDate) {
+        return Reservation.builder()
+            .user(user)
+            .accommodation(accommodation)
+            .product(product)
+            .personNumber(personNumber)
+            .price(price)
+            .night(night)
+            .checkInDate(checkInDate)
+            .checkOutDate(checkOutDate)
+            .build();
+    }
 }

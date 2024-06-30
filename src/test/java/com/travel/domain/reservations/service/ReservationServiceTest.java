@@ -28,6 +28,7 @@ import com.travel.global.exception.type.ErrorType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,24 +85,22 @@ class ReservationServiceTest {
         checkInDate = LocalDate.now();
         checkOutDate = checkInDate.plusDays(2);
         user = createUser("testuser@gmail.com");
-        productInfoPerNight = createProductInfoPerNight();
-        productImage = createProductImage();
-        product = createProduct();
-        accommodation = createAccommodation();
-        reservation = createReservation();
+
     }
 
     @Test
     @DisplayName("예약 내역 조회")
     void testGetReservationHistories_success() {
-
-        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        productInfoPerNight = createProductInfoPerNight(1);
+        productImage = createProductImage();
+        product = createProduct();
+        accommodation = createAccommodation();
+        reservation = createReservation();
         when(reservationRepository.findByUserId(any())).thenReturn(List.of(reservation));
 
         ReservationHistoryListResponse result = reservationService.getReservationHistories(
             user.getId());
 
-        verify(userRepository).findById(any());
         verify(reservationRepository).findByUserId(user.getId());
 
         assertNotNull(result);
@@ -112,6 +111,12 @@ class ReservationServiceTest {
     @Test
     @DisplayName("예약 생성")
     void testCreateReservation_success() {
+        productInfoPerNight = createProductInfoPerNight(1);
+        productImage = createProductImage();
+        product = createProduct();
+        accommodation = createAccommodation();
+        reservation = createReservation();
+
         when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
         when(productRepository.findByIdWithPessimisticLock(any()))
             .thenReturn(Optional.ofNullable(product));
@@ -119,7 +124,8 @@ class ReservationServiceTest {
             .findByProductIdAndDateRangeWithPessimisticLock(anyLong(), any(), any()))
             .thenReturn(List.of(productInfoPerNight));
 
-        when(accommodationRepository.findByIdWithPessimisticLock(any())).thenReturn(
+        when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(
+            any())).thenReturn(
             Optional.ofNullable(accommodation));
         when(reservationRepository.save(any())).thenReturn(reservation);
 
@@ -141,11 +147,18 @@ class ReservationServiceTest {
 
     @Test
     @DisplayName("예약 생성 시 이미 예약된 경우 예외 발생")
-    void createReservation_alreadyReserved() {
+    void testCreateReservation_alreadyReserved() {
+        productInfoPerNight = createProductInfoPerNight(1);
+        productImage = createProductImage();
+        product = createProduct();
+        accommodation = createAccommodation();
+        reservation = createReservation();
+
         when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
-        when(accommodationRepository.findByIdWithPessimisticLock(any()))
+        when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(any()))
             .thenReturn(Optional.ofNullable(accommodation));
-        when(reservationRepository.findAlreadyReservation(any(), any(), any(), any()))
+        when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
+            any()))
             .thenReturn(List.of(reservation));
 
         ReservationRequest request = new ReservationRequest(
@@ -155,10 +168,45 @@ class ReservationServiceTest {
             () -> reservationService.createReservation(request, user.getId()));
 
         verify(userRepository).findById(any());
-        verify(reservationRepository).findAlreadyReservation(any(), any(), any(), any());
+        verify(reservationRepository).findAlreadyReservationWithPessimisticLock(any(), any(), any(),
+            any());
 
         assertEquals(ErrorType.ALREADY_RESERVATION.getStatusCode(), exception.getStatusCode());
         assertEquals(ErrorType.ALREADY_RESERVATION.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("예약 마감된 객실이 포함된 경우 예외 발생")
+    void testCreateReservation_includes_fully_booked() {
+        productInfoPerNight = createProductInfoPerNight(0);
+        productImage = createProductImage();
+        product = createProduct();
+        accommodation = createAccommodation();
+        reservation = createReservation();
+
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(any()))
+            .thenReturn(Optional.ofNullable(accommodation));
+        when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
+            any())).thenReturn(new ArrayList<>());
+        when(productRepository.findByIdWithPessimisticLock(any()))
+            .thenReturn(Optional.ofNullable(product));
+        when(productInfoPerNightRepository.findByProductIdAndDateRangeWithPessimisticLock(any(),
+            any(), any())).thenReturn(List.of(productInfoPerNight));
+
+        ReservationRequest request = new ReservationRequest(
+            accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
+
+        ReservationsException exception = assertThrows(ReservationsException.class,
+            () -> reservationService.createReservation(request, user.getId()));
+
+        verify(userRepository).findById(any());
+        verify(reservationRepository).findAlreadyReservationWithPessimisticLock(any(), any(), any(),
+            any());
+
+        assertEquals(ErrorType.INCLUDES_FULLY_BOOKED_PRODUCT.getStatusCode(),
+            exception.getStatusCode());
+        assertEquals(ErrorType.INCLUDES_FULLY_BOOKED_PRODUCT.getMessage(), exception.getMessage());
     }
 
     private User createUser(String email) {
@@ -222,10 +270,10 @@ class ReservationServiceTest {
             .build();
     }
 
-    private ProductInfoPerNight createProductInfoPerNight() {
+    private ProductInfoPerNight createProductInfoPerNight(Integer count) {
         return ProductInfoPerNight.builder()
             .id(78L)
-            .count(1)
+            .count(count)
             .price(PRICE)
             .date(LocalDate.now())
             .build();

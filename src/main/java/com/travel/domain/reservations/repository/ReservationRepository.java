@@ -20,7 +20,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         + "AND r.product.id = :productId "
         + "AND :checkInDate <= r.checkInDate "
         + "AND :checkOutDate >= r.checkOutDate")
-    List<Reservation> findAlreadyReservation(
+    List<Reservation> findAlreadyReservationWithPessimisticLock(
         @Param("userId") Long userId,
         @Param("productId") Long productId,
         @Param("checkInDate") LocalDate checkInDate,
