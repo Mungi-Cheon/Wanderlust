@@ -7,7 +7,6 @@ import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.entity.AccommodationImage;
 import com.travel.domain.accommodation.entity.AccommodationOption;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
-import com.travel.domain.accommodation.service.AccommodationService;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductImageResponse;
 import com.travel.domain.product.dto.response.ProductOptionResponse;
@@ -18,6 +17,9 @@ import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.entity.ProductOption;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
+import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.ProductException;
+import com.travel.global.exception.type.ErrorType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,13 +32,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -44,9 +43,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 class ProductServiceTest {
-
-    @Autowired
-    private AccommodationService accommodationService;
 
     @MockBean
     ProductRepository productRepository;
@@ -275,8 +271,8 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("숙박 디테일, 객실 리스트 조회")
-    void getAccommodationDetail() { //product 가 null 로
+    @DisplayName("getAccommodationDetail - 조회 성공")
+    void getAccommodationDetail() {
         //given
         Accommodation accommodation = new Accommodation();
         AccommodationOption accommodationOption = createAccommodationOption(accommodation);
@@ -297,34 +293,86 @@ class ProductServiceTest {
         AccommodationImageResponse accommodationImageResponse = createAccommodationImageResponse();
         ProductImageResponse productImageResponse = createProductImageResponse();
         ProductResponse productResponse = createProductResponse(productImageResponse, product);
-        List<ProductResponse> productResponsesList = new ArrayList<>();
-        productResponsesList.add(productResponse);
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        productResponseList.add(productResponse);
 
-
-        //when
         when(accommodationRepository
             .findById(accommodationId)).thenReturn(Optional.of(accommodation));
         when(productRepository
             .findAllByAccommodationId(accommodationId)).thenReturn(productList);
-        when(productInfoPerNightRepository.findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate))
+        when(productInfoPerNightRepository
+            .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate))
             .thenReturn(productInfoPerNightList);
 
         AccommodationDetailListResponse accommodationDetailListResponse
             = createAccommodationDetailListResponse(accommodation, accommodationImageResponse,
-            accommodationOptionResponse, productResponsesList);
+            accommodationOptionResponse, productResponseList);
 
         AccommodationDetailListResponse response
-            = productService.getAccommodationDetail(accommodationId, checkInDate, checkOutDate, personNumber);
-
+            = productService.getAccommodationDetail(accommodationId, checkInDate,
+            checkOutDate, personNumber);
 
         assertNotNull(accommodationDetailListResponse);
-        assertEquals(accommodationId, accommodation.getId());
-        assertEquals(accommodationId, product.getAccommodation().getId());
+        assertEquals(response.getId(), accommodation.getId());
+        assertEquals(response.getName(), accommodationDetailListResponse.getName());
         assertEquals(1, accommodationDetailListResponse.getProductResponseList().size());
-        assertEquals(2, accommodationDetailListResponse.getProductResponseList().get(0).getStandardNumber());
+        assertEquals(standardNumber, accommodationDetailListResponse.getProductResponseList()
+            .get(0).getStandardNumber());
     }
 
     @Test
+    @DisplayName("getAccommodationDetail 숙소 없음")
+    void getAccommodationDetail_Accommodation_NOT_FOUND() {
+        Long nonExistentAccommodationId = 323L;
+        when(accommodationRepository.findById(nonExistentAccommodationId)).thenReturn(Optional.empty());
+
+        AccommodationException exception = assertThrows(AccommodationException.class, () -> {
+            productService.getAccommodationDetail(nonExistentAccommodationId, checkInDate,
+                checkOutDate, personNumber);
+        });
+        assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getAccommodationDetail 인원에 해당하는 숙소 없음")
+    void getAccommodationDetail_INVALID_NUMBER_OF_PEOPLE() {
+        int invalidNumberOfPeople = 100;
+        Accommodation accommodation = new Accommodation();
+
+        when(accommodationRepository
+            .findById(accommodationId)).thenReturn(Optional.of(accommodation));
+
+        ProductException exception = assertThrows(ProductException.class, () ->
+            productService.getAccommodationDetail(accommodationId, checkInDate,
+                checkOutDate, invalidNumberOfPeople));
+
+        assertEquals(ErrorType.INVALID_NUMBER_OF_PEOPLE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getAccommodationDetail 체크인 날짜가 올바르지 않음")
+    void getAccommodationDetail_INVALD_CHECK_IN() {
+        AccommodationException exception = assertThrows(AccommodationException.class, () ->
+            productService.getAccommodationDetail(accommodationId, checkInDate.minusDays(1),
+                checkOutDate, personNumber));
+
+        assertEquals(ErrorType.INVALID_CHECK_IN.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getAccommodationDetail 체크아웃 날짜가 올바르지 않음")
+    void getAccommodationDetail_INVALID_CHECK_OUT() {
+
+        AccommodationException exception = assertThrows(AccommodationException.class, () ->
+            productService.getAccommodationDetail(accommodationId, checkInDate.plusDays(2),
+                checkOutDate, personNumber));
+
+        assertEquals(ErrorType.INVALID_CHECK_OUT.getMessage(), exception.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("getProductDetail - 조회 성공")
     void getProductDetail() {
         ProductImageResponse productImageResponse = createProductImageResponse();
         ProductOptionResponse productOptionResponse = createProductOptionResponse();
@@ -337,8 +385,8 @@ class ProductServiceTest {
         accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
         ProductOption productOption = createProductOption(product, accommodation);
         ProductImage productImage = createProductImage(product, accommodation);
-        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation,checkInDate);
-        ProductInfoPerNight productInfoPerNight2 = createProductInfoPerNight(product, accommodation,checkOutDate);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation, checkInDate);
+        ProductInfoPerNight productInfoPerNight2 = createProductInfoPerNight(product, accommodation, checkOutDate);
         productInfoPerNightList.add(productInfoPerNight);
         productInfoPerNightList.add(productInfoPerNight2);
         product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
@@ -348,25 +396,95 @@ class ProductServiceTest {
         when(accommodationRepository
             .findById(accommodationId)).thenReturn(Optional.of(accommodation));
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-
+        when(productRepository.findByIdAndAccommodationId(productId, accommodationId)).thenReturn(Optional.of(product));
 
         when(productInfoPerNightRepository
             .findMinCountByProductIdAndDateRange(eq(productId), eq(checkInDate), eq(checkOutDate)))
             .thenReturn(productInfoPerNight.getPrice());
-
         when(productInfoPerNightRepository
             .findByProductIdAndDateRange(productId, checkInDate, checkOutDate)).thenReturn(productInfoPerNightList);
 
         ProductDetailResponse response
             = createProductDetailResponse(product, productImageResponse, productOptionResponse);
 
-        response = productService.getProductDetail(accommodationId, productId,checkInDate,checkOutDate,personNumber);
-
+        response = productService.getProductDetail(accommodationId, productId,
+            checkInDate, checkOutDate, personNumber);
 
 
         assertNotNull(response);
         assertEquals(productList.get(0).getName(), response.getName());
         assertEquals(200000, response.getTotalPrice());
+    }
+
+    @Test
+    @DisplayName("getProductDetail 숙박 없음")
+    void getProductDetail_NOT_FOUND() {
+        Long nonExistentAccommodationId = 323L;
+        Accommodation accommodation = new Accommodation();
+
+        when(accommodationRepository.findById(nonExistentAccommodationId)).thenReturn(Optional.empty());
+
+        AccommodationException exception = assertThrows(AccommodationException.class, () -> {
+            productService.getAccommodationDetail(nonExistentAccommodationId, checkInDate,
+                checkOutDate, personNumber);
+        });
+        assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getProductDetail - 객실 없음")
+    void getProductDetail_Product_NOT_FOUND() {
+        Long nonExistentProductId = 323L;
+
+        when(accommodationRepository.findById(accommodationId))
+            .thenReturn(Optional.of(new Accommodation()));
+
+        when(productRepository
+            .findByIdAndAccommodationId(nonExistentProductId, accommodationId)).thenReturn(Optional.empty());
+
+        ProductException exception = assertThrows(ProductException.class, () -> {
+            productService.getProductDetail(accommodationId, nonExistentProductId,
+                checkInDate, checkOutDate, personNumber);
+        });
+
+        assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getProductDetail - 인원 예외 ")
+    void getProductDetail_INVALID_NUMBER_OF_PEOPLE() {
+        int invalidNumberOfPerson = 55;
+        Product product = new Product();
+        when(accommodationRepository.findById(accommodationId))
+            .thenReturn(Optional.of(new Accommodation()));
+        when(productRepository.findByIdAndAccommodationId(productId, accommodationId))
+            .thenReturn(Optional.of(product));
+
+        ProductException exception = assertThrows(ProductException.class, () -> {
+            productService.getProductDetail(accommodationId, productId,
+                checkInDate, checkOutDate, invalidNumberOfPerson);
+        });
+        assertEquals(ErrorType.INVALID_NUMBER_OF_PEOPLE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getProductDetail 체크아웃 예외")
+    void getProductDetail_INVALID_CHECK_OUT() {
+
+        AccommodationException exception = assertThrows(AccommodationException.class, () ->
+            productService.getProductDetail(accommodationId, productId,
+                checkInDate.plusDays(2), checkOutDate, personNumber));
+
+        assertEquals(ErrorType.INVALID_CHECK_OUT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("getProductDetail - 체크인예외")
+    void getProductDetail_INVALID_IN_OUT() {
+        AccommodationException exception = assertThrows(AccommodationException.class, () ->
+            productService.getProductDetail(accommodationId, productId,
+                checkInDate.minusDays(2), checkOutDate, personNumber));
+
+        assertEquals(ErrorType.INVALID_CHECK_IN.getMessage(), exception.getMessage());
     }
 }
