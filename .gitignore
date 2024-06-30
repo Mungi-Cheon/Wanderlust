@@ -1,7 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/windows,java,macos,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,java,macos,gradle
 src/main/resources/application.yaml
-src/main/resources/application-prod.yml
 src/main/resources/application.yml
 
 ### Java ###
