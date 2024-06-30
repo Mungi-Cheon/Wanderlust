@@ -1,11 +1,11 @@
 package com.travel.domain.product.repository;
 
 import com.travel.domain.product.entity.ProductInfoPerNight;
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.List;
-
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,8 +21,6 @@ public interface ProductInfoPerNightRepository extends JpaRepository<ProductInfo
         @Param("checkInDate") LocalDate checkInDate,
         @Param("checkOutDate") LocalDate checkOutDate);
 
-   // @Cacheable(value = "productExistence", key = "{#productId, #date}")
-    //ALTER TABLE ProductInfoPerNight ADD INDEX idx_product_date (product_id, date);
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END " +
         "FROM ProductInfoPerNight p " +
         "WHERE p.product.id = :productId " +
@@ -41,9 +39,7 @@ public interface ProductInfoPerNightRepository extends JpaRepository<ProductInfo
         @Param("checkInDate") LocalDate checkInDate,
         @Param("checkOutDate") LocalDate checkOutDate);
 
-    //productInfoPerNight product id == product id == &&
-    // product accommodation id == accommodation id
-    @Query("SELECT p FROM ProductInfoPerNight p " +
+   @Query("SELECT p FROM ProductInfoPerNight p " +
         "WHERE p.product.accommodation.id = :accommodationId " +
         "AND p.date BETWEEN :startDate AND :endDate " +
         "AND p.count > 0")
@@ -51,4 +47,13 @@ public interface ProductInfoPerNightRepository extends JpaRepository<ProductInfo
         @Param("accommodationId") Long accommodationId,
         @Param("startDate") LocalDate checkInDate,
         @Param("endDate") LocalDate checkOutDate);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM ProductInfoPerNight p " +
+        "WHERE p.product.id = :productId " +
+        "AND p.date BETWEEN :checkInDate AND :checkOutDate")
+    List<ProductInfoPerNight> findByProductIdAndDateRangeWithPessimisticLock(
+        @Param("productId") Long productId,
+        @Param("checkInDate") LocalDate checkInDate,
+        @Param("checkOutDate") LocalDate checkOutDate);
 }

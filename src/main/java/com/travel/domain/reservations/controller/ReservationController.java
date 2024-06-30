@@ -23,35 +23,18 @@ public class ReservationController {
 
     @GetMapping("/history")
     public ResponseEntity<ReservationHistoryListResponse> getReservationHistories(
-    ) {
+        @TokenUserId Long tokenUserId) {
         ReservationHistoryListResponse response = reservationService.getReservationHistories(
-            "string@gmail.com"
-        );
+            tokenUserId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping()
     public ResponseEntity<ReservationResponse> reservation(
-        @TokenUserId Long tokenUserId, @Valid @RequestBody ReservationRequest reservationRequest
-        ) {
+        @TokenUserId Long tokenUserId, @Valid @RequestBody ReservationRequest reservationRequest) {
         System.out.println("tokenUserId = " + tokenUserId);
-        ReservationResponse response = reservationService.saveReservation(tokenUserId, reservationRequest);
+        ReservationResponse response = reservationService.createReservation(reservationRequest,
+            tokenUserId);
         return ResponseEntity.ok(response);
     }
-
-//    @GetMapping("/history2")
-//    public ResponseEntity<ReservationHistoryListResponse> getReservations(
-//        Authentication authentication) {
-//        ReservationHistoryListResponse response = reservationService.getReservationHistories(
-//            authentication.getName());
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    @PostMapping("/reservation2")
-//    public ResponseEntity<ReservationResponse> reservation(
-//        @Valid @RequestBody ReservationRequest reservationRequest, Authentication authentication) {
-//        ReservationResponse response = reservationService.saveReservation(reservationRequest,
-//            authentication.getName());
-//        return ResponseEntity.ok(response);
-//    }
 }
