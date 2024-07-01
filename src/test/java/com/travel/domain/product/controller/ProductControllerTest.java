@@ -1,48 +1,22 @@
 package com.travel.domain.product.controller;
 
-<<<<<<< HEAD
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationImageResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
-import com.travel.domain.accommodation.entity.AccommodationImage;
-=======
-import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
-import com.travel.domain.accommodation.dto.response.AccommodationImageResponse;
-import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
->>>>>>> 9dfdb58504f1fff7651ccabe45b2c66681f482bb
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductImageResponse;
 import com.travel.domain.product.dto.response.ProductOptionResponse;
 import com.travel.domain.product.dto.response.ProductResponse;
-<<<<<<< HEAD
-import com.travel.domain.product.entity.Product;
-import com.travel.domain.product.entity.ProductImage;
-import com.travel.domain.product.service.ProductService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-=======
 import com.travel.domain.product.service.ProductService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
->>>>>>> 9dfdb58504f1fff7651ccabe45b2c66681f482bb
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-<<<<<<< HEAD
-import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-=======
-import org.springframework.boot.test.mock.mockito.MockBean;
->>>>>>> 9dfdb58504f1fff7651ccabe45b2c66681f482bb
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -54,10 +28,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-<<<<<<< HEAD
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-=======
->>>>>>> 9dfdb58504f1fff7651ccabe45b2c66681f482bb
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -67,11 +37,6 @@ class ProductControllerTest {
 
     @Autowired
     private MockMvc mvc;
-<<<<<<< HEAD
-    @Autowired
-    private ObjectMapper objectMapper;
-=======
->>>>>>> 9dfdb58504f1fff7651ccabe45b2c66681f482bb
     @MockBean
     ProductService productService;
 
@@ -218,6 +183,6 @@ class ProductControllerTest {
         mvc.perform(get("/api/accommodations/{accommodationId}/{productId}", accommodationId, productId))
             .andExpect(status().isOk())
             .andDo(print());
-            then(productService).should().getProductDetail(accommodationId, productId, checkInDate, checkOutDate, personNumber);
+        then(productService).should().getProductDetail(accommodationId, productId, checkInDate, checkOutDate, personNumber);
     }
 }
