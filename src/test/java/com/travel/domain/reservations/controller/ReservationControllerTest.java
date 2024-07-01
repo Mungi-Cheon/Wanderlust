@@ -18,8 +18,8 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryListRespons
 import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.service.ReservationService;
-import com.travel.domain.user.entity.User;
-import com.travel.domain.user.repository.UserRepository;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -51,46 +51,46 @@ class ReservationControllerTest {
 
     private final LocalDate checkOutDate = LocalDate.now().plusDays(2);
     @Autowired
-    private UserRepository userRepository;
+    private MemberRepository memberRepository;
 
     @Test
     @DisplayName(value = "예약 내역 조회")
     void getReservationHistories() throws Exception {
         // Given
-        User user = createUser();
+        Member member = createMember();
 
         ReservationHistoryResponse reservationResponse = createHistoryResponse();
         ReservationHistoryListResponse listResponse = createHistoryListResponse(
             reservationResponse);
 
-        when(reservationService.getReservationHistories(user.getId()))
+        when(reservationService.getReservationHistories(member.getId()))
             .thenReturn(listResponse);
 
         // When & Then
         mockMvc.perform(get("/api/reservation/history")
-                .header("mock-token", user.getId()))
+                .header("mock-token", member.getId()))
             .andExpect(status().isOk())
             .andDo(print());
-        then(reservationService).should().getReservationHistories(user.getId());
+        then(reservationService).should().getReservationHistories(member.getId());
     }
 
     @Test
     @DisplayName(value = "예약")
     void reservation() throws Exception {
         // Given
-        User user = createUser();
+        Member member = createMember();
 
         ReservationRequest reservationRequest = createReservationRequest();
         ReservationResponse response = createReservationResponse();
 
         when(reservationService.createReservation(any(ReservationRequest.class),
-            eq(user.getId()))).thenReturn(response);
+            eq(member.getId()))).thenReturn(response);
 
         String content = mapper.writeValueAsString(reservationRequest);
 
         // When & Then
         mockMvc.perform(post("/api/reservation")
-                .header("mock-token", user.getId())
+                .header("mock-token", member.getId())
                 .content(content)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -103,13 +103,13 @@ class ReservationControllerTest {
     }
 
 
-    private User createUser() {
-        return User
+    private Member createMember() {
+        return Member
             .builder()
             .id(1L)
             .email("test@gmail.com")
-            .username("testUser")
-            .password("testUser1@#$")
+            .name("testMember")
+            .password("testMember1@#$")
             .build();
     }
 

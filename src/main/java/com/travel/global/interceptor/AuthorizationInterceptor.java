@@ -56,18 +56,18 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // (2) 토큰이 유효한지 체크 - 없다면 BAD_REQUEST 후, userId 반환
-        Long userId = jwtTokenUtility.getAccessTokenUserId(accessToken);
-        setRequestContext(userId);
+        // (2) 토큰이 유효한지 체크 - 없다면 BAD_REQUEST 후, memberId 반환
+        Long memberId = jwtTokenUtility.getAccessTokenMemberId(accessToken);
+        setRequestContext(memberId);
         return true;
     }
 
-    private void setRequestContext(Long userId) {
-        // (4)-1 현재 요청 request Context 에다가 userId를 저장한다.
+    private void setRequestContext(Long memberId) {
+        // (4)-1 현재 요청 request Context 에다가 memberId를 저장한다.
         // (4)-2 범위는 이번 요청동안만! SCOPE_REQUEST
         RequestAttributes requestContext = Objects.requireNonNull(
             RequestContextHolder.getRequestAttributes());
-        requestContext.setAttribute("userId", userId, RequestAttributes.SCOPE_REQUEST);
+        requestContext.setAttribute("memberId", memberId, RequestAttributes.SCOPE_REQUEST);
     }
 
 }

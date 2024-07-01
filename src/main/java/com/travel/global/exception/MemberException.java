@@ -3,9 +3,9 @@ package com.travel.global.exception;
 import com.travel.global.exception.type.ErrorType;
 import org.springframework.web.client.HttpStatusCodeException;
 
-public class UserException extends HttpStatusCodeException {
+public class MemberException extends HttpStatusCodeException {
 
-    public UserException(ErrorType errorType) {
+    public MemberException(ErrorType errorType) {
         super(errorType.getStatusCode(), errorType.getMessage());
     }
 

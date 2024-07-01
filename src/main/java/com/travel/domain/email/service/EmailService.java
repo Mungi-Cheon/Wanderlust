@@ -30,7 +30,7 @@ public class EmailService {
             helper.setSubject("예약 확인서");
 
             String content = loadTemplate("templates/reservation-confirmation.html", Map.of(
-                "username", reservation.getUser().getUsername(),
+                "name", reservation.getMember().getName(),
                 "accommodationName", reservation.getAccommodation().getName(),
                 "productName", reservation.getProduct().getName(),
                 "checkInDate", reservation.getCheckInDate().toString(),

@@ -11,17 +11,17 @@ import org.springframework.data.repository.query.Param;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findByUserId(Long userId);
+    List<Reservation> findByMemberId(Long memberId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r "
         + "FROM Reservation r "
-        + "WHERE r.user.id = :userId "
+        + "WHERE r.member.id = :memberId "
         + "AND r.product.id = :productId "
         + "AND :checkInDate <= r.checkInDate "
         + "AND :checkOutDate >= r.checkOutDate")
     List<Reservation> findAlreadyReservationWithPessimisticLock(
-        @Param("userId") Long userId,
+        @Param("memberId") Long memberId,
         @Param("productId") Long productId,
         @Param("checkInDate") LocalDate checkInDate,
         @Param("checkOutDate") LocalDate checkOutDate);
