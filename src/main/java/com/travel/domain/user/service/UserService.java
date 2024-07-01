@@ -1,6 +1,7 @@
 package com.travel.domain.user.service;
 
 import static com.travel.global.exception.type.ErrorType.DUPLICATED_USER;
+import static com.travel.global.exception.type.ErrorType.NONEXISTENT_USER;
 import static com.travel.global.exception.type.ErrorType.NOT_CORRECT_PASSWORD;
 
 import com.travel.domain.user.dto.request.LoginRequest;
@@ -42,7 +43,7 @@ public class UserService {
 
     public LoginDto login(LoginRequest request) {
         User user = userRepository.findByEmailOrderByIdDesc(request.getEmail())
-            .orElseThrow(() -> new UserException(DUPLICATED_USER));
+            .orElseThrow(() -> new UserException(NONEXISTENT_USER));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new UserException(NOT_CORRECT_PASSWORD);

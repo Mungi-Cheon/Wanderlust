@@ -20,6 +20,7 @@ public enum ErrorType {
     INVALID_CHECK_OUT(HttpStatus.BAD_REQUEST, "체크아웃 날짜는 체크인 날짜 이후여야 합니다."),
     EMAIL_SEND_FAILURE(HttpStatus.SERVICE_UNAVAILABLE, "이메일 전송에 실패했습니다."),
     TEMPLATE_LOAD_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "템플릿 로드에 실패했습니다."),
+    NONEXISTENT_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다."),
     DUPLICATED_USER(HttpStatus.BAD_REQUEST, "이미 존재하는 사용자입니다."),
     NOT_CORRECT_PASSWORD(HttpStatus.BAD_REQUEST,  "비밀번호가 일치하지 않습니다."),
 

@@ -9,6 +9,9 @@ import com.travel.domain.like.entity.Like;
 import com.travel.domain.like.repository.LikeRepository;
 import com.travel.domain.user.entity.User;
 import com.travel.domain.user.repository.UserRepository;
+import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.UserException;
+import com.travel.global.exception.type.ErrorType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,9 +30,9 @@ public class LikeService {
     @Transactional
     public LikeResponse clickLike(Long userId, LikeRequest request) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+            .orElseThrow(() -> new UserException(ErrorType.NONEXISTENT_USER));
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid accommodation ID"));
+            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
 
         Optional<Like> existingLike = likeRepository.findByUserAndAccommodation(user, accommodation);
         boolean liked;
@@ -41,7 +44,6 @@ public class LikeService {
             Like newLike = Like.builder()
                 .user(user)
                 .accommodation(accommodation)
-                .liked(true)
                 .build();
             likeRepository.save(newLike);
             liked = true;
@@ -54,7 +56,7 @@ public class LikeService {
     @Transactional(readOnly = true)
     public List<AccommodationResponse> getLikedAccommodations(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+            .orElseThrow(() -> new UserException(ErrorType.NONEXISTENT_USER));
         List<Accommodation> likedAccommodations = likeRepository.findByUser(user).stream()
             .map(Like::getAccommodation)
             .toList();

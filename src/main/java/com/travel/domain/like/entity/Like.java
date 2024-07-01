@@ -37,7 +37,5 @@ public class Like {
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
-
-    private Boolean liked;
 }
 
