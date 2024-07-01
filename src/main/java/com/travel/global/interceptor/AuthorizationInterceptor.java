@@ -14,6 +14,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -46,17 +47,27 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         String accessToken = request.getHeader("access-token");
         // 토큰이 없다면?
         if (accessToken == null) {
-            throw new AuthException(ErrorType.TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND);
+            String mockToken = request.getHeader("mock-token");
+            // 단위 테스트 토큰
+            if (mockToken == null) {
+                throw new AuthException(ErrorType.TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND);
+            }
+            setRequestContext(Long.valueOf(mockToken));
+            return true;
         }
 
-        // (2) 토큰이 유효한지 체크 - 없다면 BAD_REQUEST 후, userId 반환
-        Long userId = jwtTokenUtility.getAccessTokenUserId(accessToken);
+        // (2) 토큰이 유효한지 체크 - 없다면 BAD_REQUEST 후, memberId 반환
+        Long memberId = jwtTokenUtility.getAccessTokenMemberId(accessToken);
+        setRequestContext(memberId);
+        return true;
+    }
 
-        // (4)-1 현재 요청 request Context 에다가 userId를 저장한다.
+    private void setRequestContext(Long memberId) {
+        // (4)-1 현재 요청 request Context 에다가 memberId를 저장한다.
         // (4)-2 범위는 이번 요청동안만! SCOPE_REQUEST
         RequestAttributes requestContext = Objects.requireNonNull(
             RequestContextHolder.getRequestAttributes());
-        requestContext.setAttribute("userId", userId, RequestAttributes.SCOPE_REQUEST);
-        return true;
+        requestContext.setAttribute("memberId", memberId, RequestAttributes.SCOPE_REQUEST);
     }
+
 }

@@ -7,10 +7,10 @@ import com.travel.domain.like.dto.request.LikeRequest;
 import com.travel.domain.like.dto.response.LikeResponse;
 import com.travel.domain.like.entity.Like;
 import com.travel.domain.like.repository.LikeRepository;
-import com.travel.domain.user.entity.User;
-import com.travel.domain.user.repository.UserRepository;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.AccommodationException;
-import com.travel.global.exception.UserException;
+import com.travel.global.exception.MemberException;
 import com.travel.global.exception.type.ErrorType;
 import java.util.List;
 import java.util.Optional;
@@ -24,17 +24,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
     private final LikeRepository likeRepository;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final AccommodationRepository accommodationRepository;
 
     @Transactional
     public LikeResponse clickLike(Long userId, LikeRequest request) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserException(ErrorType.NONEXISTENT_USER));
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberException(ErrorType.NONEXISTENT_MEMBER));
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
 
-        Optional<Like> existingLike = likeRepository.findByUserAndAccommodation(user, accommodation);
+        Optional<Like> existingLike = likeRepository.findByMemberAndAccommodation(member, accommodation);
         boolean liked;
 
         if (existingLike.isPresent()) {
@@ -42,7 +42,7 @@ public class LikeService {
             liked = false;
         } else {
             Like newLike = Like.builder()
-                .user(user)
+                .member(member)
                 .accommodation(accommodation)
                 .build();
             likeRepository.save(newLike);
@@ -55,9 +55,9 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public List<AccommodationResponse> getLikedAccommodations(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserException(ErrorType.NONEXISTENT_USER));
-        List<Accommodation> likedAccommodations = likeRepository.findByUser(user).stream()
+        Member member = memberRepository.findById(userId)
+            .orElseThrow(() -> new MemberException(ErrorType.NONEXISTENT_MEMBER));
+        List<Accommodation> likedAccommodations = likeRepository.findByMember(member).stream()
             .map(Like::getAccommodation)
             .toList();
         return likedAccommodations.stream()

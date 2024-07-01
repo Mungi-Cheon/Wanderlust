@@ -2,7 +2,7 @@ package com.travel.domain.product.controller;
 
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.product.service.ProductService;
-import com.travel.global.annotation.TokenUserId;
+import com.travel.global.annotation.TokenMemberId;
 import com.travel.global.util.DateValidationUtil;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class AuthProductController {
 
     @GetMapping
     public ResponseEntity<AccommodationDetailListResponse> getAccommodationDetailByAuth(
-        @TokenUserId Long tokenUserId,
+        @TokenMemberId Long tokenUserId,
         @PathVariable Long accommodationId,
         @RequestParam(required = false) LocalDate checkInDate,
         @RequestParam(required = false) LocalDate checkOutDate,

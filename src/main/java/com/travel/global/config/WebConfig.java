@@ -1,7 +1,7 @@
 package com.travel.global.config;
 
 import com.travel.global.interceptor.AuthorizationInterceptor;
-import com.travel.global.resolver.TokenUserIdResolver;
+import com.travel.global.resolver.TokenMemberIdResolver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final AuthorizationInterceptor authorizationInterceptor;
-    private final TokenUserIdResolver tokenUserIdResolver;
+    private final TokenMemberIdResolver tokenMemberIdResolver;
 
     private final List<String> PASS_URL = List.of(
         "/api/auth/login",
@@ -45,6 +45,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(tokenUserIdResolver);
+        resolvers.add(tokenMemberIdResolver);
     }
 }

@@ -13,8 +13,8 @@ import com.travel.domain.like.dto.request.LikeRequest;
 import com.travel.domain.like.dto.response.LikeResponse;
 import com.travel.domain.like.entity.Like;
 import com.travel.domain.like.repository.LikeRepository;
-import com.travel.domain.user.entity.User;
-import com.travel.domain.user.repository.UserRepository;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +31,7 @@ class LikeServiceTest {
     private LikeRepository likeRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private MemberRepository memberRepository;
 
     @Mock
     private AccommodationRepository accommodationRepository;
@@ -39,7 +39,7 @@ class LikeServiceTest {
     @InjectMocks
     private LikeService likeService;
 
-    private User user;
+    private Member member;
 
     private Accommodation accommodation;
 
@@ -47,7 +47,7 @@ class LikeServiceTest {
 
     @BeforeEach
     public void setUp() {
-        user = User.builder()
+        member = Member.builder()
             .id(1L)
             .build();
 
@@ -56,7 +56,7 @@ class LikeServiceTest {
             .build();
 
         like = Like.builder()
-            .user(user)
+            .member(member)
             .accommodation(accommodation)
             .build();
     }
@@ -65,16 +65,16 @@ class LikeServiceTest {
     @DisplayName("좋아요 클릭 성공")
     void testClickLike_success() {
         // given
-        Long userId = 1L;
+        Long memberId = 1L;
         LikeRequest request = new LikeRequest(1L);
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(memberRepository.findById(any())).thenReturn(Optional.of(member));
         when(accommodationRepository.findById(any())).thenReturn(Optional.of(accommodation));
-        when(likeRepository.findByUserAndAccommodation(any(), any())).thenReturn(Optional.empty());
+        when(likeRepository.findByMemberAndAccommodation(any(), any())).thenReturn(Optional.empty());
         when(likeRepository.countByAccommodation(any())).thenReturn(1);
 
         // when
-        LikeResponse response = likeService.clickLike(userId, request);
+        LikeResponse response = likeService.clickLike(memberId, request);
 
         // then
         verify(likeRepository, times(1)).save(any(Like.class));
@@ -87,16 +87,16 @@ class LikeServiceTest {
     @DisplayName("좋아요 취소 성공")
     void testClickLike_cancelSuccess() {
         // given
-        Long userId = 1L;
+        Long memberId = 1L;
         LikeRequest request = new LikeRequest(1L);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
         when(accommodationRepository.findById(request.getAccommodationId())).thenReturn(Optional.of(accommodation));
-        when(likeRepository.findByUserAndAccommodation(user, accommodation)).thenReturn(Optional.of(like));
+        when(likeRepository.findByMemberAndAccommodation(member, accommodation)).thenReturn(Optional.of(like));
         when(likeRepository.countByAccommodation(accommodation)).thenReturn(0);
 
         // when
-        LikeResponse response = likeService.clickLike(userId, request);
+        LikeResponse response = likeService.clickLike(memberId, request);
 
         // then
         verify(likeRepository, times(1)).delete(any(Like.class));

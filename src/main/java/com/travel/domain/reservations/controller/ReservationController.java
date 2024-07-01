@@ -4,7 +4,7 @@ import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.service.ReservationService;
-import com.travel.global.annotation.TokenUserId;
+import com.travel.global.annotation.TokenMemberId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,35 +23,18 @@ public class ReservationController {
 
     @GetMapping("/history")
     public ResponseEntity<ReservationHistoryListResponse> getReservationHistories(
-    ) {
+        @TokenMemberId Long tokenMemberId) {
         ReservationHistoryListResponse response = reservationService.getReservationHistories(
-            "wanderlust.help.center@gmail.com"
-        );
+            tokenMemberId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping()
     public ResponseEntity<ReservationResponse> reservation(
-        @TokenUserId Long tokenUserId, @Valid @RequestBody ReservationRequest reservationRequest
-    ) {
-        System.out.println("tokenUserId = " + tokenUserId);
-        ReservationResponse response = reservationService.saveReservation(tokenUserId, reservationRequest);
+        @TokenMemberId Long tokenMemberId, @Valid @RequestBody ReservationRequest reservationRequest) {
+        System.out.println("tokenMemberId = " + tokenMemberId);
+        ReservationResponse response = reservationService.createReservation(reservationRequest,
+            tokenMemberId);
         return ResponseEntity.ok(response);
     }
-
-//    @GetMapping("/history2")
-//    public ResponseEntity<ReservationHistoryListResponse> getReservations(
-//        Authentication authentication) {
-//        ReservationHistoryListResponse response = reservationService.getReservationHistories(
-//            authentication.getName());
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    @PostMapping("/reservation2")
-//    public ResponseEntity<ReservationResponse> reservation(
-//        @Valid @RequestBody ReservationRequest reservationRequest, Authentication authentication) {
-//        ReservationResponse response = reservationService.saveReservation(reservationRequest,
-//            authentication.getName());
-//        return ResponseEntity.ok(response);
-//    }
 }

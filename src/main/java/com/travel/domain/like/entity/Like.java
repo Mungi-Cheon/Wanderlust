@@ -2,7 +2,7 @@ package com.travel.domain.like.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.travel.domain.accommodation.entity.Accommodation;
-import com.travel.domain.user.entity.User;
+import com.travel.domain.member.entity.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,8 +34,8 @@ public class Like {
     private Accommodation accommodation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id")
     @JsonBackReference
-    private User user;
+    private Member member;
 }
 

@@ -1,7 +1,7 @@
 package com.travel.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.travel.global.annotation.TokenUserId;
+import com.travel.global.annotation.TokenMemberId;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -39,7 +39,7 @@ public class SwaggerConfig {
         return (Operation operation, HandlerMethod handlerMethod) -> {
             if (handlerMethod.getMethod().getParameters() != null) {
                 for (java.lang.reflect.Parameter parameter : handlerMethod.getMethod().getParameters()) {
-                    if (parameter.isAnnotationPresent(TokenUserId.class)) {
+                    if (parameter.isAnnotationPresent(TokenMemberId.class)) {
                         operation.getParameters().removeIf(p -> p.getName().equals(parameter.getName()));
                     }
                 }

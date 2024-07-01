@@ -1,6 +1,6 @@
-package com.travel.domain.user.entity;
+package com.travel.domain.member.entity;
 
-import com.travel.domain.user.dto.request.SignupRequest;
+import com.travel.domain.member.dto.request.SignupRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,23 +15,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class User {
+public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String username;
+    private String name;
 
     private String password;
 
     private String email;
 
-    public static User from(
+    public static Member from(
         SignupRequest request, String password) {
-        return User.builder()
+        return Member.builder()
             .email(request.getEmail())
-            .username(request.getUsername())
+            .name(request.getName())
             .password(password)
             .build();
     }

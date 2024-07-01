@@ -31,14 +31,14 @@ public class JwtTokenUtility {
         this.verifier = JWT.require(algorithm).withIssuer(issuer).build();
     }
 
-    public Long getAccessTokenUserId(final String accessToken) {
+    public Long getAccessTokenMemberId(final String accessToken) {
         // token 검사
         validAccessTokenWithThrow(accessToken);
-        return extractUserId(accessToken);
+        return extractMemberId(accessToken);
     }
 
 
-    private Long extractUserId(final String token) {
+    private Long extractMemberId(final String token) {
         DecodedJWT decodedJwt = verifier.verify(token);
 
         String tokeId = decodedJwt.getSubject();
