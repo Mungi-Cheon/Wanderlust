@@ -14,7 +14,7 @@ import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.entity.ProductOption;
 import com.travel.domain.reservations.entity.Reservation;
-import com.travel.domain.user.entity.User;
+import com.travel.domain.member.entity.Member;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -25,7 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -62,15 +64,17 @@ class ReservationRepositoryTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     @DisplayName(value = "예약하기")
     void testSave() {
-        User user = createUser("test@gmail.com");
+        Member member = createMember("test@gmail.com");
 
         LocalDate checkInDate = LocalDate.now();
         LocalDate checkOutDate = checkInDate.plusDays(1);
         int personNumber = 2;
 
-        Reservation reservation = createReservation(user, checkInDate, checkOutDate, personNumber);
+        Reservation reservation = createReservation(member, checkInDate, checkOutDate, personNumber);
         when(reservationRepository.save(any())).thenReturn(reservation);
         Reservation saved = reservationRepository.save(reservation);
 
@@ -79,21 +83,21 @@ class ReservationRepositoryTest {
 
     @Test
     @DisplayName(value = "예약 내역 조회")
-    void testFindByUserId() {
-        User user = createUser("test100@gmail.com");
+    void testFindByMemberId() {
+        Member member = createMember("test100@gmail.com");
 
         LocalDate checkInDate = LocalDate.now();
         LocalDate checkOutDate = checkInDate.plusDays(1);
         int personNumber = 2;
 
-        Reservation reservation = createReservation(user, checkInDate, checkOutDate, personNumber);
+        Reservation reservation = createReservation(member, checkInDate, checkOutDate, personNumber);
 
         when(reservationRepository.save(any())).thenReturn(reservation);
         Reservation savedReservation = reservationRepository.save(reservation);
         assertNotNull(savedReservation);
 
-        when(reservationRepository.findByUserId(anyLong())).thenReturn(List.of(savedReservation));
-        List<Reservation> result = reservationRepository.findByUserId(user.getId());
+        when(reservationRepository.findByMemberId(anyLong())).thenReturn(List.of(savedReservation));
+        List<Reservation> result = reservationRepository.findByMemberId(member.getId());
 
         assertNotNull(result);
         assertEquals(savedReservation.getId(), result.get(0).getId());
@@ -102,13 +106,13 @@ class ReservationRepositoryTest {
     @Test
     @DisplayName(value = "동일한 예약한 날짜와 예약 상품이 존재하는 경우")
     void testFindAlreadyReservationWithPessimisticLock() {
-        User user = createUser("test101@gmail.com");
+        Member member = createMember("test101@gmail.com");
 
         LocalDate checkInDate = LocalDate.now();
         LocalDate checkOutDate = checkInDate.plusDays(2);
         int personNumber = 2;
 
-        Reservation reservation = createReservation(user, checkInDate, checkOutDate, personNumber);
+        Reservation reservation = createReservation(member, checkInDate, checkOutDate, personNumber);
         when(reservationRepository.save(any())).thenReturn(reservation);
 
         assertNotNull(reservation);
@@ -119,18 +123,18 @@ class ReservationRepositoryTest {
             .thenReturn(List.of(savedReservation));
 
         List<Reservation> result = reservationRepository
-            .findAlreadyReservationWithPessimisticLock(user.getId(), product.getId(), checkInDate,
+            .findAlreadyReservationWithPessimisticLock(member.getId(), product.getId(), checkInDate,
                 checkOutDate);
 
         assertEquals(1, result.size());
     }
 
-    private User createUser(String email) {
-        return User.builder()
+    private Member createMember(String email) {
+        return Member.builder()
             .id(1L)
             .email(email)
-            .username("testUser")
-            .password("testUser1@#$")
+            .name("testMember")
+            .password("testMember1@#$")
             .build();
     }
 
@@ -184,7 +188,7 @@ class ReservationRepositoryTest {
             .build();
     }
 
-    private Reservation createReservation(User user,
+    private Reservation createReservation(Member member,
         LocalDate checkInDate, LocalDate checkOutDate,
         int personNumber) {
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
@@ -192,7 +196,7 @@ class ReservationRepositoryTest {
 
         return Reservation.builder()
             .id(1L)
-            .user(user)
+            .member(member)
             .accommodation(accommodation)
             .product(product)
             .price(price)

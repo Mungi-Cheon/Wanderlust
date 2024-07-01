@@ -1,6 +1,5 @@
-package com.travel.domain.user.dto.response;
+package com.travel.domain.member.dto.response;
 
-import com.travel.domain.user.entity.User;
 
 public record LoginResponse(
 

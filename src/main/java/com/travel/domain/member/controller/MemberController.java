@@ -1,10 +1,10 @@
-package com.travel.domain.user.controller;
+package com.travel.domain.member.controller;
 
-import com.travel.domain.user.dto.request.LoginRequest;
-import com.travel.domain.user.dto.request.SignupRequest;
-import com.travel.domain.user.dto.response.LoginDto;
-import com.travel.domain.user.dto.response.UserResponse;
-import com.travel.domain.user.service.UserService;
+import com.travel.domain.member.dto.request.LoginRequest;
+import com.travel.domain.member.dto.request.SignupRequest;
+import com.travel.domain.member.dto.response.LoginDto;
+import com.travel.domain.member.dto.response.MemberResponse;
+import com.travel.domain.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,18 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class UserController {
+public class MemberController {
 
-    private final UserService userService;
+    private final MemberService memberService;
 
     @PostMapping("/signup")
     @Operation(summary = "회원 가입", description = "회원 정보를 등록합니다.")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "회원 가입 성공",
         content = @Content(mediaType = "application/json",
-            schema = @Schema(implementation = UserResponse.class))))
-    public ResponseEntity<UserResponse> signup(
+            schema = @Schema(implementation = MemberResponse.class))))
+    public ResponseEntity<MemberResponse> signup(
         @RequestBody @Valid SignupRequest signupRequest) {
-        UserResponse response = userService.signup(signupRequest);
+        MemberResponse response = memberService.signup(signupRequest);
         return ResponseEntity.accepted().body(response);
     }
 
@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<Void> login(
         @RequestBody @Valid LoginRequest loginRequest,
         HttpServletResponse response) {
-        LoginDto loginDto = userService.login(loginRequest);
+        LoginDto loginDto = memberService.login(loginRequest);
         response.setHeader("access-token", loginDto.accessToken());
         return ResponseEntity.ok().build();
     }

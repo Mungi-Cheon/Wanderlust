@@ -21,8 +21,8 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryListRespons
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
-import com.travel.domain.user.entity.User;
-import com.travel.domain.user.repository.UserRepository;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.type.ErrorType;
 import java.math.BigDecimal;
@@ -54,7 +54,7 @@ class ReservationServiceTest {
     private ReservationRepository reservationRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private MemberRepository memberRepository;
 
     @Mock
     private ProductInfoPerNightRepository productInfoPerNightRepository;
@@ -62,7 +62,7 @@ class ReservationServiceTest {
     @Mock
     private EmailService emailService;
 
-    private User user;
+    private Member member;
 
     private Accommodation accommodation;
 
@@ -84,7 +84,7 @@ class ReservationServiceTest {
     void setUp() {
         checkInDate = LocalDate.now();
         checkOutDate = checkInDate.plusDays(2);
-        user = createUser("testuser@gmail.com");
+        member = createMember("testmember@gmail.com");
 
     }
 
@@ -96,12 +96,12 @@ class ReservationServiceTest {
         product = createProduct();
         accommodation = createAccommodation();
         reservation = createReservation();
-        when(reservationRepository.findByUserId(any())).thenReturn(List.of(reservation));
+        when(reservationRepository.findByMemberId(any())).thenReturn(List.of(reservation));
 
         ReservationHistoryListResponse result = reservationService.getReservationHistories(
-            user.getId());
+            member.getId());
 
-        verify(reservationRepository).findByUserId(user.getId());
+        verify(reservationRepository).findByMemberId(member.getId());
 
         assertNotNull(result);
         assertEquals(1, result.getReservationHistoryList().size());
@@ -117,7 +117,7 @@ class ReservationServiceTest {
         accommodation = createAccommodation();
         reservation = createReservation();
 
-        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
         when(productRepository.findByIdWithPessimisticLock(any()))
             .thenReturn(Optional.ofNullable(product));
         when(productInfoPerNightRepository
@@ -131,9 +131,9 @@ class ReservationServiceTest {
 
         ReservationRequest req = new ReservationRequest(
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
-        ReservationResponse result = reservationService.createReservation(req, user.getId());
+        ReservationResponse result = reservationService.createReservation(req, member.getId());
 
-        verify(userRepository).findById(any());
+        verify(memberRepository).findById(any());
         verify(reservationRepository).save(any());
 
         assertNotNull(result);
@@ -154,7 +154,7 @@ class ReservationServiceTest {
         accommodation = createAccommodation();
         reservation = createReservation();
 
-        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
         when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(any()))
             .thenReturn(Optional.ofNullable(accommodation));
         when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
@@ -165,9 +165,9 @@ class ReservationServiceTest {
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
 
         ReservationsException exception = assertThrows(ReservationsException.class,
-            () -> reservationService.createReservation(request, user.getId()));
+            () -> reservationService.createReservation(request, member.getId()));
 
-        verify(userRepository).findById(any());
+        verify(memberRepository).findById(any());
         verify(reservationRepository).findAlreadyReservationWithPessimisticLock(any(), any(), any(),
             any());
 
@@ -184,7 +184,7 @@ class ReservationServiceTest {
         accommodation = createAccommodation();
         reservation = createReservation();
 
-        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(user));
+        when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
         when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(any()))
             .thenReturn(Optional.ofNullable(accommodation));
         when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
@@ -198,9 +198,9 @@ class ReservationServiceTest {
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
 
         ReservationsException exception = assertThrows(ReservationsException.class,
-            () -> reservationService.createReservation(request, user.getId()));
+            () -> reservationService.createReservation(request, member.getId()));
 
-        verify(userRepository).findById(any());
+        verify(memberRepository).findById(any());
         verify(reservationRepository).findAlreadyReservationWithPessimisticLock(any(), any(), any(),
             any());
 
@@ -209,12 +209,12 @@ class ReservationServiceTest {
         assertEquals(ErrorType.INCLUDES_FULLY_BOOKED_PRODUCT.getMessage(), exception.getMessage());
     }
 
-    private User createUser(String email) {
-        return User.builder()
+    private Member createMember(String email) {
+        return Member.builder()
             .id(35L)
             .email(email)
-            .username("testUser")
-            .password("testUser1@#$")
+            .name("testMember")
+            .password("testMember1@#$")
             .build();
     }
 
@@ -222,7 +222,7 @@ class ReservationServiceTest {
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         return Reservation.builder()
             .id(99L)
-            .user(user)
+            .member(member)
             .accommodation(accommodation)
             .product(product)
             .checkInDate(checkInDate)

@@ -1,4 +1,4 @@
-package com.travel.domain.user.dto.response;
+package com.travel.domain.member.dto.response;
 
 public record LoginDto(
 

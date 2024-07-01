@@ -13,12 +13,12 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
-import com.travel.domain.user.entity.User;
-import com.travel.domain.user.repository.UserRepository;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
-import com.travel.global.exception.UserException;
+import com.travel.global.exception.MemberException;
 import com.travel.global.exception.type.ErrorType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,14 +43,14 @@ public class ReservationService {
 
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     private final EmailService emailService;
 
     @Transactional(readOnly = true)
-    public ReservationHistoryListResponse getReservationHistories(Long userId) {
+    public ReservationHistoryListResponse getReservationHistories(Long memberId) {
 
-        List<Reservation> reservations = reservationRepository.findByUserId(userId);
+        List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
         if (reservations.isEmpty()) {
             return ReservationHistoryListResponse.builder()
                 .reservationHistoryList(new ArrayList<>()).build();
@@ -63,16 +63,16 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponse createReservation(ReservationRequest request, Long userId) {
+    public ReservationResponse createReservation(ReservationRequest request, Long memberId) {
         LocalDate checkInDate = request.getCheckInDate();
         LocalDate checkOutDate = request.getCheckOutDate();
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         long productId = request.getProductId();
 
-        User user = findUser(userId);
+        Member member = findMember(memberId);
 
         Accommodation accommodation = findAccommodation(request.getAccommodationId());
-        checkAlreadyReserved(userId, productId, checkInDate, checkOutDate);
+        checkAlreadyReserved(memberId, productId, checkInDate, checkOutDate);
 
         Product product = findProduct(productId);
 
@@ -80,21 +80,21 @@ public class ReservationService {
             checkOutDate.minusDays(1));
         decreaseCountByOne(piList);
 
-        Reservation reservation = createReservation(user, accommodation,
+        Reservation reservation = createReservation(member, accommodation,
             product, request.getPersonNumber(), piList.get(0).getPrice(),
             night, checkInDate, checkOutDate);
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        emailService.sendReservationConfirmation(user.getEmail(), savedReservation);
+        emailService.sendReservationConfirmation(member.getEmail(), savedReservation);
 
         log.debug("Saved reservation: {}", LocalDateTime.now());
         return ReservationResponse.from(savedReservation);
     }
 
-    private User findUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-            () -> new UserException(ErrorType.NOT_FOUND)
+    private Member findMember(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(
+            () -> new MemberException(ErrorType.NOT_FOUND)
         );
     }
 
@@ -119,10 +119,10 @@ public class ReservationService {
     }
 
     private void checkAlreadyReserved(
-        Long userId, Long productId,
+        Long memberId, Long productId,
         LocalDate checkInDate, LocalDate checkOutDate) {
         List<Reservation> already = reservationRepository.findAlreadyReservationWithPessimisticLock(
-            userId, productId, checkInDate, checkOutDate);
+            memberId, productId, checkInDate, checkOutDate);
 
         if (!already.isEmpty()) {
             throw new ReservationsException(ErrorType.ALREADY_RESERVATION);
@@ -158,12 +158,12 @@ public class ReservationService {
     }
 
     private Reservation createReservation(
-        User user, Accommodation accommodation,
+        Member member, Accommodation accommodation,
         Product product, Integer personNumber,
         int price, int night,
         LocalDate checkInDate, LocalDate checkOutDate) {
         return Reservation.builder()
-            .user(user)
+            .member(member)
             .accommodation(accommodation)
             .product(product)
             .personNumber(personNumber)
