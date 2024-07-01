@@ -13,3 +13,21 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
     show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${mail_username}
+    password: ${mail_password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        debug: true
+
+jwt:
+  secret-key: ${jwt_secret_key}
+  issuer: ${jwt_issuer}
+  access-token-expire-time: ${jwt_access_token_expired_time}
