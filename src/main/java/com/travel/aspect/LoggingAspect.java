@@ -3,11 +3,8 @@ package com.travel.aspect;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,5 +104,25 @@ public class LoggingAspect {
         } else {
             return HttpStatus.INTERNAL_SERVER_ERROR;
         }
+    }
+
+    //실행시간
+    @Around("cut()")
+    public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object result;
+        try {
+            result = joinPoint.proceed();  // 메서드 실행
+        } catch (Throwable throwable) {
+            logExecutionTime(joinPoint, start);
+            throw throwable;
+        }
+        logExecutionTime(joinPoint, start);
+        return result;
+    }
+
+    private void logExecutionTime(ProceedingJoinPoint joinPoint, long start) {
+        long elapsedTime = System.currentTimeMillis() - start;
+        infoLogger.info("Execution time of method {}: {} ms", getMethod(joinPoint).getName(), elapsedTime);
     }
 }

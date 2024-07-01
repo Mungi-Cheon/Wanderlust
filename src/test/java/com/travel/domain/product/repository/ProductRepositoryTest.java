@@ -13,16 +13,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 
@@ -171,5 +170,34 @@ class ProductRepositoryTest {
         assertEquals(productList.size(), result.size());
         assertEquals(productList.get(0).getId(), result.get(0).getId());
         assertEquals(productList.get(0).getName(), result.get(0).getName());
+    }
+
+    @Test
+    @DisplayName("productId, accommodationId ")
+    void findByIdAndAccommodationId() {
+        Accommodation accommodation = new Accommodation();
+        AccommodationOption accommodationOption = createAccommodationOption(accommodation);
+        AccommodationImage accommodationImage = createAccommodationImage(accommodation);
+        Product product = new Product();
+        List<Product> productList = new ArrayList<>();
+        List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
+        accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
+        ProductOption productOption = createProductOption();
+        ProductImage productImage = createProductImage(product, accommodation);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation);
+        productInfoPerNightList.add(productInfoPerNight);
+        product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
+        productList.add(product);
+
+        productRepository.save(product);
+
+        when(productRepository.findByIdAndAccommodationId(productId, accommodationId))
+            .thenReturn(Optional.of(product));
+
+        Optional<Product> result = productRepository.findByIdAndAccommodationId(productId, accommodationId);
+
+        assertTrue(result.isPresent());
+        assertEquals(productId, result.get().getId());
+        assertEquals(accommodationId, result.get().getAccommodation().getId());
     }
 }

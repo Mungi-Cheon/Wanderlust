@@ -20,6 +20,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: 테스트를 실행을 위한 application.yml(test) 환경변수 설정
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ./src/test/resources/application.yml
+        env:
+          spring.mail.username: ${{secrets.MAIL_USERNAME}}
+          spring.mail.password: ${{secrets.MAIL_PASSWORD}}
+          jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
+          jwt.issuer: ${{secrets.JWT_ISSUER}}
+          jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
+
       - name: Grant execute permission for Gradlew
         run: chmod +x ./gradlew
 

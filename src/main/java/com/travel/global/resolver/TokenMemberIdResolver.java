@@ -1,6 +1,6 @@
 package com.travel.global.resolver;
 
-import com.travel.global.annotation.TokenUserId;
+import com.travel.global.annotation.TokenMemberId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -13,12 +13,12 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Component
 @RequiredArgsConstructor
-public class TokenUserIdResolver implements HandlerMethodArgumentResolver {
+public class TokenMemberIdResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         // 지원하는 파라미터 체크, 어노테이션 체크
-        boolean annotation = parameter.hasParameterAnnotation(TokenUserId.class);
+        boolean annotation = parameter.hasParameterAnnotation(TokenMemberId.class);
         boolean parameterType = parameter.getParameterType().equals(Long.class);
 
         return (annotation && parameterType);
@@ -29,8 +29,8 @@ public class TokenUserIdResolver implements HandlerMethodArgumentResolver {
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         // supportsParameter 에서 return true 일 때 해당 메서드 실행
         RequestAttributes requestContext = RequestContextHolder.getRequestAttributes();
-        Object userId = requestContext.getAttribute("userId", RequestAttributes.SCOPE_REQUEST);
+        Object memberId = requestContext.getAttribute("memberId", RequestAttributes.SCOPE_REQUEST);
 
-        return Long.parseLong(userId.toString());
+        return Long.parseLong(memberId.toString());
     }
 }

@@ -4,7 +4,7 @@ package com.travel.domain.reservations.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.product.entity.Product;
-import com.travel.domain.user.entity.User;
+import com.travel.domain.member.entity.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,9 +39,9 @@ public class Reservation {
     private LocalDate checkOutDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id")
     @JsonIgnore
-    private User user;
+    private Member member;
     @ManyToOne
     @JoinColumn(name = "accommodation_id")
     @JsonIgnore
