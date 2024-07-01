@@ -2,6 +2,7 @@ package com.travel.domain.accommodation.controller;
 
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.service.AccommodationService;
+import com.travel.global.util.DateValidationUtil;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +26,8 @@ public class AccommodationController {
         @RequestParam(required = false) LocalDate checkOutDate,
         @RequestParam(defaultValue = "2") int personNumber) {
 
-        if (checkInDate == null) {
-            checkInDate = LocalDate.now();
-        }
-
-        if (checkOutDate == null) {
-            checkOutDate = checkInDate.plusDays(1);
-        }
+        checkInDate = DateValidationUtil.checkInDate(checkInDate);
+        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
 
         List<AccommodationResponse> responses = accommodationService
             .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber);

@@ -1,6 +1,7 @@
 package com.travel.domain.member.service;
 
 import static com.travel.global.exception.type.ErrorType.DUPLICATED_MEMBER;
+import static com.travel.global.exception.type.ErrorType.NONEXISTENT_MEMBER;
 import static com.travel.global.exception.type.ErrorType.NOT_CORRECT_PASSWORD;
 
 import com.travel.domain.member.dto.request.LoginRequest;
@@ -42,7 +43,7 @@ public class MemberService {
 
     public LoginDto login(LoginRequest request) {
         Member member = memberRepository.findByEmailOrderByIdDesc(request.getEmail())
-            .orElseThrow(() -> new MemberException(DUPLICATED_MEMBER));
+            .orElseThrow(() -> new MemberException(NONEXISTENT_MEMBER));
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new MemberException(NOT_CORRECT_PASSWORD);

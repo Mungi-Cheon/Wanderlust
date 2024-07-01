@@ -8,6 +8,9 @@ import com.travel.domain.accommodation.dto.response.AccommodationImageResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
+import com.travel.domain.like.repository.LikeRepository;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductImageResponse;
 import com.travel.domain.product.dto.response.ProductOptionResponse;
@@ -17,6 +20,7 @@ import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.MemberException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
 
@@ -38,6 +42,8 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
     private final AccommodationRepository accommodationRepository;
+    private final LikeRepository likeRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
@@ -68,9 +74,49 @@ public class ProductService {
         AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse
             .from(accommodationEntity.getOptions());
 
+        Boolean liked = false;
+        int likeCount = likeRepository.countByAccommodation(accommodationEntity);
+
         return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
-            checkOutDate, accommodationImageResponse,
-            accommodationOptionResponse, productResponses);
+            checkOutDate, accommodationImageResponse, accommodationOptionResponse,
+            productResponses, liked, likeCount);
+    }
+
+    @Transactional(readOnly = true)
+    public AccommodationDetailListResponse getAccommodationDetailByAuth(
+        Long accommodationId, LocalDate checkInDate,
+        LocalDate checkOutDate, int personNumber, Long memberId) {
+        validateInputs(checkInDate, checkOutDate, personNumber);
+
+        Accommodation accommodationEntity = findAccommodation(accommodationId);
+
+        List<Product> productEntityList = productRepository.findAllByAccommodationId(
+            accommodationId);
+
+        List<ProductInfoPerNight> productInfoPerNightList = productInfoPerNightRepository
+            .findByAccommodationIdAndDateRange(accommodationId, checkInDate, checkOutDate);
+
+        List<Product> validProductList = findProductList(productEntityList, productInfoPerNightList,
+            checkInDate, checkOutDate, personNumber);
+
+        if (validProductList.isEmpty()) {
+            throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
+        }
+
+        List<ProductResponse> productResponses = findProductResponse(validProductList, productInfoPerNightList);
+
+        AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse
+            .from(accommodationEntity.getImages());
+
+        AccommodationOptionResponse accommodationOptionResponse = AccommodationOptionResponse
+            .from(accommodationEntity.getOptions());
+
+        Boolean liked = getLikedStatus(accommodationEntity, memberId);
+        int likeCount = likeRepository.countByAccommodation(accommodationEntity);
+
+        return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
+            checkOutDate, accommodationImageResponse, accommodationOptionResponse,
+            productResponses, liked, likeCount);
     }
 
     @Transactional(readOnly = true)
@@ -111,7 +157,7 @@ public class ProductService {
     }
 
     private void validateInputs(LocalDate checkInDate, LocalDate checkOutDate,
-                                int personNumber) {
+        int personNumber) {
         if (!isCheckInValid(checkInDate)) {
             throw new AccommodationException(ErrorType.INVALID_CHECK_IN);
         }
@@ -129,8 +175,8 @@ public class ProductService {
     }
 
     private List<Product> findProductList(List<Product> productList, List<ProductInfoPerNight> productInfoPerNightList,
-                                          LocalDate checkInDate, LocalDate checkOutDate,
-                                          int personNumber) {
+        LocalDate checkInDate, LocalDate checkOutDate,
+        int personNumber) {
         Map<Long, List<ProductInfoPerNight>> perNightMap = productInfoPerNightList.stream()
             .collect(Collectors.groupingBy(p -> p.getProduct().getId()));
 
@@ -147,7 +193,7 @@ public class ProductService {
     }
 
     private List<ProductResponse> findProductResponse(List<Product> productList,
-                                                      List<ProductInfoPerNight> productInfoPerNightList) {
+        List<ProductInfoPerNight> productInfoPerNightList) {
         Map<Long, List<ProductInfoPerNight>> perNightMap = productInfoPerNightList.stream()
             .collect(Collectors.groupingBy(p -> p.getProduct().getId()));
 
@@ -164,7 +210,7 @@ public class ProductService {
     }
 
     private List<ProductInfoPerNight> findAvailableProductPerNight(Long productId, LocalDate checkInDate,
-                                                                   LocalDate checkOutDate) {
+        LocalDate checkOutDate) {
         List<ProductInfoPerNight> infoPerNightList = productInfoPerNightRepository
             .findByProductIdAndDateRange(productId, checkInDate, checkOutDate);
         return infoPerNightList;
@@ -174,5 +220,14 @@ public class ProductService {
         return productInfoPerNightList.stream()
             .mapToInt(ProductInfoPerNight::getPrice)
             .sum();
+    }
+
+    private Boolean getLikedStatus(Accommodation accommodation, Long userId) {
+        if (userId != null) {
+            Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new MemberException(ErrorType.NONEXISTENT_MEMBER));
+            return likeRepository.findByMemberAndAccommodation(member, accommodation).isPresent();
+        }
+        return false;
     }
 }
