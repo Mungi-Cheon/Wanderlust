@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Builder
 @AllArgsConstructor
-@Getter  //count 추가
+@Getter //count
 public class ProductDetailResponse {
 
     private Long id;
@@ -28,8 +28,6 @@ public class ProductDetailResponse {
     private int standardNumber;
 
     private int maximumNumber;
-
-    private int count;
 
     private String type;
 
@@ -52,7 +50,6 @@ public class ProductDetailResponse {
             .numberOfStay(numberOfStay)
             .standardNumber(product.getStandardNumber())
             .maximumNumber(product.getMaximumNumber())
-            .count(numberOfStay)
             .type(product.getType())
             .productImageResponse(productImageResponse)
             .productOption(productOptionResponse)
