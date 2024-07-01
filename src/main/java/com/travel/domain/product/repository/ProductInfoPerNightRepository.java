@@ -2,10 +2,8 @@ package com.travel.domain.product.repository;
 
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import jakarta.persistence.LockModeType;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;

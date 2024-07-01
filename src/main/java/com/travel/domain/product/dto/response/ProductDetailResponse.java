@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Builder
 @AllArgsConstructor
-@Getter //count
+@Getter
 public class ProductDetailResponse {
 
     private Long id;
