@@ -1,6 +1,6 @@
 package com.travel.global.config;
 
-import com.travel.global.decorator.CustomDecorator;
+import com.travel.global.decorator.MailTaskDecorator;
 import com.travel.global.exception.handler.AsyncExceptionHandler;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -23,7 +23,7 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setQueueCapacity(100);
         executor.setKeepAliveSeconds(30);
         executor.setThreadNamePrefix("AsyncExecutor-");
-        executor.setTaskDecorator(new CustomDecorator());
+        executor.setTaskDecorator(new MailTaskDecorator());
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
         return executor;
