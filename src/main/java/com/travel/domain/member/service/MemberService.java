@@ -12,6 +12,7 @@ import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.MemberException;
 import com.travel.global.jwt.JwtProvider;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,8 +43,12 @@ public class MemberService {
     }
 
     public LoginDto login(LoginRequest request) {
-        Member member = memberRepository.findByEmailOrderByIdDesc(request.getEmail())
-            .orElseThrow(() -> new MemberException(NONEXISTENT_MEMBER));
+        List<Member> members = memberRepository.findByEmailOrderByIdDesc(request.getEmail());
+        if (members.isEmpty()) {
+            throw new MemberException(NONEXISTENT_MEMBER);
+        }
+
+        Member member = members.get(0);
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new MemberException(NOT_CORRECT_PASSWORD);
