@@ -2,9 +2,13 @@ package com.travel.domain.product.controller;
 
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
+import com.travel.domain.product.dto.response.ProductSimpleResponse;
 import com.travel.domain.product.service.ProductService;
 import com.travel.global.util.DateValidationUtil;
+
 import java.time.LocalDate;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,6 +53,15 @@ public class ProductController {
 
         var response = productService.getProductDetail(accommodationId, productId,
             checkInDate, checkOutDate, personNumber);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductSimpleResponse>> getSearchProduct(
+        @PathVariable Long accommodationId,
+        @RequestParam String keyword
+    ) {
+        var response = productService.getSearchProduct(accommodationId, keyword);
         return ResponseEntity.ok(response);
     }
 
