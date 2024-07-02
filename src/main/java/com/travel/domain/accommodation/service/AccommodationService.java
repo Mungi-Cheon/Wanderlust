@@ -31,7 +31,14 @@ public class AccommodationService {
     public List<AccommodationResponse> getAvailableAccommodations(String category,
         LocalDate checkIn, LocalDate checkOut, int personNumber) {
         validateInputs(checkIn, checkOut, personNumber);
-        List<Accommodation> accommodations = accommodationRepository.findByCategory(category);
+
+        List<Accommodation> accommodations;
+        if(category == null) {
+            accommodations = accommodationRepository.findAll();
+        }
+        else {
+            accommodations = accommodationRepository.findByCategory(category);
+        }
 
         List<Accommodation> validAccommodationList = accommodations.stream()
             .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut))

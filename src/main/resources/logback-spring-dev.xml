@@ -1,5 +1,5 @@
 <included>
-  <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+  <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>

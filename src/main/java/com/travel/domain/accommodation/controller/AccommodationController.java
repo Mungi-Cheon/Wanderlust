@@ -21,7 +21,7 @@ public class AccommodationController {
 
     @GetMapping
     public ResponseEntity<List<AccommodationResponse>> getAvailableAccommodations(
-        @RequestParam(defaultValue = "호텔") String category,
+        @RequestParam(required = false) String category,
         @RequestParam(required = false) LocalDate checkInDate,
         @RequestParam(required = false) LocalDate checkOutDate,
         @RequestParam(defaultValue = "2") int personNumber) {
