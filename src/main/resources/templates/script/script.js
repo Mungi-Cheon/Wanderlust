@@ -2,8 +2,8 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export let options = {
-  vus: 1, // virtual users
-  duration: '10s', // test duration
+  vus: 200, // virtual users
+  duration: '1m', // test duration
 };
 
 export default function () {
@@ -14,7 +14,7 @@ export default function () {
   let params = {
     category: '호텔',  // Example category
     checkInDate: '2024-07-10',  // Example check-in date
-    checkOutDate: '2024-07-15',  // Example check-out date
+    checkOutDate: '2024-07-11',  // Example check-out date
     personNumber: 2  // Example number of persons
   };
 

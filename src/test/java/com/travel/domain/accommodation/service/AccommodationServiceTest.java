@@ -58,6 +58,8 @@ class AccommodationServiceTest {
 
         product = Product.builder()
             .type("Standard")
+            .standardNumber(2)
+            .maximumNumber(4)
             .productInfoPerNightsList(List.of(productInfoPerNight))
             .build();
 
