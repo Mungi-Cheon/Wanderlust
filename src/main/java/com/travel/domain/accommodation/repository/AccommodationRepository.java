@@ -13,7 +13,24 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccommodationRepository extends JpaRepository<Accommodation, Long> {
 
-    List<Accommodation> findByCategory(String category);
+    List<Accommodation> findAll();
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM Accommodation a WHERE a.id = :id")
+    Optional<Accommodation> findByIdWithLock(@Param("id") Long id);
+
+    @Query(value = "SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options",
+        countQuery = "SELECT COUNT(a) FROM Accommodation a")
+    List<Accommodation> findAllWithImagesAndOptions();
+
+    @Query(value = "SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options " +
+        "WHERE a.category = :category",
+        countQuery = "SELECT COUNT(a) FROM Accommodation a WHERE a.category = :category")
+    List<Accommodation> findByCategoryWithImagesAndOptions(@Param("category") String category);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Accommodation a " +
