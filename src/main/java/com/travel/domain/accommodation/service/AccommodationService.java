@@ -7,7 +7,6 @@ import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.product.entity.Product;
-import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
@@ -33,15 +32,15 @@ public class AccommodationService {
         validateInputs(checkIn, checkOut, personNumber);
 
         List<Accommodation> accommodations;
-        if(category == null) {
+        if (category == null) {
             accommodations = accommodationRepository.findAll();
-        }
-        else {
+        } else {
             accommodations = accommodationRepository.findByCategory(category);
         }
 
         List<Accommodation> validAccommodationList = accommodations.stream()
-            .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut))
+            .filter(accommodation ->
+                hasValidProducts(accommodation, checkIn, checkOut, personNumber))
             .toList();
 
         if (validAccommodationList.isEmpty()) {
@@ -66,10 +65,13 @@ public class AccommodationService {
     }
 
     private boolean hasValidProducts(Accommodation accommodation, LocalDate checkIn,
-        LocalDate checkOut) {
+        LocalDate checkOut, Integer personNumber) {
         List<Product> productEntityList = productRepository.findAllByAccommodationId(
             accommodation.getId());
         return productEntityList.stream()
+            .filter(product
+                -> product.getStandardNumber() <= personNumber
+                && product.getMaximumNumber() >= personNumber)
             .anyMatch(product -> areAllDatesAvailable(product.getId(), checkIn, checkOut));
     }
 
