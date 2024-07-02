@@ -18,4 +18,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdWithPessimisticLock(@Param("id") Long id);
 
     Optional<Product> findByIdAndAccommodationId(Long productId, Long accommodationId);
+
+    @Query("SELECT p FROM Product p " +
+        "LEFT JOIN FETCH p.productOption " +
+        "LEFT JOIN FETCH p.productImage " +
+        "WHERE p.accommodation.id = :accommodationId")
+    List<Product> findAllByAccommodationIdWithFetchJoin(@Param("accommodationId") Long accommodationId);
 }

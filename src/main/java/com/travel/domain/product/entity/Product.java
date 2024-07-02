@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Getter
@@ -56,6 +57,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference
+    @BatchSize(size = 10)
     private List<ProductInfoPerNight> productInfoPerNightsList;
 
     @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)

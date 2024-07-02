@@ -140,7 +140,7 @@ public class ReservationService {
     }
 
     private Accommodation findAccommodation(Long accommodationId) {
-        return accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(
+        return accommodationRepository.findByIdWithLock(
                 accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
     }
