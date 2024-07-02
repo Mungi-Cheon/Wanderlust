@@ -183,6 +183,6 @@ class ProductControllerTest {
         mvc.perform(get("/api/accommodations/{accommodationId}/{productId}", accommodationId, productId))
             .andExpect(status().isOk())
             .andDo(print());
-            then(productService).should().getProductDetail(accommodationId, productId, checkInDate, checkOutDate, personNumber);
+        then(productService).should().getProductDetail(accommodationId, productId, checkInDate, checkOutDate, personNumber);
     }
 }

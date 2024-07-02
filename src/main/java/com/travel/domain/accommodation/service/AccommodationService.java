@@ -31,7 +31,14 @@ public class AccommodationService {
     public List<AccommodationResponse> getAvailableAccommodations(String category,
         LocalDate checkIn, LocalDate checkOut, int personNumber) {
         validateInputs(checkIn, checkOut, personNumber);
-        List<Accommodation> accommodations = accommodationRepository.findByCategory(category);
+
+        List<Accommodation> accommodations;
+        if(category == null) {
+            accommodations = accommodationRepository.findAll();
+        }
+        else {
+            accommodations = accommodationRepository.findByCategory(category);
+        }
 
         List<Accommodation> validAccommodationList = accommodations.stream()
             .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut))
@@ -42,7 +49,7 @@ public class AccommodationService {
         }
 
         return validAccommodationList.stream()
-            .map(this::createAccommodationResponse)
+            .map(AccommodationResponse::createAccommodationResponse)
             .collect(Collectors.toList());
     }
 
@@ -70,16 +77,5 @@ public class AccommodationService {
         return checkIn.datesUntil(checkOut)
             .allMatch(
                 date -> productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
-    }
-
-    private AccommodationResponse createAccommodationResponse(Accommodation accommodation) {
-        int price = accommodation.getProducts().stream()
-            .filter(product -> "standard".equalsIgnoreCase(product.getType()))
-            .flatMap(product -> product.getProductInfoPerNightsList().stream())
-            .mapToInt(ProductInfoPerNight::getPrice)
-            .findFirst()
-            .orElse(0);
-
-        return AccommodationResponse.from(accommodation, price);
     }
 }
