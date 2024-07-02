@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.time.LocalDate;
 
 @RestController
@@ -30,15 +29,16 @@ public class AccommodationController {
         @RequestParam(required = false) LocalDate checkOutDate,
         @RequestParam(defaultValue = "2") int personNumber,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "8") int size) {
+        @RequestParam(defaultValue = "8") int size)  {
 
         checkInDate = DateValidationUtil.checkInDate(checkInDate);
         checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC,"id"));
 
         Page<AccommodationResponse> responses = accommodationService
-            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber, pageable);
+            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber, pageable)
+            ;
         return ResponseEntity.ok(responses);
     }
 }

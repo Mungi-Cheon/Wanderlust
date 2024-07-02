@@ -11,10 +11,7 @@ import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.like.repository.LikeRepository;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
-import com.travel.domain.product.dto.response.ProductDetailResponse;
-import com.travel.domain.product.dto.response.ProductImageResponse;
-import com.travel.domain.product.dto.response.ProductOptionResponse;
-import com.travel.domain.product.dto.response.ProductResponse;
+import com.travel.domain.product.dto.response.*;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
@@ -154,6 +151,20 @@ public class ProductService {
         return ProductDetailResponse.from(productEntity, accommodationEntity.getName(),
             availableProductPerNights.get(0).getPrice(), totalPrice, (int) expectedNights,
             productImageResponse, productOptionResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductSimpleResponse> getSearchProduct(Long accommodationId, String keyword){
+        Accommodation accommodation = findAccommodation(accommodationId);
+
+        List<Product> productList = accommodation.getProducts();
+
+        List<ProductSimpleResponse> filteredProducts = productList.stream()
+            .filter(product -> product.getName().contains(keyword))
+            .map(ProductSimpleResponse::from)
+            .collect(Collectors.toList());
+
+        return filteredProducts;
     }
 
     private void validateInputs(LocalDate checkInDate, LocalDate checkOutDate,

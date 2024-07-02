@@ -23,5 +23,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "LEFT JOIN FETCH p.productOption " +
         "LEFT JOIN FETCH p.productImage " +
         "WHERE p.accommodation.id = :accommodationId")
-    List<Product> findAllByAccommodationIdWithFetchJoin(@Param("accommodationId") Long accommodationId);
+    List<Product> findAllByAccommodationIdWithFetchJoin
+        (@Param("accommodationId") Long accommodationId);
 }

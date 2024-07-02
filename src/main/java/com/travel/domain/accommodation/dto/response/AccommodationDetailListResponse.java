@@ -3,6 +3,8 @@ package com.travel.domain.accommodation.dto.response;
 
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.product.dto.response.ProductResponse;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -15,15 +17,28 @@ import lombok.Getter;
 public class AccommodationDetailListResponse {
 
     private Long id;
+
     private String name;
+
     private String description;
+
     private LocalDate checkInDate;
+
     private LocalDate checkOutDate;
+
     private AccommodationImageResponse accommodationImage;
+
     private AccommodationOptionResponse accommodationOption;
+
     private List<ProductResponse> productResponseList;
+
     private Boolean liked;
+
     private int likeCount;
+
+    private String category;
+
+    private BigDecimal grade;
 
     public static AccommodationDetailListResponse from(Accommodation accommodation,
         LocalDate checkInDate,
@@ -41,6 +56,8 @@ public class AccommodationDetailListResponse {
             .productResponseList(productResponseList)
             .liked(liked)
             .likeCount(likeCount)
+            .category(accommodation.getCategory())
+            .grade(accommodation.getGrade())
             .build();
     }
 }

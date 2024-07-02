@@ -55,11 +55,11 @@ public class Accommodation {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
     @JsonManagedReference
-    @BatchSize(size = 10)  // 배치 사이즈 설정
+    @BatchSize(size = 8)
     private List<Product> products;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
     @JsonManagedReference
-    @BatchSize(size = 10)  // 배치 사이즈 설정
+    @BatchSize(size = 10)
     private List<Like> likes;
 }
