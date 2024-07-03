@@ -11,33 +11,26 @@ import com.travel.global.exception.type.ErrorType;
 import com.travel.global.util.DateValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AccommodationService {
 
     private final ProductRepository productRepository;
-
     private final AccommodationRepository accommodationRepository;
-
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
 
     @Cacheable(value = "accommodations",
         key = "#category + '-' + #checkIn + '-' + "
-            + "#checkOut + '-' + #personNumber + '-' + "
-            + "#pageable.pageNumber + '-' + #pageable.pageSize")
+            + "#checkOut + '-' + #personNumber + '-' + #page + '-' + #size")
     @Transactional(readOnly = true)
-    public Page<AccommodationResponse> getAvailableAccommodations(
-        String category, LocalDate checkIn,
-        LocalDate checkOut, int personNumber,
-        Pageable pageable) {
+    public List<AccommodationResponse> getAvailableAccommodations(
+        String category, LocalDate checkIn, LocalDate checkOut, int personNumber, int page, int size) {
         validateInputs(checkIn, checkOut, personNumber);
 
         List<Accommodation> accommodations;
@@ -48,20 +41,18 @@ public class AccommodationService {
         }
 
         List<AccommodationResponse> validAccommodations = accommodations.stream()
-            .filter(
-                accommodation -> hasValidProducts(accommodation, checkIn, checkOut, personNumber))
+            .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut, personNumber))
             .map(AccommodationResponse::createAccommodationResponse)
-            .toList();
+            .collect(Collectors.toList());
 
         if (validAccommodations.isEmpty()) {
             throw new AccommodationException(ErrorType.NOT_FOUND);
         }
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), validAccommodations.size());
+        int start = page * size;
+        int end = Math.min(start + size, validAccommodations.size());
 
-        return new PageImpl<>(validAccommodations.subList(start, end),
-            pageable, validAccommodations.size());
+        return validAccommodations.subList(start, end);
     }
 
     private void validateInputs(LocalDate checkIn, LocalDate checkOut, int personNumber) {
@@ -82,15 +73,13 @@ public class AccommodationService {
             .findAllByAccommodationIdWithFetchJoin(accommodation.getId());
 
         return productEntityList.stream()
-            .filter(product
-                -> product.getStandardNumber() <= personNumber
+            .filter(product -> product.getStandardNumber() <= personNumber
                 && product.getMaximumNumber() >= personNumber)
             .anyMatch(product -> areAllDatesAvailable(product.getId(), checkIn, checkOut));
     }
 
     private boolean areAllDatesAvailable(Long productId, LocalDate checkIn, LocalDate checkOut) {
         return checkIn.datesUntil(checkOut)
-            .allMatch(
-                date -> productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
+            .allMatch(date -> productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
     }
 }

@@ -22,10 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,13 +50,11 @@ public class AccommodationControllerTest {
             .build();
 
         List<AccommodationResponse> mockResponse = List.of(accommodationResponse);
-        Pageable pageable = PageRequest.of(0, 8);
-        Page<AccommodationResponse> mockPage = new PageImpl<>(mockResponse, pageable, mockResponse.size());
 
         Mockito.when(accommodationService.getAvailableAccommodations(
                 anyString(), any(LocalDate.class),
-                any(LocalDate.class), anyInt(), any(Pageable.class)))
-            .thenReturn(mockPage);
+                any(LocalDate.class), anyInt(), anyInt(), anyInt()))
+            .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/accommodations")
                 .param("category", "호텔")
@@ -71,9 +65,9 @@ public class AccommodationControllerTest {
                 .param("size", "8")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content", hasSize(1)))
-            .andExpect(jsonPath("$.content[0].id", is(1)))
-            .andExpect(jsonPath("$.content[0].name", is("Test Hotel")))
-            .andExpect(jsonPath("$.content[0].category", is("호텔")));
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id", is(1)))
+            .andExpect(jsonPath("$[0].name", is("Test Hotel")))
+            .andExpect(jsonPath("$[0].category", is("호텔")));
     }
 }
