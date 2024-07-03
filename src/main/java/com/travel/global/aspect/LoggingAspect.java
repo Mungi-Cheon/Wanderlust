@@ -1,10 +1,15 @@
-package com.travel.aspect;
+package com.travel.global.aspect;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +28,8 @@ public class LoggingAspect {
 
     // com.travel.domain 이하 패키지의 모든 클래스 이하 모든 메서드에 적용
     @Pointcut("execution(* com.travel.domain..*.*(..))")
-    private void cut() {}
+    private void cut() {
+    }
 
     // Pointcut에 의해 필터링된 경로로 들어오는 경우 메서드 호출 전에 적용
     // JoinPoint 객체를 통해 메서드와 파라미터에 접근
@@ -123,6 +129,7 @@ public class LoggingAspect {
 
     private void logExecutionTime(ProceedingJoinPoint joinPoint, long start) {
         long elapsedTime = System.currentTimeMillis() - start;
-        infoLogger.info("Execution time of method {}: {} ms", getMethod(joinPoint).getName(), elapsedTime);
+        infoLogger.info("Execution time of method {}: {} ms", getMethod(joinPoint).getName(),
+            elapsedTime);
     }
 }

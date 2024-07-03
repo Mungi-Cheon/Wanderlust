@@ -20,11 +20,12 @@ public interface ProductInfoPerNightRepository extends JpaRepository<ProductInfo
         @Param("checkInDate") LocalDate checkInDate,
         @Param("checkOutDate") LocalDate checkOutDate);
 
-    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END " +
-        "FROM ProductInfoPerNight p " +
-        "WHERE p.product.id = :productId " +
-        "AND p.date = :date " +
-        "AND p.count > 0")
+    @Query("SELECT CASE WHEN COUNT(pn) > 0 THEN TRUE ELSE FALSE END " +
+        "FROM Product p " +
+        "JOIN p.productInfoPerNightsList pn " +
+        "WHERE p.id = :productId " +
+        "AND pn.date = :date " +
+        "AND pn.count > 0")
     boolean existsByProductIdAndDate(
         @Param("productId") Long productId,
         @Param("date") LocalDate date
