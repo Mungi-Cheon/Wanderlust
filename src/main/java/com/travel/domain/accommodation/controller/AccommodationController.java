@@ -55,14 +55,14 @@ public class AccommodationController {
     public ResponseEntity<Page<AccommodationResponse>> getAvailableAccommodations(
         @RequestParam(required = false) String category,
         @RequestParam(required = false) LocalDate checkInDate,
-        @RequestParam(required = false) LocalDate checkOutDate) {
+        @RequestParam(required = false) LocalDate checkOutDate,
+        @RequestParam(defaultValue = "2") int personNumber) {
 
         checkInDate = DateValidationUtil.checkInDate(checkInDate);
         checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
 
         Page<AccommodationResponse> responses = accommodationService
-            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber,
-                pageable);
+            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber);
         return ResponseEntity.ok(responses);
     }
 }
