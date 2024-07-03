@@ -48,7 +48,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference
-    @BatchSize(size = 10)
+    @BatchSize(size = 100)
     private List<ProductInfoPerNight> productInfoPerNightsList;
 
     @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)

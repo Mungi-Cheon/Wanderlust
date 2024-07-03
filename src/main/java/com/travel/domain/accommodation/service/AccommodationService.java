@@ -10,6 +10,7 @@ import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.type.ErrorType;
 import com.travel.global.util.DateValidationUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,10 @@ public class AccommodationService {
 
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
 
+    @Cacheable(value = "accommodations",
+        key = "#category + '-' + #checkIn + '-' + "
+            + "#checkOut + '-' + #personNumber + '-' + "
+            + "#pageable.pageNumber + '-' + #pageable.pageSize")
     @Transactional(readOnly = true)
     public Page<AccommodationResponse> getAvailableAccommodations(
         String category, LocalDate checkIn,
@@ -37,9 +42,9 @@ public class AccommodationService {
 
         List<Accommodation> accommodations;
         if (category == null) {
-            accommodations = accommodationRepository.findAllWithImagesAndOptions();
+            accommodations = accommodationRepository.findAllAccommodations();
         } else {
-            accommodations = accommodationRepository.findByCategoryWithImagesAndOptions(category);
+            accommodations = accommodationRepository.findAllAccommodationsByCategory(category);
         }
 
         List<AccommodationResponse> validAccommodations = accommodations.stream()
