@@ -64,7 +64,7 @@ class AccommodationRepositoryTest {
     void findByIdJoinAndImagesOptionsWithPessimisticLock_ShouldReturnAccommodationWithImagesAndOptions() {
         // When
         Optional<Accommodation> result = accommodationRepository.
-            findByIdJoinAndImagesOptionsWithPessimisticLock(accommodation1.getId());
+            findByIdJoinImagesAndOptions(accommodation1.getId());
 
         // Then
         assertTrue(result.isPresent());

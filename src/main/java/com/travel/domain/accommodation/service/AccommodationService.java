@@ -9,15 +9,14 @@ import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.type.ErrorType;
 import com.travel.global.util.DateValidationUtil;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,15 +28,49 @@ public class AccommodationService {
 
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
 
+//    @Cacheable(value = "accommodations",
+//        key = "#category + '-' + #checkIn + '-' + "
+//            + "#checkOut + '-' + #personNumber + '-' + "
+//            + "#pageable.pageNumber + '-' + #pageable.pageSize")
+//    @Transactional(readOnly = true)
+//    public Page<AccommodationResponse> getAvailableAccommodations(
+//        String category, LocalDate checkIn,
+//        LocalDate checkOut, int personNumber,
+//        Pageable pageable) {
+//        validateInputs(checkIn, checkOut, personNumber);
+//
+//        List<Accommodation> accommodations;
+//        if (category == null) {
+//            accommodations = accommodationRepository.findAllAccommodations();
+//        } else {
+//            accommodations = accommodationRepository.findAllAccommodationsByCategory(category);
+//        }
+//
+//        List<AccommodationResponse> validAccommodations = accommodations.stream()
+//            .filter(
+//                accommodation -> hasValidProducts(accommodation, checkIn, checkOut, personNumber))
+//            .map(AccommodationResponse::createAccommodationResponse)
+//            .toList();
+//
+//        if (validAccommodations.isEmpty()) {
+//            throw new AccommodationException(ErrorType.NOT_FOUND);
+//        }
+//
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min((start + pageable.getPageSize()), validAccommodations.size());
+//
+//        return new PageImpl<>(validAccommodations.subList(start, end),
+//            pageable, validAccommodations.size());
+//    }
+
+
     @Cacheable(value = "accommodations",
         key = "#category + '-' + #checkIn + '-' + "
-            + "#checkOut + '-' + #personNumber + '-' + "
-            + "#pageable.pageNumber + '-' + #pageable.pageSize")
+            + "#checkOut + '-' + #personNumber")
     @Transactional(readOnly = true)
     public Page<AccommodationResponse> getAvailableAccommodations(
         String category, LocalDate checkIn,
-        LocalDate checkOut, int personNumber,
-        Pageable pageable) {
+        LocalDate checkOut, int personNumber) {
         validateInputs(checkIn, checkOut, personNumber);
 
         List<Accommodation> accommodations;
@@ -57,11 +90,10 @@ public class AccommodationService {
             throw new AccommodationException(ErrorType.NOT_FOUND);
         }
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), validAccommodations.size());
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min((start + pageable.getPageSize()), validAccommodations.size());
 
-        return new PageImpl<>(validAccommodations.subList(start, end),
-            pageable, validAccommodations.size());
+        return new PageImpl<>(validAccommodations);
     }
 
     private void validateInputs(LocalDate checkIn, LocalDate checkOut, int personNumber) {

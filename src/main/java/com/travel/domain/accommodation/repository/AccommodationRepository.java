@@ -30,4 +30,10 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
         "LEFT JOIN FETCH a.options " +
         "WHERE a.id = :id")
     Optional<Accommodation> findByIdJoinAndImagesOptionsWithPessimisticLock(@Param("id") Long id);
+
+    @Query("SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options " +
+        "WHERE a.id = :id")
+    Optional<Accommodation> findByIdJoinImagesAndOptions(@Param("id") Long id);
 }
