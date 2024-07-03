@@ -1,5 +1,6 @@
 package com.travel.domain.product.repository;
 
+import com.travel.domain.accommodation.controller.AccommodationController;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.entity.AccommodationImage;
 import com.travel.domain.accommodation.entity.AccommodationOption;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -199,5 +200,47 @@ class ProductRepositoryTest {
         assertTrue(result.isPresent());
         assertEquals(productId, result.get().getId());
         assertEquals(accommodationId, result.get().getAccommodation().getId());
+    }
+
+    @Test
+    @DisplayName("비관적 락 - 객실 id로 객실 찾기")
+    void findByIdWithPessimisticLock() {
+        Product product = new Product();
+        product.builder()
+            .id(productId)
+            .build();
+
+        when(productRepository.findByIdWithPessimisticLock(productId))
+            .thenReturn(Optional.of(product));
+
+        Optional<Product> result =
+            productRepository.findByIdWithPessimisticLock(productId);
+
+        assertTrue(result.isPresent());
+        assertEquals(product, result.get());
+        verify(productRepository, times(1)).findByIdWithPessimisticLock(productId);
+    }
+
+    @Test
+    @DisplayName("패치 조인을 사용한 accommodationId 로 product 찾기")
+    void findAllByAccommodationIdWithFetchJoin() {
+        Accommodation accommodation = Accommodation.builder()
+            .id(accommodationId)
+            .build();
+
+        Product product = Product.builder()
+            .id(productId)
+            .accommodation(accommodation)
+            .build();
+        List<Product> productList= new ArrayList<>();
+        productList.add(product);
+
+        lenient().when(productRepository.findAllByAccommodationIdWithFetchJoin(accommodationId))
+            .thenReturn(productList);
+
+        List<Product> result = productRepository.findAllByAccommodationIdWithFetchJoin(accommodationId);
+
+        assertNotNull(result);
+        assertEquals(accommodationId, result.get(0).getAccommodation().getId());
     }
 }
