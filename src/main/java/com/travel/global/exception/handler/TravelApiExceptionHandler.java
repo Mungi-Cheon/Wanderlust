@@ -1,7 +1,6 @@
 package com.travel.global.exception.handler;
 
 import com.travel.global.exception.MemberException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +23,8 @@ public class TravelApiExceptionHandler {
 
     @ExceptionHandler(value = {HttpStatusCodeException.class})
     public ResponseEntity<?> travelExceptionAdvice(HttpStatusCodeException e) {
-        log.error("error message : {}", e.getMessage());
-        return ResponseEntity.status(e.getStatusCode()).build();
+        writeErrorLog(e.getMessage());
+        return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
     }
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
@@ -40,16 +39,18 @@ public class TravelApiExceptionHandler {
         });
 
         String errorMessage = String.join(", ", errors.values());
-        log.error("error message : {}", errorMessage);
+        writeErrorLog(e.getMessage());
 
-        return ResponseEntity.status(e.getStatusCode()).build();
+        return ResponseEntity.status(e.getStatusCode()).body(errorMessage);
     }
 
     @ExceptionHandler(value = {MemberException.class})
     public ResponseEntity<?> handleValidationExceptions(MemberException e) {
-        log.error("error message : {}", e.getMessage());
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("message", "이미 존재하는 유저입니다.");
-        return ResponseEntity.badRequest().body(errorResponse);
+        writeErrorLog(e.getMessage());
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    private void writeErrorLog(String message) {
+        log.error("error message : {}", message);
     }
 }

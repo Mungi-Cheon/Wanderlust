@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,7 @@ public class ReservationService {
             .build();
     }
 
+    @CacheEvict(value = "accommodations", allEntries = true)
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request, Long memberId) {
         LocalDate checkInDate = request.getCheckInDate();
