@@ -90,7 +90,6 @@ public class AccommodationService {
 
 //        int start = (int) pageable.getOffset();
 //        int end = Math.min((start + pageable.getPageSize()), validAccommodations.size());
-
         return validAccommodations;
     }
 

@@ -63,6 +63,7 @@ public class AccommodationController {
 
         List<AccommodationResponse> responses = accommodationService
             .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber);
+        
         return ResponseEntity.ok(responses);
     }
 }
