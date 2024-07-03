@@ -13,8 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +66,7 @@ public class AccommodationService {
         key = "#category + '-' + #checkIn + '-' + "
             + "#checkOut + '-' + #personNumber")
     @Transactional(readOnly = true)
-    public Page<AccommodationResponse> getAvailableAccommodations(
+    public List<AccommodationResponse> getAvailableAccommodations(
         String category, LocalDate checkIn,
         LocalDate checkOut, int personNumber) {
         validateInputs(checkIn, checkOut, personNumber);
@@ -93,7 +91,7 @@ public class AccommodationService {
 //        int start = (int) pageable.getOffset();
 //        int end = Math.min((start + pageable.getPageSize()), validAccommodations.size());
 
-        return new PageImpl<>(validAccommodations);
+        return validAccommodations;
     }
 
     private void validateInputs(LocalDate checkIn, LocalDate checkOut, int personNumber) {
