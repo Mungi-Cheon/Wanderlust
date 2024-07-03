@@ -67,9 +67,9 @@ public class LoggingAspect {
             if (returnObj instanceof List) {
                 List<?> returnList = (List<?>) returnObj;
                 infoLogger.info("Return type: List, size: {}", returnList.size());
-                for (int i = 0; i < returnList.size(); i++) {
-                    infoLogger.info("Element {}: {}", i, returnList.get(i).toString());
-                }
+//                for (int i = 0; i < returnList.size(); i++) {
+//                    infoLogger.info("Element {}: {}", i, returnList.get(i).toString());
+//                }
             } else {
                 infoLogger.info("Return type: {}", returnObj.getClass().getSimpleName());
                 infoLogger.info("Return value: {}", returnObj);
