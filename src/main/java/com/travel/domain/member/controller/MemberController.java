@@ -12,12 +12,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -34,7 +37,12 @@ public class MemberController {
     public ResponseEntity<MemberResponse> signup(
         @RequestBody @Valid SignupRequest signupRequest) {
         MemberResponse response = memberService.signup(signupRequest);
-        return ResponseEntity.accepted().body(response);
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{email}")
+            .buildAndExpand(response.email())
+            .toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
     @Operation(summary = "로그인 ", description = "이메일과 비밀번호로 로그인합니다.")
