@@ -26,9 +26,8 @@ public class MemberController {
 
     private final MemberService memberService;
 
-
     @Operation(summary = "회원 가입", description = "회원 정보를 등록합니다.")
-    @ApiResponse(responseCode = "201", description = "회원 가입 성공",
+    @ApiResponse(description = "회원 가입 성공",
         content = @Content(mediaType = "application/json",
             schema = @Schema(implementation = MemberResponse.class)))
     @PostMapping("/signup")
@@ -38,15 +37,14 @@ public class MemberController {
         return ResponseEntity.accepted().body(response);
     }
 
-
-    @ApiResponse(responseCode = "200", description = "로그인 성공",
+    @Operation(summary = "로그인 ", description = "이메일과 비밀번호로 로그인합니다.")
+    @ApiResponse(description = "로그인 성공",
         content = @Content(mediaType = "application/json",
             schema = @Schema(implementation = LoginDto.class)))
-    @Operation(summary = "로그인 ", description = "이메일과 비밀번호로 로그인합니다.")
     @PostMapping("/login")
     public ResponseEntity<Void> login(
         @RequestBody @Valid LoginRequest loginRequest,
-        HttpServletResponse response) {
+        HttpServletResponse response){
         LoginDto loginDto = memberService.login(loginRequest);
         response.setHeader("access-token", loginDto.accessToken());
         return ResponseEntity.ok().build();
