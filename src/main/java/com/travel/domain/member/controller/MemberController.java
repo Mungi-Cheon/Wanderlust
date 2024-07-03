@@ -27,7 +27,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @Operation(summary = "회원 가입", description = "회원 정보를 등록합니다.")
-    @ApiResponse(description = "회원 가입 성공",
+    @ApiResponse(responseCode = "201", description = "회원 가입 성공",
         content = @Content(mediaType = "application/json",
             schema = @Schema(implementation = MemberResponse.class)))
     @PostMapping("/signup")
