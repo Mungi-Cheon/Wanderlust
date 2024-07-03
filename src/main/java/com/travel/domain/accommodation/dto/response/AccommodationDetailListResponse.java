@@ -13,7 +13,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-@AllArgsConstructor //카테고리. 그레이드
+@AllArgsConstructor
 public class AccommodationDetailListResponse {
 
     private Long id;

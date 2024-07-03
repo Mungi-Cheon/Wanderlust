@@ -27,6 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import java.net.URI;
+
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
@@ -81,7 +83,7 @@ public class MemberControllerTest {
         mockMvc.perform(post("/api/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(signupRequest)))
-            .andExpect(status().isAccepted())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.email").value(memberResponse.email()))
             .andExpect(jsonPath("$.name").value(memberResponse.name()))
             .andDo(print());

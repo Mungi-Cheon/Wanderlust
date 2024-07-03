@@ -13,7 +13,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccommodationRepository extends JpaRepository<Accommodation, Long> {
 
-    List<Accommodation> findByCategory(String category);
+    @Query(value = "SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options")
+    List<Accommodation> findAllAccommodations();
+
+    @Query(value = "SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options " +
+        "WHERE a.category = :category")
+    List<Accommodation> findAllAccommodationsByCategory(@Param("category") String category);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Accommodation a " +

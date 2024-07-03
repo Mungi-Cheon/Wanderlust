@@ -2,7 +2,6 @@ package com.travel.domain.accommodation.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -26,6 +25,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class AccommodationServiceTest {
@@ -79,22 +81,20 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 2;
+        Pageable pageable = PageRequest.of(0, 10);
 
-        when(accommodationRepository.
-            findByCategory(any())).thenReturn(List.of(accommodation));
-        when(productRepository.
-            findAllByAccommodationId(any())).thenReturn(List.of(product));
-        when(productInfoPerNightRepository.
-            existsByProductIdAndDate(any(), any())).thenReturn(true);
+        when(accommodationRepository.findAllAccommodationsByCategory(any())).thenReturn(List.of(accommodation));
+        when(productRepository.findAllByAccommodationIdWithFetchJoin(any())).thenReturn(List.of(product));
+        when(productInfoPerNightRepository.existsByProductIdAndDate(any(), any())).thenReturn(true);
 
         // when
-        List<AccommodationResponse> result = accommodationService.
-            getAvailableAccommodations(category, checkIn, checkOut, personNumber);
+        Page<AccommodationResponse> result = accommodationService
+            .getAvailableAccommodations(category, checkIn, checkOut, personNumber, pageable);
 
         // then
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(100000, result.get(0).getPrice());
+        assertEquals(1, result.getTotalElements());
+        assertEquals(100000, result.getContent().get(0).getPrice());
     }
 
     @Test
@@ -105,18 +105,16 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 2;
+        Pageable pageable = PageRequest.of(0, 10);
 
-        when(accommodationRepository.
-            findByCategory(any())).thenReturn(List.of(accommodation));
-        when(productRepository.
-            findAllByAccommodationId(any())).thenReturn(List.of(product));
-        when(productInfoPerNightRepository.
-            existsByProductIdAndDate(any(), any())).thenReturn(false);
+        when(accommodationRepository.findAllAccommodationsByCategory(any())).thenReturn(List.of(accommodation));
+        when(productRepository.findAllByAccommodationIdWithFetchJoin(any())).thenReturn(List.of(product));
+        when(productInfoPerNightRepository.existsByProductIdAndDate(any(), any())).thenReturn(false);
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
-            () -> accommodationService.
-                getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+            () -> accommodationService
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, pageable));
 
         // then
         assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
@@ -130,11 +128,12 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now().minusDays(1);
         LocalDate checkOut = checkIn.plusDays(2);
         int personNumber = 2;
+        Pageable pageable = PageRequest.of(0, 10);
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
-            () -> accommodationService.
-                getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+            () -> accommodationService
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, pageable));
 
         // then
         assertEquals(ErrorType.INVALID_CHECK_IN.getMessage(), exception.getMessage());
@@ -148,11 +147,12 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.minusDays(2);
         int personNumber = 2;
+        Pageable pageable = PageRequest.of(0, 10);
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
-            () -> accommodationService.
-                getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+            () -> accommodationService
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, pageable));
 
         // then
         assertEquals(ErrorType.INVALID_CHECK_OUT.getMessage(), exception.getMessage());
@@ -166,11 +166,12 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 0;
+        Pageable pageable = PageRequest.of(0, 10);
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
-            () -> accommodationService.
-                getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+            () -> accommodationService
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, pageable));
 
         // then
         assertEquals(ErrorType.INVALID_NUMBER_OF_PEOPLE.getMessage(), exception.getMessage());

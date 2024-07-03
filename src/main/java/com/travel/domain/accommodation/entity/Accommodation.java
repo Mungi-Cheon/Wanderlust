@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Getter
@@ -54,9 +55,11 @@ public class Accommodation {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
     @JsonManagedReference
+    @BatchSize(size = 100)
     private List<Product> products;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
     @JsonManagedReference
+    @BatchSize(size = 100)
     private List<Like> likes;
 }

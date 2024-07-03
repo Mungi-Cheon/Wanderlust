@@ -2,8 +2,8 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export let options = {
-  vus: 200, // virtual users
-  duration: '1m', // test duration
+  vus: 10, // virtual users
+  duration: '1s', // test duration
 };
 
 export default function () {
@@ -12,10 +12,10 @@ export default function () {
 
   // Define query parameters
   let params = {
-    category: '호텔',  // Example category
+    //category: null,  // Example category
     checkInDate: '2024-07-10',  // Example check-in date
     checkOutDate: '2024-07-11',  // Example check-out date
-    personNumber: 2  // Example number of persons
+    personNumber: 3  // Example number of persons
   };
 
   // Create the query string from parameters
