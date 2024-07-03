@@ -1,13 +1,13 @@
 package com.travel.global.resolver;
 
 import com.travel.global.annotation.TokenMemberId;
+import com.travel.global.exception.MemberException;
+import com.travel.global.exception.type.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
@@ -27,9 +27,11 @@ public class TokenMemberIdResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        // supportsParameter 에서 return true 일 때 해당 메서드 실행
-        RequestAttributes requestContext = RequestContextHolder.getRequestAttributes();
-        Object memberId = requestContext.getAttribute("memberId", RequestAttributes.SCOPE_REQUEST);
+        Object memberId = webRequest.getAttribute("memberId", NativeWebRequest.SCOPE_REQUEST);
+
+        if (memberId == null) {
+            throw new MemberException(ErrorType.NONEXISTENT_MEMBER);
+        }
 
         return Long.parseLong(memberId.toString());
     }
