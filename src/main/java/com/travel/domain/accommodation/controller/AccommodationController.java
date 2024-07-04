@@ -33,15 +33,13 @@ public class AccommodationController {
         @RequestParam(required = false) String category,
         @RequestParam(required = false) LocalDate checkInDate,
         @RequestParam(required = false) LocalDate checkOutDate,
-        @RequestParam(defaultValue = "2") int personNumber,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "8") int size) {
+        @RequestParam(defaultValue = "2") int personNumber) {
 
         checkInDate = DateValidationUtil.checkInDate(checkInDate);
         checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
 
         List<AccommodationResponse> responses = accommodationService
-            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber, page, size);
+            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber);
 
         return ResponseEntity.ok(responses);
     }
