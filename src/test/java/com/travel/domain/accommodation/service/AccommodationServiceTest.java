@@ -78,8 +78,6 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 2;
-        int page = 0;
-        int size = 10;
 
         when(accommodationRepository.findAllAccommodationsByCategory(any())).thenReturn(List.of(accommodation));
         when(productRepository.findAllByAccommodationIdWithFetchJoin(any())).thenReturn(List.of(product));
@@ -103,8 +101,6 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 2;
-        int page = 0;
-        int size = 10;
 
         when(accommodationRepository.findAllAccommodationsByCategory(any())).thenReturn(List.of(accommodation));
         when(productRepository.findAllByAccommodationIdWithFetchJoin(any())).thenReturn(List.of(product));
@@ -127,8 +123,6 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now().minusDays(1);
         LocalDate checkOut = checkIn.plusDays(2);
         int personNumber = 2;
-        int page = 0;
-        int size = 10;
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,

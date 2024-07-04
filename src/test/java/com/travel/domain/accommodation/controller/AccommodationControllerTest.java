@@ -53,7 +53,7 @@ public class AccommodationControllerTest {
 
         Mockito.when(accommodationService.getAvailableAccommodations(
                 anyString(), any(LocalDate.class),
-                any(LocalDate.class), anyInt(), anyInt(), anyInt()))
+                any(LocalDate.class), anyInt()))
             .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/accommodations")

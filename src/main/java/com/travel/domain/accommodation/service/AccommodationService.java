@@ -27,7 +27,7 @@ public class AccommodationService {
 
     @Cacheable(value = "accommodations",
         key = "#category + '-' + #checkIn + '-' + "
-            + "#checkOut + '-' + #personNumber + '-' + #page + '-' + #size")
+            + "#checkOut + '-' + #personNumber")
     @Transactional(readOnly = true)
     public List<AccommodationResponse> getAvailableAccommodations(
         String category, LocalDate checkIn, LocalDate checkOut, int personNumber) {
