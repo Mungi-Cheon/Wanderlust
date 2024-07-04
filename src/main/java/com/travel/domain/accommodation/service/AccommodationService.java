@@ -27,10 +27,10 @@ public class AccommodationService {
 
     @Cacheable(value = "accommodations",
         key = "#category + '-' + #checkIn + '-' + "
-            + "#checkOut + '-' + #personNumber + '-' + #page + '-' + #size")
+            + "#checkOut + '-' + #personNumber")
     @Transactional(readOnly = true)
     public List<AccommodationResponse> getAvailableAccommodations(
-        String category, LocalDate checkIn, LocalDate checkOut, int personNumber, int page, int size) {
+        String category, LocalDate checkIn, LocalDate checkOut, int personNumber) {
         validateInputs(checkIn, checkOut, personNumber);
 
         List<Accommodation> accommodations;
@@ -49,10 +49,7 @@ public class AccommodationService {
             throw new AccommodationException(ErrorType.NOT_FOUND);
         }
 
-        int start = page * size;
-        int end = Math.min(start + size, validAccommodations.size());
-
-        return validAccommodations.subList(start, end);
+        return validAccommodations;
     }
 
     private void validateInputs(LocalDate checkIn, LocalDate checkOut, int personNumber) {
@@ -73,8 +70,7 @@ public class AccommodationService {
             .findAllByAccommodationIdWithFetchJoin(accommodation.getId());
 
         return productEntityList.stream()
-            .filter(product -> product.getStandardNumber() <= personNumber
-                && product.getMaximumNumber() >= personNumber)
+            .filter(product -> product.getMaximumNumber() >= personNumber)
             .anyMatch(product -> areAllDatesAvailable(product.getId(), checkIn, checkOut));
     }
 
