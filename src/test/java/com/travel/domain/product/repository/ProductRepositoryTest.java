@@ -1,6 +1,13 @@
 package com.travel.domain.product.repository;
 
-import com.travel.domain.accommodation.controller.AccommodationController;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.entity.AccommodationImage;
 import com.travel.domain.accommodation.entity.AccommodationOption;
@@ -8,6 +15,11 @@ import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.entity.ProductOption;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,15 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -133,7 +136,8 @@ class ProductRepositoryTest {
             .build();
     }
 
-    private ProductInfoPerNight createProductInfoPerNight(Product product, Accommodation accommodation) {
+    private ProductInfoPerNight createProductInfoPerNight(Product product,
+        Accommodation accommodation) {
         return ProductInfoPerNight.builder()
             .id(productInfoPerNightId)
             .product(product)
@@ -162,7 +166,8 @@ class ProductRepositoryTest {
         ProductImage productImage = createProductImage(product, accommodation);
         ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation);
         productInfoPerNightList.add(productInfoPerNight);
-        product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
+        product = createProduct(accommodation, productImage, productInfoPerNightList,
+            productOption);
         productList.add(product);
 
         when(productRepository.findAllByAccommodationId(accommodationId)).thenReturn(productList);
@@ -187,7 +192,8 @@ class ProductRepositoryTest {
         ProductImage productImage = createProductImage(product, accommodation);
         ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation);
         productInfoPerNightList.add(productInfoPerNight);
-        product = createProduct(accommodation, productImage, productInfoPerNightList, productOption);
+        product = createProduct(accommodation, productImage, productInfoPerNightList,
+            productOption);
         productList.add(product);
 
         productRepository.save(product);
@@ -195,7 +201,8 @@ class ProductRepositoryTest {
         when(productRepository.findByIdAndAccommodationId(productId, accommodationId))
             .thenReturn(Optional.of(product));
 
-        Optional<Product> result = productRepository.findByIdAndAccommodationId(productId, accommodationId);
+        Optional<Product> result = productRepository.findByIdAndAccommodationId(productId,
+            accommodationId);
 
         assertTrue(result.isPresent());
         assertEquals(productId, result.get().getId());
@@ -206,19 +213,19 @@ class ProductRepositoryTest {
     @DisplayName("비관적 락 - 객실 id로 객실 찾기")
     void findByIdWithPessimisticLock() {
         Product product = new Product();
-        product.builder()
+        Product.builder()
             .id(productId)
             .build();
 
-        when(productRepository.findByIdWithPessimisticLock(productId))
+        when(productRepository.findByIdJoinImagesAndOption(productId))
             .thenReturn(Optional.of(product));
 
         Optional<Product> result =
-            productRepository.findByIdWithPessimisticLock(productId);
+            productRepository.findByIdJoinImagesAndOption(productId);
 
         assertTrue(result.isPresent());
         assertEquals(product, result.get());
-        verify(productRepository, times(1)).findByIdWithPessimisticLock(productId);
+        verify(productRepository, times(1)).findByIdJoinImagesAndOption(productId);
     }
 
     @Test
@@ -232,13 +239,14 @@ class ProductRepositoryTest {
             .id(productId)
             .accommodation(accommodation)
             .build();
-        List<Product> productList= new ArrayList<>();
+        List<Product> productList = new ArrayList<>();
         productList.add(product);
 
         lenient().when(productRepository.findAllByAccommodationIdWithFetchJoin(accommodationId))
             .thenReturn(productList);
 
-        List<Product> result = productRepository.findAllByAccommodationIdWithFetchJoin(accommodationId);
+        List<Product> result = productRepository.findAllByAccommodationIdWithFetchJoin(
+            accommodationId);
 
         assertNotNull(result);
         assertEquals(accommodationId, result.get(0).getAccommodation().getId());

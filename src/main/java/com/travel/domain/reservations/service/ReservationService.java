@@ -3,6 +3,8 @@ package com.travel.domain.reservations.service;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.email.service.EmailService;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
@@ -13,12 +15,10 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
-import com.travel.domain.member.entity.Member;
-import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.MemberException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
-import com.travel.global.exception.MemberException;
 import com.travel.global.exception.type.ErrorType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -142,13 +142,13 @@ public class ReservationService {
     }
 
     private Accommodation findAccommodation(Long accommodationId) {
-        return accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(
+        return accommodationRepository.findByIdJoinImagesAndOptions(
                 accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
     }
 
     private Product findProduct(long productId) {
-        return productRepository.findByIdWithPessimisticLock(productId)
+        return productRepository.findByIdJoinImagesAndOption(productId)
             .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
     }
 
