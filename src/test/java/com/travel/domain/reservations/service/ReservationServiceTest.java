@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.email.service.EmailService;
+import com.travel.domain.member.entity.Member;
+import com.travel.domain.member.repository.MemberRepository;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
@@ -21,8 +23,6 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryListRespons
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
-import com.travel.domain.member.entity.Member;
-import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.type.ErrorType;
 import java.math.BigDecimal;
@@ -118,13 +118,13 @@ class ReservationServiceTest {
         reservation = createReservation();
 
         when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
-        when(productRepository.findByIdWithPessimisticLock(any()))
+        when(productRepository.findByIdJoinImagesAndOption(any()))
             .thenReturn(Optional.ofNullable(product));
         when(productInfoPerNightRepository
             .findByProductIdAndDateRangeWithPessimisticLock(anyLong(), any(), any()))
             .thenReturn(List.of(productInfoPerNight));
 
-        when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(
+        when(accommodationRepository.findByIdJoinImagesAndOptions(
             any())).thenReturn(
             Optional.ofNullable(accommodation));
         when(reservationRepository.save(any())).thenReturn(reservation);
@@ -155,7 +155,7 @@ class ReservationServiceTest {
         reservation = createReservation();
 
         when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
-        when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(any()))
+        when(accommodationRepository.findByIdJoinImagesAndOptions(any()))
             .thenReturn(Optional.ofNullable(accommodation));
         when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
             any()))
@@ -185,11 +185,11 @@ class ReservationServiceTest {
         reservation = createReservation();
 
         when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
-        when(accommodationRepository.findByIdJoinAndImagesOptionsWithPessimisticLock(any()))
+        when(accommodationRepository.findByIdJoinImagesAndOptions(any()))
             .thenReturn(Optional.ofNullable(accommodation));
         when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
             any())).thenReturn(new ArrayList<>());
-        when(productRepository.findByIdWithPessimisticLock(any()))
+        when(productRepository.findByIdJoinImagesAndOption(any()))
             .thenReturn(Optional.ofNullable(product));
         when(productInfoPerNightRepository.findByProductIdAndDateRangeWithPessimisticLock(any(),
             any(), any())).thenReturn(List.of(productInfoPerNight));
