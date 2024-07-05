@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+@Tag(name = "Member API", description = "회원 API")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -45,7 +46,7 @@ public class MemberController {
     @PostMapping("/login")
     public ResponseEntity<Void> login(
         @RequestBody @Valid LoginRequest loginRequest,
-        HttpServletResponse response){
+        HttpServletResponse response) {
         LoginDto loginDto = memberService.login(loginRequest);
         response.setHeader("access-token", loginDto.accessToken());
         return ResponseEntity.ok().build();
