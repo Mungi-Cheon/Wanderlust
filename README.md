@@ -71,7 +71,7 @@
 
 ## API List
 
-![apiList.png](src/main/resources/images/apiList.png)
+![apiList.png](src/main/resources/images/api-list/apiList.png)
 
 ---
 
