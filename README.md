@@ -23,7 +23,7 @@
 
 ## 🧱 아키텍쳐
 
-![architecture.png](src/main/resources/images/architecture.png)
+![architecture.jpeg](src/main/resources/images/architecture.jpeg)
 
 ---
 
