@@ -71,4 +71,11 @@ public class Review {
          .reservation(reservation)
          .build();
     }
+
+    public void update(ReviewRequest request){
+        this.title = request.getTitle();
+        this.comment  = request.getComment();
+        this.grade = request.getGrade();
+        this.updatedAt = LocalDateTime.now();
+    }
 }
