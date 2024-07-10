@@ -20,6 +20,10 @@ public class ReviewResponse {
 
     private String accommodationName;
 
+    private String productName;
+
+    private String memberName;
+
     private Long reservationId;
 
     private String title;
@@ -38,11 +42,13 @@ public class ReviewResponse {
             .id(review.getId())
             .title(review.getTitle())
             .accommodationName(review.getAccommodation().getName())
+            .productName(review.getAccommodation().getProducts().get(0).getName())
+            .memberName(review.getMember().getName())
             .reservationId(review.getReservation().getId())
             .title(review.getTitle())
             .comment(review.getComment())
             .grade(review.getGrade())
-            .createdAt(LocalDateTime.now())
+            .createdAt(review.getCreatedAt())
             .updatedAt(review.getUpdatedAt())
             .build();
     }

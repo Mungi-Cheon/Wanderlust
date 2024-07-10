@@ -5,6 +5,7 @@ import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
+import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
@@ -80,8 +81,7 @@ public class ReviewService {
         Accommodation accommodaion = findAccommodation(accommodationId);
         findMember(memberId);
         Reservation reservation = findReservation(reviewRequest.getReservationId());
-        Review review = reviewRepository.findByIdAndAccommodationId(reviewId, accommodationId)
-            .orElseThrow(() -> new ReviewException(ErrorType.NOT_FOUND));
+        Review review = findByIdAndAccommodationId(reviewId, accommodationId);
         LocalDate checkOutTime = reservation.getCheckOutDate();
         LocalDate updatedAt = LocalDate.now();
         isValidWrite(checkOutTime, updatedAt);
@@ -95,9 +95,7 @@ public class ReviewService {
     public DeleteReviewResponse deleteReview(Long memberId,
         Long accommodationId, Long reviewId) {
         findMember(memberId);
-        findAccommodation(accommodationId);
-        Review review = findReview(reviewId);
-
+        Review review = findByIdAndAccommodationId(reviewId, accommodationId);
         reviewRepository.delete(review);
 
         return DeleteReviewResponse.from(review);
@@ -119,8 +117,8 @@ public class ReviewService {
             .orElseThrow(() -> new ReservationsException(ErrorType.NOT_FOUND));
     }
 
-    private Review findReview(Long reviewId) {
-        return reviewRepository.findById(reviewId)
+    private Review findByIdAndAccommodationId(Long reviewId, Long accommodationId) {
+        return reviewRepository.findByIdAndAccommodationId(reviewId, accommodationId)
             .orElseThrow(() -> new ReviewException(ErrorType.NOT_FOUND));
     }
 
