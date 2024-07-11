@@ -1,11 +1,9 @@
 package com.travel.domain.review.service;
 
-import com.travel.domain.accommodation.controller.AccommodationController;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
-import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
@@ -52,6 +50,19 @@ public class ReviewService {
         return AccommodationReviewResponseList.from(accommodation, reviewResponseList);
     }
 
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getMyReviewList(Long memberId) {
+        Member member = findMember(memberId);
+        List<Review> reviewList = member.getReviews();
+
+        List<ReviewResponse> reviewResponseList = reviewList.stream()
+            .map(ReviewResponse:: from)
+            .collect(Collectors.toList());
+
+        return reviewResponseList;
+    }
+
+    @Transactional
     public ReviewResponse createReview(Long memberId, Long accommodationId,
         ReviewRequest reviewRequest) {
         Accommodation accommodation = findAccommodation(accommodationId);
@@ -76,6 +87,7 @@ public class ReviewService {
         return ReviewResponse.from(review);
     }
 
+    @Transactional
     public UpdateReviewResponse updateReview(Long memberId, Long accommodationId,
         ReviewRequest reviewRequest, Long reviewId) {
         Accommodation accommodaion = findAccommodation(accommodationId);
@@ -92,6 +104,7 @@ public class ReviewService {
         return UpdateReviewResponse.from(reviewUpdated);
     }
 
+    @Transactional
     public DeleteReviewResponse deleteReview(Long memberId,
         Long accommodationId, Long reviewId) {
         findMember(memberId);
