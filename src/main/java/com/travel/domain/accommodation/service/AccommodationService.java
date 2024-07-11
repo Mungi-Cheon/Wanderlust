@@ -9,13 +9,13 @@ import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.type.ErrorType;
 import com.travel.global.util.DateValidationUtil;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +34,15 @@ public class AccommodationService {
         validateInputs(checkIn, checkOut, personNumber);
 
         List<Accommodation> accommodations;
-        if (category == null) {
+        if (category.isEmpty()) {
             accommodations = accommodationRepository.findAllAccommodations();
         } else {
             accommodations = accommodationRepository.findAllAccommodationsByCategory(category);
         }
 
         List<AccommodationResponse> validAccommodations = accommodations.stream()
-            .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut, personNumber))
+            .filter(
+                accommodation -> hasValidProducts(accommodation, checkIn, checkOut, personNumber))
             .map(AccommodationResponse::createAccommodationResponse)
             .collect(Collectors.toList());
 
@@ -76,6 +77,7 @@ public class AccommodationService {
 
     private boolean areAllDatesAvailable(Long productId, LocalDate checkIn, LocalDate checkOut) {
         return checkIn.datesUntil(checkOut)
-            .allMatch(date -> productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
+            .allMatch(date ->
+                productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
     }
 }
