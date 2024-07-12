@@ -9,6 +9,9 @@ import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.like.repository.LikeRepository;
+import com.travel.domain.map.dto.response.DocumentResponse;
+import com.travel.domain.map.dto.response.MapResponse;
+import com.travel.domain.map.service.KakaoMapService;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
 import com.travel.domain.product.dto.response.*;
@@ -25,13 +28,15 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -41,6 +46,7 @@ public class ProductService {
     private final AccommodationRepository accommodationRepository;
     private final LikeRepository likeRepository;
     private final MemberRepository memberRepository;
+    private final KakaoMapService kakaoMapService;
 
     @Transactional(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
@@ -49,6 +55,8 @@ public class ProductService {
         validateInputs(checkInDate, checkOutDate, personNumber);
 
         Accommodation accommodationEntity = findAccommodation(accommodationId);
+
+        MapResponse mapResponse = kakaoMapService.getAddress(accommodationEntity.getAddress());
 
         List<Product> productEntityList = productRepository.findAllByAccommodationId(
             accommodationId);
@@ -76,7 +84,7 @@ public class ProductService {
 
         return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
             checkOutDate, accommodationImageResponse, accommodationOptionResponse,
-            productResponses, liked, likeCount);
+            productResponses, liked, likeCount, mapResponse);
     }
 
     @Transactional(readOnly = true)
@@ -86,6 +94,9 @@ public class ProductService {
         validateInputs(checkInDate, checkOutDate, personNumber);
 
         Accommodation accommodationEntity = findAccommodation(accommodationId);
+
+        MapResponse mapResponse = kakaoMapService.getAddress(accommodationEntity.getAddress());
+
 
         List<Product> productEntityList = productRepository.findAllByAccommodationId(
             accommodationId);
@@ -113,7 +124,7 @@ public class ProductService {
 
         return AccommodationDetailListResponse.from(accommodationEntity, checkInDate,
             checkOutDate, accommodationImageResponse, accommodationOptionResponse,
-            productResponses, liked, likeCount);
+            productResponses, liked, likeCount, mapResponse);
     }
 
     @Transactional(readOnly = true)
