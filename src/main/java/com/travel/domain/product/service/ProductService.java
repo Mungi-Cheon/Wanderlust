@@ -180,9 +180,8 @@ public class ProductService {
         }
     }
 
-    private Accommodation findAccommodation(Long accommodationId) {
-        return accommodationRepository.findById(accommodationId)
-            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
+    private Accommodation findAccommodation(Long accommodationId){
+        return accommodationRepository.findAccommodationById(accommodationId);
     }
 
     private List<Product> findProductList(List<Product> productList, List<ProductInfoPerNight> productInfoPerNightList,

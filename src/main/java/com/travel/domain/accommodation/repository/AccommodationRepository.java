@@ -1,6 +1,8 @@
 package com.travel.domain.accommodation.repository;
 
 import com.travel.domain.accommodation.entity.Accommodation;
+import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.type.ErrorType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +29,9 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
         "LEFT JOIN FETCH a.options " +
         "WHERE a.id = :id")
     Optional<Accommodation> findByIdJoinImagesAndOptions(@Param("id") Long id);
+
+    default Accommodation findAccommodationById(Long accommodationId) {
+        return findById(accommodationId)
+            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
+    }
 }
