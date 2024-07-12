@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class MemberDeletionScheduler {
+public class MemberDeleteScheduler {
 
     private final MemberService memberService;
 
