@@ -1,7 +1,8 @@
 package com.travel.domain.map.service;
 
-import com.travel.domain.map.dto.response.DocumentResponse;
 import com.travel.domain.map.dto.response.MapResponse;
+import com.travel.global.exception.MapException;
+import com.travel.global.exception.type.ErrorType;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class KakaoMapService {
     public MapResponse getAddress(String address) {
 
         if (ObjectUtils.isEmpty(address)) {
-            throw new IllegalArgumentException("address is empty");
+            throw new MapException(ErrorType.ADDRESS_IS_EMPTY);
         }
 
         URI uri = builderUriByAddress(address);
