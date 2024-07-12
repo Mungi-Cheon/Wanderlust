@@ -1,7 +1,9 @@
 package com.travel.domain.accommodation.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.travel.domain.like.entity.Like;
+import com.travel.domain.map.dto.response.MapResponse;
 import com.travel.domain.product.entity.Product;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -13,11 +15,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 @Entity
@@ -61,4 +65,10 @@ public class Accommodation {
     @JsonManagedReference
     @BatchSize(size = 100)
     private List<Like> likes;
+
+    @Setter
+    private Double latitude;
+
+    @Setter
+    private Double longitude;
 }

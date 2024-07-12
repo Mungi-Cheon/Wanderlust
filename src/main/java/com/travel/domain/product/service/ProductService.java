@@ -24,6 +24,7 @@ import com.travel.global.exception.MemberException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
 
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -47,8 +48,9 @@ public class ProductService {
     private final LikeRepository likeRepository;
     private final MemberRepository memberRepository;
     private final KakaoMapService kakaoMapService;
+    private final EntityManager entityManager;
 
-    @Transactional(readOnly = true)
+    @Transactional //(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetail(
         Long accommodationId, LocalDate checkInDate,
         LocalDate checkOutDate, int personNumber) {
@@ -57,6 +59,8 @@ public class ProductService {
         Accommodation accommodationEntity = findAccommodation(accommodationId);
 
         MapResponse mapResponse = kakaoMapService.getAddress(accommodationEntity.getAddress());
+
+        updateXy(accommodationEntity, mapResponse);
 
         List<Product> productEntityList = productRepository.findAllByAccommodationId(
             accommodationId);
@@ -71,7 +75,8 @@ public class ProductService {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
-        List<ProductResponse> productResponses = findProductResponse(validProductList, productInfoPerNightList);
+        List<ProductResponse> productResponses = findProductResponse(validProductList,
+            productInfoPerNightList);
 
         AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse
             .from(accommodationEntity.getImages());
@@ -87,7 +92,7 @@ public class ProductService {
             productResponses, liked, likeCount, mapResponse);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional //(readOnly = true)
     public AccommodationDetailListResponse getAccommodationDetailByAuth(
         Long accommodationId, LocalDate checkInDate,
         LocalDate checkOutDate, int personNumber, Long memberId) {
@@ -96,7 +101,7 @@ public class ProductService {
         Accommodation accommodationEntity = findAccommodation(accommodationId);
 
         MapResponse mapResponse = kakaoMapService.getAddress(accommodationEntity.getAddress());
-
+        updateXy(accommodationEntity, mapResponse);
 
         List<Product> productEntityList = productRepository.findAllByAccommodationId(
             accommodationId);
@@ -111,7 +116,8 @@ public class ProductService {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
-        List<ProductResponse> productResponses = findProductResponse(validProductList, productInfoPerNightList);
+        List<ProductResponse> productResponses = findProductResponse(validProductList,
+            productInfoPerNightList);
 
         AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse
             .from(accommodationEntity.getImages());
@@ -165,7 +171,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponse> getSearchProduct(Long accommodationId, String keyword){
+    public List<ProductSimpleResponse> getSearchProduct(Long accommodationId, String keyword) {
         Accommodation accommodation = findAccommodation(accommodationId);
 
         List<Product> productList = accommodation.getProducts();
@@ -196,7 +202,8 @@ public class ProductService {
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
     }
 
-    private List<Product> findProductList(List<Product> productList, List<ProductInfoPerNight> productInfoPerNightList,
+    private List<Product> findProductList(List<Product> productList,
+        List<ProductInfoPerNight> productInfoPerNightList,
         LocalDate checkInDate, LocalDate checkOutDate,
         int personNumber) {
         Map<Long, List<ProductInfoPerNight>> perNightMap = productInfoPerNightList.stream()
@@ -221,7 +228,8 @@ public class ProductService {
 
         return productList.stream()
             .map(product -> {
-                ProductImageResponse productImageResponse = ProductImageResponse.from(product.getProductImage());
+                ProductImageResponse productImageResponse = ProductImageResponse.from(
+                    product.getProductImage());
                 int minCount = perNightMap.get(product.getId()).stream()
                     .mapToInt(ProductInfoPerNight::getCount)
                     .min()
@@ -231,7 +239,8 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
-    private List<ProductInfoPerNight> findAvailableProductPerNight(Long productId, LocalDate checkInDate,
+    private List<ProductInfoPerNight> findAvailableProductPerNight(Long productId,
+        LocalDate checkInDate,
         LocalDate checkOutDate) {
         List<ProductInfoPerNight> infoPerNightList = productInfoPerNightRepository
             .findByProductIdAndDateRange(productId, checkInDate, checkOutDate);
@@ -251,5 +260,14 @@ public class ProductService {
             return likeRepository.findByMemberAndAccommodation(member, accommodation).isPresent();
         }
         return false;
+    }
+
+    private void updateXy(Accommodation accommodation, MapResponse response) {
+        if (accommodation.getLatitude() == null || accommodation.getLongitude() == null) {
+            accommodation.setLatitude(response.getDocuments().get(0).getLatitude());
+            accommodation.setLongitude(response.getDocuments().get(0).getLongitude());
+            accommodationRepository.save(accommodation);
+            log.info("Saved Accommodation with ID: {}", accommodation.getId());
+        }
     }
 }
