@@ -70,4 +70,16 @@ class AccommodationRepositoryTest {
         assertTrue(result.isPresent());
         assertEquals(accommodation1.getId(), result.get().getId());
     }
+
+    @Test
+    @DisplayName("숙소 ID로 숙소 찾기")
+    void findAccommodationById(){
+        Long id = accommodation1.getId();
+        //When
+        accommodation1 = accommodationRepository.findAccommodationById(id);
+
+        //Then
+        assertEquals(id, accommodation1.getId());
+        assertEquals("호텔",accommodation1.getCategory());
+    }
 }
