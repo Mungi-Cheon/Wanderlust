@@ -57,7 +57,7 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴", description = "회원 계정을 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
-    @DeleteMapping("/{memberId}")
+    @DeleteMapping("/mypage/{memberId}")
     public ResponseEntity<Void> deleteMember(
         @PathVariable Long memberId,
         @RequestHeader(value = "Authorization") String token) {
