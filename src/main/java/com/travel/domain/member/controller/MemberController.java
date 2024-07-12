@@ -15,8 +15,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,5 +53,15 @@ public class MemberController {
         LoginDto loginDto = memberService.login(loginRequest);
         response.setHeader("access-token", loginDto.accessToken());
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "회원 계정을 삭제합니다.")
+    @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<Void> deleteMember(
+        @PathVariable Long memberId,
+        @RequestHeader(value = "Authorization") String token) {
+        memberService.deleteMember(memberId, token);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -12,10 +12,13 @@ import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.MemberException;
 import com.travel.global.jwt.JwtProvider;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -56,5 +59,28 @@ public class MemberService {
 
         String accessToken = jwtProvider.generateAccessToken(member.getId());
         return new LoginDto(accessToken);
+    }
+
+    @Transactional
+    public void deleteMember(Long memberId, String token) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberException(NONEXISTENT_MEMBER));
+
+        member.softDelete();
+        Member updatedMember = member.withDeletedEmail();
+        memberRepository.save(member);
+    }
+
+    @Transactional
+    public void permanentlyDeleteOldMembers() {
+        List<Member> members = memberRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Member member : members) {
+            if (member.isDeleted() && member.getDeletedAt() != null &&
+                ChronoUnit.MONTHS.between(member.getDeletedAt(), now) >= 3) {
+                memberRepository.delete(member);
+            }
+        }
     }
 }
