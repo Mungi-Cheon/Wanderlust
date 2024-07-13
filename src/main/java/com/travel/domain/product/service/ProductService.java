@@ -48,9 +48,8 @@ public class ProductService {
     private final LikeRepository likeRepository;
     private final MemberRepository memberRepository;
     private final KakaoMapService kakaoMapService;
-    private final EntityManager entityManager;
 
-    @Transactional //(readOnly = true)
+    @Transactional
     public AccommodationDetailListResponse getAccommodationDetail(
         Long accommodationId, LocalDate checkInDate,
         LocalDate checkOutDate, int personNumber) {
@@ -92,7 +91,7 @@ public class ProductService {
             productResponses, liked, likeCount, mapResponse);
     }
 
-    @Transactional //(readOnly = true)
+    @Transactional
     public AccommodationDetailListResponse getAccommodationDetailByAuth(
         Long accommodationId, LocalDate checkInDate,
         LocalDate checkOutDate, int personNumber, Long memberId) {
