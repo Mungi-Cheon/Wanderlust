@@ -6,7 +6,6 @@ import com.travel.domain.member.dto.response.LoginDto;
 import com.travel.domain.member.dto.response.MemberResponse;
 import com.travel.domain.member.service.MemberService;
 import com.travel.global.annotation.TokenMemberId;
-import com.travel.global.jwt.JwtTokenUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtTokenUtility jwtTokenUtility;
 
     @Operation(summary = "회원 가입", description = "회원 정보를 등록합니다.")
     @ApiResponse(responseCode = "201", description = "회원 가입 성공",

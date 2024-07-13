@@ -10,6 +10,7 @@ import com.travel.domain.member.dto.response.LoginDto;
 import com.travel.domain.member.dto.response.MemberResponse;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
+import com.travel.global.annotation.TokenMemberId;
 import com.travel.global.exception.MemberException;
 import com.travel.global.jwt.JwtProvider;
 import java.time.LocalDateTime;
@@ -61,14 +62,17 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(Long memberId) {
-       memberRepository.delete(memberId);
+    public void deleteMember(@TokenMemberId Long tokenMemberId) {
+        Member member = memberRepository.findById(tokenMemberId)
+            .orElseThrow(() -> new MemberException(NONEXISTENT_MEMBER));
+
+        memberRepository.delete(member);
         }
 
     @Transactional
     public void permanentlyDeleteOldMembers() {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
-        List<Member> membersDelete = memberRepository.findByDeletedIsTrueAndDeletedAtBefore(oneMonthAgo);
+        List<Member> membersDelete = memberRepository.findByDeletedAtIsNotNullAndDeletedAtBefore(oneMonthAgo);
 
         for (Member member : membersDelete) {
             memberRepository.delete(member);

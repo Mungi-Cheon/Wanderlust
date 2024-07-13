@@ -16,8 +16,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     List<Member> findByEmailOrderByIdDesc(String email);
 
-    List<Member> findByDeletedIsTrueAndDeletedAtBefore(LocalDateTime dateTime);
-
-    @Transactional
-    void delete(@TokenMemberId Long tokenMemberId);
+    List<Member> findByDeletedAtIsNotNullAndDeletedAtBefore(LocalDateTime dateTime);
 }

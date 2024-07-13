@@ -1,7 +1,6 @@
 package com.travel.domain.member.entity;
 
 import com.travel.domain.member.dto.request.SignupRequest;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
