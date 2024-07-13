@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -13,14 +14,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.travel.domain.reservations.dto.request.ReservationRequest;
-import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
-import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
-import com.travel.domain.reservations.dto.response.ReservationResponse;
-import com.travel.domain.reservations.service.ReservationService;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
+import com.travel.domain.reservations.dto.request.ReservationCancelRequest;
+import com.travel.domain.reservations.dto.request.ReservationListRequest;
+import com.travel.domain.reservations.dto.request.ReservationRequest;
+import com.travel.domain.reservations.dto.response.ReservationCancelResponse;
+import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
+import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
+import com.travel.domain.reservations.dto.response.ReservationListResponse;
+import com.travel.domain.reservations.dto.response.ReservationResponse;
+import com.travel.domain.reservations.service.ReservationService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +57,9 @@ class ReservationControllerTest {
     private final LocalDate checkInDate = LocalDate.now();
 
     private final LocalDate checkOutDate = LocalDate.now().plusDays(2);
+
+    private final LocalDateTime deletedAt = LocalDateTime.of(2024, 7, 13, 19, 0, 0);
+
     @Autowired
     private MemberRepository memberRepository;
 
@@ -67,7 +77,7 @@ class ReservationControllerTest {
             .thenReturn(listResponse);
 
         // When & Then
-        mockMvc.perform(get("/api/reservation/history")
+        mockMvc.perform(get("/api/auth/reservation/history")
                 .header("mock-token", member.getId()))
             .andExpect(status().isOk())
             .andDo(print());
@@ -81,25 +91,62 @@ class ReservationControllerTest {
         Member member = createMember();
 
         ReservationRequest reservationRequest = createReservationRequest();
+        ReservationListRequest reservationListRequest = new ReservationListRequest(
+            List.of(reservationRequest));
         ReservationResponse response = createReservationResponse();
+        ReservationListResponse responseList = ReservationListResponse.from(List.of(response));
 
-        when(reservationService.createReservation(any(ReservationRequest.class),
-            eq(member.getId()))).thenReturn(response);
+        when(reservationService.createReservation(any(ReservationListRequest.class),
+            eq(member.getId()))).thenReturn(responseList);
 
-        String content = mapper.writeValueAsString(reservationRequest);
+        String content = mapper.writeValueAsString(reservationListRequest);
 
         // When & Then
-        mockMvc.perform(post("/api/reservation")
+        mockMvc.perform(post("/api/auth/reservation")
                 .header("mock-token", member.getId())
                 .content(content)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(66L))
-            .andExpect(jsonPath("$.person_number", is(2)))
-            .andExpect(jsonPath("$.total_price", is(600000)))
+            .andExpect(jsonPath("$.reservation_response_list[0].id").value(66L))
+            .andExpect(jsonPath("$.reservation_response_list[0].person_number", is(2)))
+            .andExpect(jsonPath("$.reservation_response_list[0].total_price", is(600000)))
+            .andExpect(jsonPath("$.reservation_response_list[0].check_in_date").value(
+                checkInDate.toString()))
+            .andExpect(jsonPath("$.reservation_response_list[0].check_out_date").value(
+                checkOutDate.toString()));
+    }
+
+    @Test
+    @DisplayName(value = "예약 취소")
+    void reservationCancel() throws Exception {
+        Member member = createMember();
+        ReservationCancelRequest request = createCancelRequest();
+        ReservationCancelResponse response = createCancelResponse();
+        when(reservationService.cancelReservation(any(), any(ReservationCancelRequest.class)))
+            .thenReturn(response);
+
+        String content = mapper.writeValueAsString(request);
+
+        int price = 150000;
+        int totalPrice = calcNight() * price;
+
+        mockMvc.perform(delete("/api/auth/reservation")
+                .header("mock-token", member.getId())
+                .content(content)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.check_in_date").value(checkInDate.toString()))
-            .andExpect(jsonPath("$.check_out_date").value(checkOutDate.toString()));
+            .andExpect(jsonPath("$.check_out_date").value(checkOutDate.toString()))
+            .andExpect(jsonPath("$.night").value(2))
+            .andExpect(jsonPath("$.person_number").value(2))
+            .andExpect(jsonPath("$.price").value(price))
+            .andExpect(jsonPath("$.total_price").value(totalPrice))
+            .andExpect(jsonPath("$.room_type").value("VIP"))
+            .andExpect(jsonPath("$.standard_number").value(2))
+            .andExpect(jsonPath("$.maximum_number").value(4));
     }
 
 
@@ -153,5 +200,31 @@ class ReservationControllerTest {
 
     private ReservationRequest createReservationRequest() {
         return new ReservationRequest(1L, 3L, checkInDate, checkOutDate, 2);
+    }
+
+    private ReservationCancelRequest createCancelRequest() {
+        return new ReservationCancelRequest(1L);
+    }
+
+    private ReservationCancelResponse createCancelResponse() {
+        return ReservationCancelResponse
+            .builder()
+            .id(1L)
+            .checkInDate(checkInDate)
+            .checkOutDate(checkOutDate)
+            .night(2)
+            .personNumber(2)
+            .accommodationName("Test Accommodation")
+            .roomType("VIP")
+            .standardNumber(2)
+            .maximumNumber(4)
+            .price(150000)
+            .totalPrice(300000)
+            .deletedAt(deletedAt)
+            .build();
+    }
+
+    private int calcNight() {
+        return (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
     }
 }
