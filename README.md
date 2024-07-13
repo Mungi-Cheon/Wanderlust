@@ -23,7 +23,7 @@
 
 ## 🧱 아키텍쳐
 
-![architecture.png](src/main/resources/images/architecture.png)
+![architecture.jpeg](src/main/resources/images/architecture.jpeg)
 
 ---
 
@@ -71,11 +71,17 @@
 
 ## API List
 
-![apiList.png](src/main/resources/images/api-list/apiList.png)
+- ### [swagger](http://15.165.4.237/swagger-ui/index.html#/)
+
+- ### API List
+
+  ![apiList.png](src/main/resources/images/api-list/apiList.png)
 
 ---
 
 ## 결과물
+
+- **구현 사이트** : [wanderlust](https://wanderlust-mini4.netlify.app/)
 
 ---
 
