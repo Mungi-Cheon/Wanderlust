@@ -18,8 +18,10 @@ import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
+import com.travel.domain.reservations.dto.request.ReservationListRequest;
 import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
+import com.travel.domain.reservations.dto.response.ReservationListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
@@ -28,9 +30,7 @@ import com.travel.global.exception.type.ErrorType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -84,7 +84,7 @@ class ReservationServiceTest {
     void setUp() {
         checkInDate = LocalDate.now();
         checkOutDate = checkInDate.plusDays(2);
-        member = createMember("testmember@gmail.com");
+        member = createMember();
 
     }
 
@@ -117,62 +117,36 @@ class ReservationServiceTest {
         accommodation = createAccommodation();
         reservation = createReservation();
 
-        when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
-        when(productRepository.findByIdJoinImagesAndOption(any()))
-            .thenReturn(Optional.ofNullable(product));
+        when(memberRepository.getMember(any())).thenReturn(member);
+        when(productRepository.getByIdJoinImagesAndOption(any()))
+            .thenReturn(product);
         when(productInfoPerNightRepository
             .findByProductIdAndDateRangeWithPessimisticLock(anyLong(), any(), any()))
             .thenReturn(List.of(productInfoPerNight));
 
-        when(accommodationRepository.findByIdJoinImagesAndOptions(
-            any())).thenReturn(
-            Optional.ofNullable(accommodation));
-        when(reservationRepository.save(any())).thenReturn(reservation);
+        when(accommodationRepository.getByIdJoinImagesAndOptions(
+            any())).thenReturn(accommodation);
+        when(reservationRepository.saveAll(any())).thenReturn(List.of(reservation));
 
         ReservationRequest req = new ReservationRequest(
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
-        ReservationResponse result = reservationService.createReservation(req, member.getId());
+        ReservationListRequest reqList = new ReservationListRequest(List.of(req));
+        ReservationListResponse result = reservationService.createReservation(reqList,
+            member.getId());
 
-        verify(memberRepository).findById(any());
-        verify(reservationRepository).save(any());
+        verify(memberRepository).getMember(any());
+        verify(reservationRepository).saveAll(any());
+
+        List<ReservationResponse> responseList = result.getReservationResponseList();
 
         assertNotNull(result);
-        assertEquals(checkInDate, result.getCheckInDate());
-        assertEquals(checkOutDate, result.getCheckOutDate());
-        assertEquals(req.getPersonNumber(), result.getPersonNumber());
+        assertNotNull(responseList);
+        assertEquals(checkInDate, responseList.get(0).getCheckInDate());
+        assertEquals(checkOutDate, responseList.get(0).getCheckOutDate());
+        assertEquals(req.getPersonNumber(), responseList.get(0).getPersonNumber());
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         int totalPrice = night * productInfoPerNight.getPrice();
-        assertEquals(totalPrice, result.getTotalPrice());
-    }
-
-    @Test
-    @DisplayName("예약 생성 시 이미 예약된 경우 예외 발생")
-    void testCreateReservation_alreadyReserved() {
-        productInfoPerNight = createProductInfoPerNight(1);
-        productImage = createProductImage();
-        product = createProduct();
-        accommodation = createAccommodation();
-        reservation = createReservation();
-
-        when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
-        when(accommodationRepository.findByIdJoinImagesAndOptions(any()))
-            .thenReturn(Optional.ofNullable(accommodation));
-        when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
-            any()))
-            .thenReturn(List.of(reservation));
-
-        ReservationRequest request = new ReservationRequest(
-            accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
-
-        ReservationsException exception = assertThrows(ReservationsException.class,
-            () -> reservationService.createReservation(request, member.getId()));
-
-        verify(memberRepository).findById(any());
-        verify(reservationRepository).findAlreadyReservationWithPessimisticLock(any(), any(), any(),
-            any());
-
-        assertEquals(ErrorType.ALREADY_RESERVATION.getStatusCode(), exception.getStatusCode());
-        assertEquals(ErrorType.ALREADY_RESERVATION.getMessage(), exception.getMessage());
+        assertEquals(totalPrice, responseList.get(0).getTotalPrice());
     }
 
     @Test
@@ -184,24 +158,24 @@ class ReservationServiceTest {
         accommodation = createAccommodation();
         reservation = createReservation();
 
-        when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
-        when(accommodationRepository.findByIdJoinImagesAndOptions(any()))
-            .thenReturn(Optional.ofNullable(accommodation));
-        when(reservationRepository.findAlreadyReservationWithPessimisticLock(any(), any(), any(),
-            any())).thenReturn(new ArrayList<>());
-        when(productRepository.findByIdJoinImagesAndOption(any()))
-            .thenReturn(Optional.ofNullable(product));
+        when(memberRepository.getMember(any())).thenReturn(member);
+        when(accommodationRepository.getByIdJoinImagesAndOptions(any()))
+            .thenReturn(accommodation);
+        when(productRepository.getByIdJoinImagesAndOption(any()))
+            .thenReturn(product);
         when(productInfoPerNightRepository.findByProductIdAndDateRangeWithPessimisticLock(any(),
             any(), any())).thenReturn(List.of(productInfoPerNight));
 
         ReservationRequest request = new ReservationRequest(
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
 
-        ReservationsException exception = assertThrows(ReservationsException.class,
-            () -> reservationService.createReservation(request, member.getId()));
+        ReservationListRequest reqList = new ReservationListRequest(List.of(request));
 
-        verify(memberRepository).findById(any());
-        verify(reservationRepository).findAlreadyReservationWithPessimisticLock(any(), any(), any(),
+        ReservationsException exception = assertThrows(ReservationsException.class,
+            () -> reservationService.createReservation(reqList, member.getId()));
+
+        verify(memberRepository).getMember(any());
+        verify(reservationRepository).checkExistReservation(any(), any(), any(),
             any());
 
         assertEquals(ErrorType.INCLUDES_FULLY_BOOKED_PRODUCT.getStatusCode(),
@@ -209,10 +183,10 @@ class ReservationServiceTest {
         assertEquals(ErrorType.INCLUDES_FULLY_BOOKED_PRODUCT.getMessage(), exception.getMessage());
     }
 
-    private Member createMember(String email) {
+    private Member createMember() {
         return Member.builder()
             .id(35L)
-            .email(email)
+            .email("testmember@gmail.com")
             .name("testMember")
             .password("testMember1@#$")
             .build();
