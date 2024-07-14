@@ -30,6 +30,9 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
         "WHERE a.id = :id")
     Optional<Accommodation> findByIdJoinImagesAndOptions(@Param("id") Long id);
 
+   @Query("SELECT a FROM Accommodation a"
+        + " LEFT JOIN FETCH a.products"
+        + " WHERE a.id = :accommodationId")
     default Accommodation findAccommodationById(Long accommodationId) {
         return findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
