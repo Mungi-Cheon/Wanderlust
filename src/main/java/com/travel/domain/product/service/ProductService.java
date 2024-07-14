@@ -63,7 +63,8 @@ public class ProductService {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
-        List<ProductResponse> productResponses = findProductResponse(validProductList, productInfoPerNightList);
+        List<ProductResponse> productResponses = findProductResponse(validProductList,
+            productInfoPerNightList);
 
         AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse
             .from(accommodationEntity.getImages());
@@ -100,7 +101,8 @@ public class ProductService {
             throw new ProductException(ErrorType.INVALID_NUMBER_OF_PEOPLE);
         }
 
-        List<ProductResponse> productResponses = findProductResponse(validProductList, productInfoPerNightList);
+        List<ProductResponse> productResponses = findProductResponse(validProductList,
+            productInfoPerNightList);
 
         AccommodationImageResponse accommodationImageResponse = AccommodationImageResponse
             .from(accommodationEntity.getImages());
@@ -125,8 +127,9 @@ public class ProductService {
 
         Accommodation accommodationEntity = findAccommodation(accommodationId);
 
-        Product productEntity = productRepository.
-            findByIdAndAccommodationId(productId, accommodationId)
+        Product productEntity = accommodationEntity.getProducts().stream()
+            .filter(p -> p.getId().equals(productId))
+            .findFirst()
             .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
         if (personNumber > productEntity.getMaximumNumber()) {
@@ -154,7 +157,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponse> getSearchProduct(Long accommodationId, String keyword){
+    public List<ProductSimpleResponse> getSearchProduct(Long accommodationId, String keyword) {
         Accommodation accommodation = findAccommodation(accommodationId);
 
         List<Product> productList = accommodation.getProducts();
@@ -180,11 +183,12 @@ public class ProductService {
         }
     }
 
-    private Accommodation findAccommodation(Long accommodationId){
+    private Accommodation findAccommodation(Long accommodationId) {
         return accommodationRepository.findAccommodationById(accommodationId);
     }
 
-    private List<Product> findProductList(List<Product> productList, List<ProductInfoPerNight> productInfoPerNightList,
+    private List<Product> findProductList(List<Product> productList,
+        List<ProductInfoPerNight> productInfoPerNightList,
         LocalDate checkInDate, LocalDate checkOutDate,
         int personNumber) {
         Map<Long, List<ProductInfoPerNight>> perNightMap = productInfoPerNightList.stream()
@@ -209,7 +213,8 @@ public class ProductService {
 
         return productList.stream()
             .map(product -> {
-                ProductImageResponse productImageResponse = ProductImageResponse.from(product.getProductImage());
+                ProductImageResponse productImageResponse = ProductImageResponse.from(
+                    product.getProductImage());
                 int minCount = perNightMap.get(product.getId()).stream()
                     .mapToInt(ProductInfoPerNight::getCount)
                     .min()
@@ -219,7 +224,8 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
-    private List<ProductInfoPerNight> findAvailableProductPerNight(Long productId, LocalDate checkInDate,
+    private List<ProductInfoPerNight> findAvailableProductPerNight(Long productId,
+        LocalDate checkInDate,
         LocalDate checkOutDate) {
         List<ProductInfoPerNight> infoPerNightList = productInfoPerNightRepository
             .findByProductIdAndDateRange(productId, checkInDate, checkOutDate);
