@@ -2,6 +2,7 @@ package com.travel.domain.reservations.dto.response;
 
 import com.travel.domain.reservations.entity.Reservation;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 @Builder
-public class ReservationHistoryResponse {
+public class ReservationCancelResponse {
 
     private Long id;
 
@@ -29,15 +30,15 @@ public class ReservationHistoryResponse {
 
     private Integer maximumNumber;
 
-    private String imageUrl;
-
     private Integer price;
 
     private Integer totalPrice;
 
-    public static ReservationHistoryResponse from(Reservation entity, String accommodationName
-        , String roomType, Integer standardNumber, Integer maximumNumber, String imageUrl) {
-        return ReservationHistoryResponse.builder()
+    private LocalDateTime deletedAt;
+
+    public static ReservationCancelResponse from(Reservation entity, String accommodationName
+        , String roomType, Integer standardNumber, Integer maximumNumber, LocalDateTime deletedAt) {
+        return ReservationCancelResponse.builder()
             .id(entity.getId())
             .checkInDate(entity.getCheckInDate())
             .checkOutDate(entity.getCheckOutDate())
@@ -47,9 +48,9 @@ public class ReservationHistoryResponse {
             .roomType(roomType)
             .standardNumber(standardNumber)
             .maximumNumber(maximumNumber)
-            .imageUrl(imageUrl)
             .price(entity.getPrice())
             .totalPrice(calcTotalPrice(entity.getPrice(), entity.getNight()))
+            .deletedAt(deletedAt)
             .build();
     }
 
