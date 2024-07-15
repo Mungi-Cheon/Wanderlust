@@ -29,6 +29,12 @@ spring:
           starttls:
             enable: true
         debug: true
+
+  kakao:
+    rest:
+      api:
+        key: ${KAKAO_REST_API_KEY}
+
 # jwt 관련
 #jwt:
 #  secret-key: ${jwt-secret-key}
