@@ -23,15 +23,17 @@ public class EmailService {
     private final JavaMailSender emailSender;
 
     @Async("taskExecutor")
-    public void sendReservationConfirmation(String to, Reservation reservation) {
+    public void sendReservationConfirmation(
+        String to, Reservation reservation,
+        String templatePath, String subject) {
         MimeMessage message = emailSender.createMimeMessage();
 
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("예약 확인서");
+            helper.setSubject(subject);
 
-            String content = loadTemplate("templates/reservation-confirmation.html", Map.of(
+            String content = loadTemplate(templatePath, Map.of(
                 "name", reservation.getMember().getName(),
                 "accommodationName", reservation.getAccommodation().getName(),
                 "productName", reservation.getProduct().getName(),

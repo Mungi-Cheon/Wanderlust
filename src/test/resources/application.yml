@@ -27,6 +27,12 @@ spring:
             enable: true
         debug: true
 
+  kakao:
+    rest:
+      api:
+        key: ${KAKAO_REST_API_KEY}
+
+
 jwt:
   secret-key: ${jwt_secret_key}
   issuer: ${jwt_issuer}

@@ -3,6 +3,7 @@ package com.travel.domain.product.controller;
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationImageResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
+import com.travel.domain.map.service.KakaoMapService;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductImageResponse;
 import com.travel.domain.product.dto.response.ProductOptionResponse;
@@ -39,6 +40,8 @@ class ProductControllerTest {
     private MockMvc mvc;
     @MockBean
     ProductService productService;
+    @MockBean
+    KakaoMapService kakaoMapService;
 
     Long accommodationId = 1L;
     Long productId = 1L;
