@@ -24,7 +24,7 @@ public class KakaoMapService {
 
     private static final String KAKAO_MAP_URL = "https://dapi.kakao.com/v2/local/search/address.json";
 
-    @Value("${kakao.rest.api.key}")
+    @Value("c71b9f803f4d4e5484f8ee9f79390531")
     private String apiKey;
 
     public MapResponse getAddress(String address) {
