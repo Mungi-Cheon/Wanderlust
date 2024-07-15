@@ -10,15 +10,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.List;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE member SET deleted_at=CURRENT_TIMESTAMP where id=?")
+@SQLRestriction("deleted_at IS NULL")
 @Entity
 public class Member {
 
@@ -32,12 +37,13 @@ public class Member {
 
     private String email;
 
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Review> reviews;
 
-    public static Member from(
-        SignupRequest request, String password) {
+    public static Member from(SignupRequest request, String password) {
         return Member.builder()
             .email(request.getEmail())
             .name(request.getName())

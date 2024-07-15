@@ -9,15 +9,15 @@ import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
-import com.travel.domain.reservations.dto.request.ReservationRequest;
+import com.travel.domain.reservations.dto.request.ReservationCancelRequest;
+import com.travel.domain.reservations.dto.request.ReservationListRequest;
+import com.travel.domain.reservations.dto.response.ReservationCancelResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
+import com.travel.domain.reservations.dto.response.ReservationListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
-import com.travel.global.exception.AccommodationException;
-import com.travel.global.exception.MemberException;
-import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.type.ErrorType;
 import java.time.LocalDate;
@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -49,6 +50,11 @@ public class ReservationService {
 
     private final EmailService emailService;
 
+    private static final String MAIL_SUBJECT_CONFIRMATION = "예약 확인서";
+    private static final String MAIL_SUBJECT_CANCEL = "예약 취소 확인서";
+    private static final String MAIL_TEMPLATE_CONFIRMATION = "templates/reservation-confirmation.html";
+    private static final String MAIL_TEMPLATE_CANCEL = "templates/reservation-cancel.html";
+
     @Transactional(readOnly = true)
     public ReservationHistoryListResponse getReservationHistories(Long memberId) {
 
@@ -66,39 +72,81 @@ public class ReservationService {
 
     @CacheEvict(value = "accommodations", allEntries = true)
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public ReservationResponse createReservation(ReservationRequest request, Long memberId) {
-        LocalDate checkInDate = request.getCheckInDate();
-        LocalDate checkOutDate = request.getCheckOutDate();
-        int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-        long productId = request.getProductId();
+    public ReservationListResponse createReservation(ReservationListRequest requestList,
+        Long memberId) {
+        List<Reservation> reservationList = new ArrayList<>();
+        Member member = memberRepository.getMember(memberId);
 
-        Member member = findMember(memberId);
+        requestList.getRequestList().forEach(request -> {
+            LocalDate checkInDate = request.getCheckInDate();
+            LocalDate checkOutDate = request.getCheckOutDate();
+            int nights = calcNight(checkInDate, checkOutDate);
+            long productId = request.getProductId();
 
-        Accommodation accommodation = findAccommodation(request.getAccommodationId());
-        checkAlreadyReserved(memberId, productId, checkInDate, checkOutDate);
+            Accommodation accommodation = accommodationRepository
+                .getByIdJoinImagesAndOptions(request.getAccommodationId());
 
-        Product product = findProduct(productId);
+            reservationRepository.checkExistReservation(memberId, productId, checkInDate,
+                checkOutDate);
 
-        List<ProductInfoPerNight> piList = findProductInfoPerNightList(productId, checkInDate,
-            checkOutDate.minusDays(1));
-        decreaseCountByOne(piList);
+            Product product = productRepository.getByIdJoinImagesAndOption(productId);
+            List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(productId,
+                checkInDate, checkOutDate.minusDays(1));
+            decreaseCountByOne(productInfoList);
 
-        Reservation reservation = createReservation(member, accommodation,
-            product, request.getPersonNumber(), piList.get(0).getPrice(),
-            night, checkInDate, checkOutDate);
+            Reservation reservation = createReservation(
+                member, accommodation,
+                product, request.getPersonNumber(),
+                productInfoList.get(0).getPrice(), nights,
+                checkInDate, checkOutDate
+            );
 
-        Reservation savedReservation = reservationRepository.save(reservation);
+            reservationList.add(reservation);
+        });
 
-        emailService.sendReservationConfirmation(member.getEmail(), savedReservation);
+        List<Reservation> savedList = reservationRepository.saveAll(reservationList);
 
-        log.debug("Saved reservation: {}", LocalDateTime.now());
-        return ReservationResponse.from(savedReservation);
+        savedList.forEach(saved -> emailService.sendReservationConfirmation(
+            member.getEmail(),
+            saved,
+            MAIL_TEMPLATE_CONFIRMATION,
+            MAIL_SUBJECT_CONFIRMATION
+        ));
+
+        List<ReservationResponse> responseList = savedList.stream()
+            .map(ReservationResponse::from)
+            .collect(Collectors.toList());
+
+        return ReservationListResponse.from(responseList);
     }
 
-    private Member findMember(Long memberId) {
-        return memberRepository.findById(memberId).orElseThrow(
-            () -> new MemberException(ErrorType.NOT_FOUND)
+    @Transactional()
+    public ReservationCancelResponse cancelReservation(
+        Long memberId, ReservationCancelRequest request) {
+        Reservation target = reservationRepository
+            .getReservationByIdAndMemberId(request.getId(), memberId);
+
+        reservationRepository.delete(target);
+        reservationRepository.flush();
+
+        Member member = memberRepository.getMember(memberId);
+        Product product = target.getProduct();
+
+        emailService.sendReservationConfirmation(member.getEmail(), target,
+            MAIL_TEMPLATE_CANCEL, MAIL_SUBJECT_CANCEL);
+
+        return ReservationCancelResponse.from(
+            target,
+            target.getAccommodation().getName(),
+            product.getType(),
+            product.getStandardNumber(),
+            product.getMaximumNumber(),
+            LocalDateTime.now().withNano(0)
         );
+    }
+
+    private int calcNight(LocalDate checkInDate, LocalDate checkOutDate) {
+        return (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
     }
 
     private List<ReservationHistoryResponse> createReservationHistoryList(
@@ -121,17 +169,6 @@ public class ReservationService {
         return rhList;
     }
 
-    private void checkAlreadyReserved(
-        Long memberId, Long productId,
-        LocalDate checkInDate, LocalDate checkOutDate) {
-        List<Reservation> already = reservationRepository.findAlreadyReservationWithPessimisticLock(
-            memberId, productId, checkInDate, checkOutDate);
-
-        if (!already.isEmpty()) {
-            throw new ReservationsException(ErrorType.ALREADY_RESERVATION);
-        }
-    }
-
     private void decreaseCountByOne(
         List<ProductInfoPerNight> productInfoPerNightsList) {
         for (ProductInfoPerNight pi : productInfoPerNightsList) {
@@ -140,17 +177,6 @@ public class ReservationService {
             }
             pi.decreaseCountByOne();
         }
-    }
-
-    private Accommodation findAccommodation(Long accommodationId) {
-        return accommodationRepository.findByIdJoinImagesAndOptions(
-                accommodationId)
-            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
-    }
-
-    private Product findProduct(long productId) {
-        return productRepository.findByIdJoinImagesAndOption(productId)
-            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
     }
 
     private List<ProductInfoPerNight> findProductInfoPerNightList(long productId,

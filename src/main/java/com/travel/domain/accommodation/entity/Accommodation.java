@@ -79,4 +79,10 @@ public class Accommodation {
             .divide(BigDecimal.valueOf(totalReviews +1),2, RoundingMode.HALF_UP);
             this.grade = updatedGrade;
     }
+
+    @Setter
+    private Double latitude;
+
+    @Setter
+    private Double longitude;
 }

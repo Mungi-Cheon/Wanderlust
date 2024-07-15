@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 public class ReservationRequest {
 
     @NotNull
-    private long accommodationId;
+    private Long accommodationId;
 
     @NotNull
-    private long productId;
+    private Long productId;
 
     @NotNull(message = "체크인 날짜를 입력해주세요.")
     private LocalDate checkInDate;

@@ -1,6 +1,8 @@
 package com.travel.domain.product.repository;
 
 import com.travel.domain.product.entity.Product;
+import com.travel.global.exception.ProductException;
+import com.travel.global.exception.type.ErrorType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +27,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "WHERE p.accommodation.id = :accommodationId")
     List<Product> findAllByAccommodationIdWithFetchJoin
         (@Param("accommodationId") Long accommodationId);
+
+    default Product getByIdJoinImagesAndOption(Long id) {
+        return findByIdJoinImagesAndOption(id)
+            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
+    }
 }

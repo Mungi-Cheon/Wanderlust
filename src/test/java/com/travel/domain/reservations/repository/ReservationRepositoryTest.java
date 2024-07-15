@@ -2,6 +2,7 @@ package com.travel.domain.reservations.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -9,12 +10,12 @@ import static org.mockito.Mockito.when;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.entity.AccommodationImage;
 import com.travel.domain.accommodation.entity.AccommodationOption;
+import com.travel.domain.member.entity.Member;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.entity.ProductOption;
 import com.travel.domain.reservations.entity.Reservation;
-import com.travel.domain.member.entity.Member;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -74,11 +75,14 @@ class ReservationRepositoryTest {
         LocalDate checkOutDate = checkInDate.plusDays(1);
         int personNumber = 2;
 
-        Reservation reservation = createReservation(member, checkInDate, checkOutDate, personNumber);
-        when(reservationRepository.save(any())).thenReturn(reservation);
-        Reservation saved = reservationRepository.save(reservation);
+        Reservation reservation = createReservation(member, checkInDate, checkOutDate,
+            personNumber);
+        when(reservationRepository.saveAll(any())).thenReturn(List.of(reservation));
+        List<Reservation> savedList = reservationRepository.saveAll(List.of(reservation));
 
-        assertNotNull(saved.getId());
+        assertNotNull(savedList);
+        assertEquals(1, savedList.size());
+        assertEquals(reservation.getId(), savedList.get(0).getId());
     }
 
     @Test
@@ -90,17 +94,18 @@ class ReservationRepositoryTest {
         LocalDate checkOutDate = checkInDate.plusDays(1);
         int personNumber = 2;
 
-        Reservation reservation = createReservation(member, checkInDate, checkOutDate, personNumber);
+        Reservation reservation = createReservation(member, checkInDate, checkOutDate,
+            personNumber);
 
-        when(reservationRepository.save(any())).thenReturn(reservation);
-        Reservation savedReservation = reservationRepository.save(reservation);
-        assertNotNull(savedReservation);
+        when(reservationRepository.saveAll(any())).thenReturn(List.of(reservation));
+        List<Reservation> savedList = reservationRepository.saveAll(List.of(reservation));
+        assertNotNull(savedList);
 
-        when(reservationRepository.findByMemberId(anyLong())).thenReturn(List.of(savedReservation));
+        when(reservationRepository.findByMemberId(anyLong())).thenReturn(savedList);
         List<Reservation> result = reservationRepository.findByMemberId(member.getId());
 
         assertNotNull(result);
-        assertEquals(savedReservation.getId(), result.get(0).getId());
+        assertEquals(savedList.get(0).getId(), result.get(0).getId());
     }
 
     @Test
@@ -112,21 +117,47 @@ class ReservationRepositoryTest {
         LocalDate checkOutDate = checkInDate.plusDays(2);
         int personNumber = 2;
 
-        Reservation reservation = createReservation(member, checkInDate, checkOutDate, personNumber);
-        when(reservationRepository.save(any())).thenReturn(reservation);
+        Reservation reservation = createReservation(member, checkInDate, checkOutDate,
+            personNumber);
+        when(reservationRepository.saveAll(any())).thenReturn(List.of(reservation));
 
-        assertNotNull(reservation);
-
-        Reservation savedReservation = reservationRepository.save(reservation);
         when(reservationRepository.findAlreadyReservationWithPessimisticLock(anyLong(), anyLong(),
-            any(), any()))
-            .thenReturn(List.of(savedReservation));
+            any(), any())).thenReturn(List.of(reservation));
+
+        List<Reservation> savedList = reservationRepository.saveAll(List.of(reservation));
+
+        assertNotNull(savedList);
 
         List<Reservation> result = reservationRepository
             .findAlreadyReservationWithPessimisticLock(member.getId(), product.getId(), checkInDate,
                 checkOutDate);
 
         assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName(value = "예약 취소")
+    void testReservationCancel() {
+        Member member = createMember("test111@gmail.com");
+
+        LocalDate checkInDate = LocalDate.now();
+        LocalDate checkOutDate = checkInDate.plusDays(2);
+        int personNumber = 2;
+
+        Reservation reservation = createReservation(member, checkInDate, checkOutDate,
+            personNumber);
+
+        when(reservationRepository.saveAll(any())).thenReturn(List.of(reservation));
+        List<Reservation> savedList = reservationRepository.saveAll(List.of(reservation));
+
+        assertNotNull(savedList);
+
+        reservationRepository.delete(reservation);
+
+        Reservation result = reservationRepository
+            .getReservationByIdAndMemberId(reservation.getId(), member.getId());
+
+        assertNull(result);
     }
 
     private Member createMember(String email) {
