@@ -24,6 +24,7 @@ import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,7 @@ import java.util.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +60,6 @@ class ProductServiceTest {
 
     @MockBean
     KakaoMapService kakaoMapService;
-
 
     Long accommodationId = 1L;
     Long productId = 1L;
@@ -290,8 +291,8 @@ class ProductServiceTest {
     }
 
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
     }
 
     @Test
@@ -329,7 +330,7 @@ class ProductServiceTest {
         MapResponse mapResponse = createMapResponse(documentResponseList);
 
         when(accommodationRepository
-            .findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            .findAccommodationById(accommodationId)).thenReturn(accommodation);
         when(kakaoMapService
             .getAddress(accommodation.getAddress())).thenReturn(mapResponse);
         when(productRepository
@@ -359,8 +360,9 @@ class ProductServiceTest {
     @DisplayName("getAccommodationDetail 숙소 없음")
     void getAccommodationDetail_Accommodation_NOT_FOUND() {
         Long nonExistentAccommodationId = 323L;
-        when(accommodationRepository.findById(nonExistentAccommodationId)).thenReturn(
-            Optional.empty());
+
+        when(accommodationRepository.findAccommodationById(nonExistentAccommodationId))
+            .thenThrow(new AccommodationException(ErrorType.NOT_FOUND));
 
         AccommodationException exception = assertThrows(AccommodationException.class, () -> {
             productService.getAccommodationDetail(nonExistentAccommodationId, checkInDate,
@@ -372,17 +374,17 @@ class ProductServiceTest {
     @Test
     @DisplayName("getAccommodationDetail 인원에 해당하는 숙소 없음")
     void getAccommodationDetail_INVALID_NUMBER_OF_PEOPLE() {
+        int invalidNumberOfPeople = 100;
+        Accommodation accommodation = new Accommodation();
         DocumentResponse documentResponse = createDocumentResponse();
         List<DocumentResponse> documentResponseList = new ArrayList<>();
         documentResponseList.add(documentResponse);
         MapResponse mapResponse = createMapResponse(documentResponseList);
-        int invalidNumberOfPeople = 100;
-        Accommodation accommodation = new Accommodation();
 
         when(kakaoMapService
             .getAddress(accommodation.getAddress())).thenReturn(mapResponse);
         when(accommodationRepository
-            .findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            .findAccommodationById(accommodationId)).thenReturn(accommodation);
 
         ProductException exception = assertThrows(ProductException.class, () ->
             productService.getAccommodationDetail(accommodationId, checkInDate,
@@ -439,11 +441,7 @@ class ProductServiceTest {
         accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
 
         when(accommodationRepository
-            .findById(accommodationId)).thenReturn(Optional.of(accommodation));
-
-        when(productRepository.findByIdAndAccommodationId(productId, accommodationId)).thenReturn(
-            Optional.of(product));
-
+            .findAccommodationById(accommodationId)).thenReturn(accommodation);
         when(productInfoPerNightRepository
             .findMinCountByProductIdAndDateRange(eq(productId), eq(checkInDate), eq(checkOutDate)))
             .thenReturn(productInfoPerNight.getPrice());
@@ -467,14 +465,18 @@ class ProductServiceTest {
     void getProductDetail_NOT_FOUND() {
         Long nonExistentAccommodationId = 323L;
         Accommodation accommodation = new Accommodation();
+        AccommodationOption accommodationOption = createAccommodationOption(accommodation);
+        AccommodationImage accommodationImage = createAccommodationImage(accommodation);
+        List<Product> productList = new ArrayList<>();
+        accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
 
-        when(accommodationRepository.findById(nonExistentAccommodationId)).thenReturn(
-            Optional.empty());
+        when(accommodationRepository.findAccommodationById(accommodationId)).thenReturn(accommodation);
 
-        AccommodationException exception = assertThrows(AccommodationException.class, () -> {
-            productService.getAccommodationDetail(nonExistentAccommodationId, checkInDate,
-                checkOutDate, personNumber);
+        ProductException exception = assertThrows(ProductException.class, () -> {
+            productService.getProductDetail(accommodationId, nonExistentAccommodationId,
+                checkInDate, checkOutDate, personNumber);
         });
+
         assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
     }
 
@@ -482,13 +484,27 @@ class ProductServiceTest {
     @DisplayName("getProductDetail - 객실 없음")
     void getProductDetail_Product_NOT_FOUND() {
         Long nonExistentProductId = 323L;
+        Accommodation accommodation = new Accommodation();
+        Product product = new Product();
+        List<Product> productList = new ArrayList<>();
+        List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
+        AccommodationOption accommodationOption = createAccommodationOption(accommodation);
+        AccommodationImage accommodationImage = createAccommodationImage(accommodation);
+        accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
+        ProductOption productOption = createProductOption(product, accommodation);
+        ProductImage productImage = createProductImage(product, accommodation);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation,
+            checkInDate);
+        ProductInfoPerNight productInfoPerNight2 = createProductInfoPerNight(product, accommodation,
+            checkOutDate);
+        productInfoPerNightList.add(productInfoPerNight);
+        productInfoPerNightList.add(productInfoPerNight2);
+        product = createProduct(accommodation, productImage, productInfoPerNightList,
+            productOption);
+        productList.add(product);
 
-        when(accommodationRepository.findById(accommodationId))
-            .thenReturn(Optional.of(new Accommodation()));
-
-        when(productRepository
-            .findByIdAndAccommodationId(nonExistentProductId, accommodationId)).thenReturn(
-            Optional.empty());
+        when(accommodationRepository.findAccommodationById(accommodationId))
+            .thenReturn(accommodation);
 
         ProductException exception = assertThrows(ProductException.class, () -> {
             productService.getProductDetail(accommodationId, nonExistentProductId,
@@ -502,11 +518,34 @@ class ProductServiceTest {
     @DisplayName("getProductDetail - 인원 예외 ")
     void getProductDetail_INVALID_NUMBER_OF_PEOPLE() {
         int invalidNumberOfPerson = 55;
+        Accommodation accommodation = new Accommodation();
         Product product = new Product();
-        when(accommodationRepository.findById(accommodationId))
-            .thenReturn(Optional.of(new Accommodation()));
-        when(productRepository.findByIdAndAccommodationId(productId, accommodationId))
-            .thenReturn(Optional.of(product));
+        List<Product> productList = new ArrayList<>();
+        List<ProductInfoPerNight> productInfoPerNightList = new ArrayList<>();
+        AccommodationOption accommodationOption = createAccommodationOption(accommodation);
+        AccommodationImage accommodationImage = createAccommodationImage(accommodation);
+        accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
+        ProductOption productOption = createProductOption(product, accommodation);
+        ProductImage productImage = createProductImage(product, accommodation);
+        ProductInfoPerNight productInfoPerNight = createProductInfoPerNight(product, accommodation,
+            checkInDate);
+        ProductInfoPerNight productInfoPerNight2 = createProductInfoPerNight(product, accommodation,
+            checkOutDate);
+        productInfoPerNightList.add(productInfoPerNight);
+        productInfoPerNightList.add(productInfoPerNight2);
+        product = createProduct(accommodation, productImage, productInfoPerNightList,
+            productOption);
+        productList.add(product);
+
+        when(accommodationRepository.findAccommodationById(accommodationId))
+            .thenReturn(accommodation);
+
+        DocumentResponse documentResponse = createDocumentResponse();
+        List<DocumentResponse> documentResponseList = new ArrayList<>();
+        documentResponseList.add(documentResponse);
+        MapResponse mapResponse = createMapResponse(documentResponseList);
+
+        when(kakaoMapService.getAddress(any())).thenReturn(mapResponse);
 
         ProductException exception = assertThrows(ProductException.class, () -> {
             productService.getProductDetail(accommodationId, productId,

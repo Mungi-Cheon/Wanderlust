@@ -141,8 +141,9 @@ public class ProductService {
 
         Accommodation accommodationEntity = findAccommodation(accommodationId);
 
-        Product productEntity = productRepository.
-            findByIdAndAccommodationId(productId, accommodationId)
+        Product productEntity = accommodationEntity.getProducts().stream()
+            .filter(p -> p.getId().equals(productId))
+            .findFirst()
             .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
         if (personNumber > productEntity.getMaximumNumber()) {
@@ -197,8 +198,7 @@ public class ProductService {
     }
 
     private Accommodation findAccommodation(Long accommodationId) {
-        return accommodationRepository.findById(accommodationId)
-            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
+        return accommodationRepository.findAccommodationById(accommodationId);
     }
 
     private List<Product> findProductList(List<Product> productList,
