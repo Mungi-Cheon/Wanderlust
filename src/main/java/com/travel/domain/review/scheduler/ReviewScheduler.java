@@ -25,9 +25,7 @@ public class ReviewScheduler {
             reviewService.updateGrade();
             log.info("현재 시간 : {}", LocalDateTime.now());
         }catch (Exception e ) {
-            //
             log.error("Error updating grades: {}", e.getMessage(), e);
-
         }
     }
 }

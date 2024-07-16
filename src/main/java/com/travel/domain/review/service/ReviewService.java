@@ -57,11 +57,9 @@ public class ReviewService {
         Member member = findMember(memberId);
         List<Review> reviewList = member.getReviews();
 
-        List<ReviewResponse> reviewResponseList = reviewList.stream()
+        return reviewList.stream()
             .map(ReviewResponse::from)
             .collect(Collectors.toList());
-
-        return reviewResponseList;
     }
 
     @Transactional
@@ -90,7 +88,7 @@ public class ReviewService {
     @Transactional
     public UpdateReviewResponse updateReview(Long memberId, Long accommodationId,
         ReviewRequest reviewRequest, Long reviewId) {
-        Accommodation accommodaion = findAccommodation(accommodationId);
+        findAccommodation(accommodationId);
         findMember(memberId);
         Reservation reservation = findReservation(reviewRequest.getReservationId());
         Review review = findByIdAndAccommodationId(reviewId, accommodationId);
@@ -111,7 +109,6 @@ public class ReviewService {
         reviewRepository.delete(review);
 
         return DeleteReviewResponse.from(review);
-
     }
 
     @Transactional
@@ -157,7 +154,6 @@ public class ReviewService {
         if (reviews.isEmpty()) {
             return accommodation.getGrade(); //return BigDecimal.ZERO;
         }
-
         BigDecimal totalGrade = reviews.stream()
             .map(Review::getGrade)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
