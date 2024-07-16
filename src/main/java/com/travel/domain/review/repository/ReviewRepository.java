@@ -15,11 +15,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
   List<Review> findByAccommodationId(Long accommodationId);
 
-  /*default List<Review> getByAccommodationId(Long accommodationId) {
-    List<Review> reviews = findByAccommodationId(accommodationId);
-    if (reviews.isEmpty()) {
-      throw new AccommodationException(ErrorType.NOT_FOUND);
-    }
-    return reviews;
-  }*/
+  default List<Review> getByAccommodationId(Long accommodationId) {
+      return findByAccommodationId(accommodationId);
+  }
 }
