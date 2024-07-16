@@ -58,7 +58,7 @@ public class ReviewService {
         List<Review> reviewList = member.getReviews();
 
         List<ReviewResponse> reviewResponseList = reviewList.stream()
-            .map(ReviewResponse:: from)
+            .map(ReviewResponse::from)
             .collect(Collectors.toList());
 
         return reviewResponseList;
@@ -82,8 +82,6 @@ public class ReviewService {
         LocalDate createdAt = LocalDate.now();
         validInputs(checkOutTime, createdAt);
 
-        //accommodation.updateGrade(reviewRequest.getGrade()); //스케줄러 도입시 삭제?
-
         Review review = Review.from(reviewRequest, accommodation, member, reservation);
         reviewRepository.save(review);
         return ReviewResponse.from(review);
@@ -100,7 +98,6 @@ public class ReviewService {
         LocalDate updatedAt = LocalDate.now();
         isValidWrite(checkOutTime, updatedAt);
         review.update(reviewRequest);
-        //accommodaion.updateGrade(reviewRequest.getGrade());
 
         Review reviewUpdated = reviewRepository.save(review);
         return UpdateReviewResponse.from(reviewUpdated);
@@ -118,34 +115,32 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateGrade(){
+    public void updateGrade() {
         List<Accommodation> accommodations = accommodationRepository.findAll();
-        for(Accommodation accommodation : accommodations){
-            List<Review> reviews = reviewRepository.findByAccommodationId(accommodation.getId());
+        for (Accommodation accommodation : accommodations) {
+            List<Review> reviews = reviewRepository.getByAccommodationId(accommodation.getId());
             BigDecimal newGrade = calculateGrade(reviews, accommodation);
             accommodation.updateGrade(newGrade);
         }
         accommodationRepository.saveAll(accommodations);
     }
 
+    //TODO product_v2 의 default method로 교체
     private Accommodation findAccommodation(Long accommodationId) {
         return accommodationRepository.findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
     }
 
     private Member findMember(Long memberId) {
-        return memberRepository.findById(memberId)
-            .orElseThrow(() -> new MemberException(ErrorType.NOT_FOUND));
+        return memberRepository.getMember(memberId);
     }
 
     private Reservation findReservation(Long reservationId) {
-        return reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new ReservationsException(ErrorType.NOT_FOUND));
+        return reservationRepository.getReservationById(reservationId);
     }
 
     private Review findByIdAndAccommodationId(Long reviewId, Long accommodationId) {
-        return reviewRepository.findByIdAndAccommodationId(reviewId, accommodationId)
-            .orElseThrow(() -> new ReviewException(ErrorType.NOT_FOUND));
+        return reviewRepository.getByIdAndAccommodationId(reviewId, accommodationId);
     }
 
     private static boolean isValidWrite(LocalDate checkOutDate, LocalDate createdAt) {
@@ -159,9 +154,9 @@ public class ReviewService {
     }
 
     private BigDecimal calculateGrade(List<Review> reviews, Accommodation accommodation) {
-         if(reviews.isEmpty()) {
-             return accommodation.getGrade(); //return BigDecimal.ZERO;
-         }
+        if (reviews.isEmpty()) {
+            return accommodation.getGrade(); //return BigDecimal.ZERO;
+        }
 
         BigDecimal totalGrade = reviews.stream()
             .map(Review::getGrade)

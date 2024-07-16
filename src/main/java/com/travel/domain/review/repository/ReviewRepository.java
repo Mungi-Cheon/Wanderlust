@@ -1,7 +1,7 @@
 package com.travel.domain.review.repository;
 
 import com.travel.domain.review.entity.Review;
-import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.ReviewException;
 import com.travel.global.exception.type.ErrorType;
 import java.util.List;
 import java.util.Optional;
@@ -17,5 +17,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
   default List<Review> getByAccommodationId(Long accommodationId) {
       return findByAccommodationId(accommodationId);
+  }
+
+  default Review getByIdAndAccommodationId(Long reviewId, Long accommodationId) {
+    return findByIdAndAccommodationId(reviewId, accommodationId)
+        .orElseThrow(()-> new ReviewException(ErrorType.NOT_FOUND));
   }
 }
