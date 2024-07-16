@@ -5,7 +5,8 @@ import java.time.LocalDate;
 public class DateValidationUtil {
 
   public static boolean isCheckInValid(LocalDate checkIn) {
-    return checkIn.isAfter(LocalDate.now()) || checkIn.isEqual(LocalDate.now());
+    LocalDate now = LocalDate.now();
+    return checkIn.isAfter(now) || checkIn.isEqual(now);
   }
 
   public static boolean isCheckOutValid(LocalDate checkIn, LocalDate checkOut) {
