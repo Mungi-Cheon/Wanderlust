@@ -19,8 +19,7 @@ public class ReviewScheduler {
 
     // 매일 자정 실행
     //@Async 비동기
-    //@Scheduled(cron = "0 38 12 * * ?")
-    @Scheduled(cron = "0 5 13 * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void updateGrade() {
         try {
             reviewService.updateGrade();
