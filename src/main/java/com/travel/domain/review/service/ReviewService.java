@@ -20,6 +20,8 @@ import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.ReviewException;
 import com.travel.global.exception.type.ErrorType;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,7 +82,7 @@ public class ReviewService {
         LocalDate createdAt = LocalDate.now();
         validInputs(checkOutTime, createdAt);
 
-        accommodation.updateGrade(reviewRequest.getGrade());
+        //accommodation.updateGrade(reviewRequest.getGrade()); //스케줄러 도입시 삭제?
 
         Review review = Review.from(reviewRequest, accommodation, member, reservation);
         reviewRepository.save(review);
@@ -98,7 +100,7 @@ public class ReviewService {
         LocalDate updatedAt = LocalDate.now();
         isValidWrite(checkOutTime, updatedAt);
         review.update(reviewRequest);
-        accommodaion.updateGrade(reviewRequest.getGrade());
+        //accommodaion.updateGrade(reviewRequest.getGrade());
 
         Review reviewUpdated = reviewRepository.save(review);
         return UpdateReviewResponse.from(reviewUpdated);
@@ -113,6 +115,17 @@ public class ReviewService {
 
         return DeleteReviewResponse.from(review);
 
+    }
+
+    @Transactional
+    public void updateGrade(){
+        List<Accommodation> accommodations = accommodationRepository.findAll();
+        for(Accommodation accommodation : accommodations){
+            List<Review> reviews = reviewRepository.findByAccommodationId(accommodation.getId());
+            BigDecimal newGrade = calculateGrade(reviews, accommodation);
+            accommodation.updateGrade(newGrade);
+        }
+        accommodationRepository.saveAll(accommodations);
     }
 
     private Accommodation findAccommodation(Long accommodationId) {
@@ -143,5 +156,17 @@ public class ReviewService {
         if (!isValidWrite(checkOutDate, createdAt)) {
             throw new ReviewException(ErrorType.FAILED_TO_CREATE_REVIEW);
         }
+    }
+
+    private BigDecimal calculateGrade(List<Review> reviews, Accommodation accommodation) {
+         if(reviews.isEmpty()) {
+             return accommodation.getGrade(); //return BigDecimal.ZERO;
+         }
+
+        BigDecimal totalGrade = reviews.stream()
+            .map(Review::getGrade)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return totalGrade.divide(BigDecimal.valueOf(reviews.size()), 1, RoundingMode.HALF_UP);
     }
 }
