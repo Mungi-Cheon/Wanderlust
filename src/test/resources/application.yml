@@ -32,8 +32,11 @@ kakao:
     api:
       key: ${KAKAO_REST_API_KEY}
 
-
 jwt:
-  secret-key: ${jwt_secret_key}
-  issuer: ${jwt_issuer}
-  access-token-expire-time: ${jwt_access_token_expired_time}
+  secret-key: superSecretKey12345!@#$%superSecretKey12345!@#$%
+  issuer: test
+  access-token-expire-time: 900000
+#jwt:
+#  secret-key: ${jwt_secret_key}
+#  issuer: ${jwt_issuer}
+#  access-token-expire-time: ${jwt_access_token_expired_time}
