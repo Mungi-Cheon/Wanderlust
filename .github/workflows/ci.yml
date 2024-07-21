@@ -25,8 +25,10 @@ jobs:
         with:
           files: ./src/test/resources/application.yml
         env:
-          spring.mail.username: ${{secrets.MAIL_USERNAME}}
-          spring.mail.password: ${{secrets.MAIL_PASSWORD}}
+          #          spring.mail.username: ${{secrets.MAIL_USERNAME}}
+          #          spring.mail.password: ${{secrets.MAIL_PASSWORD}}
+          spring.mail.username: ${{secrets.MAIL_USERNAME2}}
+          spring.mail.password: ${{secrets.MAIL_PASSWORD2}}
           jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
           jwt.issuer: ${{secrets.JWT_ISSUER}}
           jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
