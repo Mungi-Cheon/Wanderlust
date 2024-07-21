@@ -24,7 +24,7 @@ public class KakaoMapService {
 
     private static final String KAKAO_MAP_URL = "https://dapi.kakao.com/v2/local/search/address.json";
 
-    @Value("c71b9f803f4d4e5484f8ee9f79390531")
+    @Value("${kakao.rest.api.key}")
     private String apiKey;
 
     public MapResponse getAddress(String address) {
@@ -39,7 +39,7 @@ public class KakaoMapService {
         headers.set(HttpHeaders.AUTHORIZATION, "KakaoAK " + apiKey);
         HttpEntity httpEntity = new HttpEntity<>(headers);
 
-       return restTemplate.exchange(uri, HttpMethod.GET, httpEntity, MapResponse.class).getBody();
+        return restTemplate.exchange(uri, HttpMethod.GET, httpEntity, MapResponse.class).getBody();
 
     }
 

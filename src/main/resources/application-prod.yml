@@ -15,6 +15,11 @@ jwt:
   issuer: ${jwt_issuer}
   access-token-expire-time: ${jwt_access_token_expired_time}
 
+kakao:
+  rest:
+    api:
+      key: ${KAKAO_REST_API_KEY}
+
 # 스웨거 때문에 존재
 servers:
   url: ${servers-url}
