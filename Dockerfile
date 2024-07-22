@@ -4,4 +4,4 @@ FROM openjdk:17
 ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar
 
-ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005","-Dspring.profiles.active=prod","-jar","app.jar"]
+ENTRYPOINT ["java","-Dspring.profiles.active=prod","-jar","app.jar"]
