@@ -53,7 +53,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
             .allowedOrigins("http://localhost:3000", "https://wanderlust-mini4.netlify.app",
-                "http://43.203.119.78")
+                "http://localhost")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
             .allowCredentials(true)
             .maxAge(1728000L)
