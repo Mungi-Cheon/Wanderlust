@@ -49,7 +49,12 @@ public class ReviewService {
             .map(ReviewResponse::from)
             .collect(Collectors.toList());
 
-        return AccommodationReviewResponseList.from(accommodation, reviewResponseList);
+        return AccommodationReviewResponseList.from(
+                accommodation.getImages().getThumbnail(),
+                accommodation.getId(),
+                accommodation.getName(),
+                accommodation.getGrade(),
+                reviewResponseList);
     }
 
     @Transactional(readOnly = true)
@@ -69,8 +74,10 @@ public class ReviewService {
         Member member = findMember(memberId);
         Reservation reservation = findReservation(reviewRequest.getReservationId());
         Long productId = reservation.getProduct().getId();
+
         productRepository.findByIdAndAccommodationId(productId, accommodationId)
-            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
+                .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
+
         //중복 리뷰 검증
         if (reviewRepository.existsByReservationId(reservation.getId())) {
             throw new ReviewException(ErrorType.DUPLICATED_REVIEW);
@@ -81,8 +88,8 @@ public class ReviewService {
         validInputs(checkOutTime, createdAt);
 
         Review review = Review.from(reviewRequest, accommodation, member, reservation);
-        reviewRepository.save(review);
-        return ReviewResponse.from(review);
+        Review saved = reviewRepository.save(review);
+        return ReviewResponse.from(saved);
     }
 
     @Transactional

@@ -1,6 +1,5 @@
 package com.travel.domain.review.dto.response;
 
-import com.travel.domain.accommodation.entity.Accommodation;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -22,15 +21,15 @@ public class AccommodationReviewResponseList {
 
     private List<ReviewResponse> reviewResponseList;
 
-    public static AccommodationReviewResponseList from(Accommodation accommodation,
-        List<ReviewResponse> reviewResponses) {
-        String thumbnail = accommodation.getImages().getThumbnail();
+    public static AccommodationReviewResponseList from(String thumbnail, Long accommodationId,
+            String accommodationName, BigDecimal grade,
+            List<ReviewResponse> reviewResponses) {
         return AccommodationReviewResponseList.builder()
-            .id(accommodation.getId())
-            .name(accommodation.getName())
-            .grade(accommodation.getGrade())
-            .thumbnail(thumbnail)
-            .reviewResponseList(reviewResponses)
-            .build();
+                .id(accommodationId)
+                .name(accommodationName)
+                .grade(grade)
+                .thumbnail(thumbnail)
+                .reviewResponseList(reviewResponses)
+                .build();
     }
 }
