@@ -122,10 +122,8 @@ public class ReviewService {
         accommodationRepository.saveAll(accommodations);
     }
 
-    //TODO product_v2 의 default method로 교체
     private Accommodation findAccommodation(Long accommodationId) {
-        return accommodationRepository.findById(accommodationId)
-            .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
+        return accommodationRepository.findAccommodationById(accommodationId);
     }
 
     private Member findMember(Long memberId) {
