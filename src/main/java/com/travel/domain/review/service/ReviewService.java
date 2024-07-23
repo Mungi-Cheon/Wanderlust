@@ -14,10 +14,7 @@ import com.travel.domain.review.dto.response.ReviewResponse;
 import com.travel.domain.review.dto.response.UpdateReviewResponse;
 import com.travel.domain.review.entity.Review;
 import com.travel.domain.review.repository.ReviewRepository;
-import com.travel.global.exception.AccommodationException;
-import com.travel.global.exception.MemberException;
 import com.travel.global.exception.ProductException;
-import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.ReviewException;
 import com.travel.global.exception.type.ErrorType;
 import java.math.BigDecimal;
@@ -46,8 +43,8 @@ public class ReviewService {
         List<Review> reviewList = accommodation.getReviews();
 
         List<ReviewResponse> reviewResponseList = reviewList.stream()
-            .map(ReviewResponse::from)
-            .collect(Collectors.toList());
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
 
         return AccommodationReviewResponseList.from(
                 accommodation.getImages().getThumbnail(),
@@ -63,13 +60,13 @@ public class ReviewService {
         List<Review> reviewList = member.getReviews();
 
         return reviewList.stream()
-            .map(ReviewResponse::from)
-            .collect(Collectors.toList());
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public ReviewResponse createReview(Long memberId, Long accommodationId,
-        ReviewRequest reviewRequest) {
+            ReviewRequest reviewRequest) {
         Accommodation accommodation = findAccommodation(accommodationId);
         Member member = findMember(memberId);
         Reservation reservation = findReservation(reviewRequest.getReservationId());
@@ -94,7 +91,7 @@ public class ReviewService {
 
     @Transactional
     public UpdateReviewResponse updateReview(Long memberId, Long accommodationId,
-        ReviewRequest reviewRequest, Long reviewId) {
+            ReviewRequest reviewRequest, Long reviewId) {
         findAccommodation(accommodationId);
         findMember(memberId);
         Reservation reservation = findReservation(reviewRequest.getReservationId());
@@ -104,13 +101,12 @@ public class ReviewService {
         isValidWrite(checkOutTime, updatedAt);
         review.update(reviewRequest);
 
-        Review reviewUpdated = reviewRepository.save(review);
-        return UpdateReviewResponse.from(reviewUpdated);
+        return UpdateReviewResponse.from(review);
     }
 
     @Transactional
     public DeleteReviewResponse deleteReview(Long memberId,
-        Long accommodationId, Long reviewId) {
+            Long accommodationId, Long reviewId) {
         findMember(memberId);
         Review review = findByIdAndAccommodationId(reviewId, accommodationId);
         reviewRepository.delete(review);
@@ -120,13 +116,14 @@ public class ReviewService {
 
     @Transactional
     public void updateGrade() {
-        List<Accommodation> accommodations = accommodationRepository.findAll();
-        for (Accommodation accommodation : accommodations) {
-            List<Review> reviews = reviewRepository.getByAccommodationId(accommodation.getId());
-            BigDecimal newGrade = calculateGrade(reviews, accommodation);
-            accommodation.updateGrade(newGrade);
-        }
-        accommodationRepository.saveAll(accommodations);
+        accommodationRepository.findAll().stream()
+                .peek(accommodation -> {
+                    List<Review> reviews = reviewRepository
+                            .getByAccommodationId(accommodation.getId());
+                    BigDecimal newGrade = calculateGrade(reviews, accommodation);
+                    accommodation.updateGrade(newGrade);
+                })
+                .forEach(accommodationRepository::save);
     }
 
     private Accommodation findAccommodation(Long accommodationId) {
@@ -160,8 +157,8 @@ public class ReviewService {
             return accommodation.getGrade(); //return BigDecimal.ZERO;
         }
         BigDecimal totalGrade = reviews.stream()
-            .map(Review::getGrade)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(Review::getGrade)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return totalGrade.divide(BigDecimal.valueOf(reviews.size()), 1, RoundingMode.HALF_UP);
     }
