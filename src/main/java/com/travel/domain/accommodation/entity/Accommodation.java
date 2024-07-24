@@ -1,10 +1,9 @@
 package com.travel.domain.accommodation.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.travel.domain.like.entity.Like;
-import com.travel.domain.map.dto.response.MapResponse;
 import com.travel.domain.product.entity.Product;
+import com.travel.domain.review.entity.Review;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,6 +28,7 @@ import org.hibernate.annotations.BatchSize;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Setter
 public class Accommodation {
 
     @Id
@@ -65,6 +65,20 @@ public class Accommodation {
     @JsonManagedReference
     @BatchSize(size = 100)
     private List<Like> likes;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Review> reviews;
+
+    public void updateGrade(BigDecimal grade) {
+        BigDecimal currentGrade = this.grade;
+        int totalReviews = this.reviews.size();
+
+        BigDecimal updatedGrade = currentGrade.multiply(BigDecimal.valueOf(totalReviews))
+            .add(grade)
+            .divide(BigDecimal.valueOf(totalReviews +1),2, RoundingMode.HALF_UP);
+            this.grade = updatedGrade;
+    }
 
     @Setter
     private Double latitude;

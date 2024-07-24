@@ -18,30 +18,31 @@ public class WebConfig implements WebMvcConfigurer {
     private final TokenMemberIdResolver tokenMemberIdResolver;
 
     private final List<String> PASS_URL = List.of(
-        "/api/auth/login",
-        "/api/auth/signup",
-        "/api/accommodations/**"
+            "/api/auth/login",
+            "/api/auth/signup",
+            "/api/accommodations/**",
+            "/api/review/**"
     );
 
     private final List<String> DEFAULT_EXCLUDE = List.of(
-        "/",
-        "favicon.ico",
-        "/error"
+            "/",
+            "favicon.ico",
+            "/error"
     );
 
     private final List<String> SWAGGER = List.of(
-        "/swagger-ui/index.html",
-        "/swagger-ui/**",
-        "/v3/api-docs/**"
+            "/swagger-ui/index.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     );
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 인증 인터셉터 등록
         registry.addInterceptor(authorizationInterceptor)
-            .excludePathPatterns(PASS_URL)
-            .excludePathPatterns(DEFAULT_EXCLUDE)
-            .excludePathPatterns(SWAGGER);
+                .excludePathPatterns(PASS_URL)
+                .excludePathPatterns(DEFAULT_EXCLUDE)
+                .excludePathPatterns(SWAGGER);
     }
 
     @Override
@@ -52,11 +53,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-            .allowCredentials(false)
-            .maxAge(1728000L)
-            .allowedHeaders("*")
-            .exposedHeaders("*");
+                .allowedOrigins("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowCredentials(false)
+                .maxAge(1728000L)
+                .allowedHeaders("*")
+                .exposedHeaders("*");
     }
 }
