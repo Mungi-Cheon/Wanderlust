@@ -26,6 +26,7 @@ public enum ErrorType {
     DUPLICATED_REVIEW(HttpStatus.BAD_REQUEST, "이미 작성하셨습니다. "),
     FAILED_TO_CREATE_REVIEW(HttpStatus.BAD_REQUEST,"체크아웃 후에 리뷰를 작성해주세요"),
     ADDRESS_IS_EMPTY(HttpStatus.BAD_REQUEST, "주소가 없습니다"),
+    ALREADY_IN_CART(HttpStatus.BAD_REQUEST, "해당 품목이 장바구니에 이미 존재합니다."),
 
     // auth
     TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰이 존재하지 않음"),

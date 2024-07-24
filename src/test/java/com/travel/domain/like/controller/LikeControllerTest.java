@@ -79,7 +79,7 @@ public class LikeControllerTest {
         Mockito.when(likeService.clickLike(anyLong(), any(LikeRequest.class)))
             .thenReturn(likeResponse);
 
-        mockMvc.perform(post("/api/likes")
+        mockMvc.perform(post("/api/auth/likes")
                 .header("mock-token", member.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(likeRequest)))
@@ -102,7 +102,7 @@ public class LikeControllerTest {
         Mockito.when(likeService.getLikedAccommodations(anyLong()))
             .thenReturn(mockResponse);
 
-        mockMvc.perform(get("/api/likes")
+        mockMvc.perform(get("/api/auth/likes")
                 .header("mock-token", member.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
