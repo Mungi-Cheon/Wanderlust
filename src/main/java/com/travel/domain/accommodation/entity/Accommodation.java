@@ -1,9 +1,7 @@
 package com.travel.domain.accommodation.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.travel.domain.like.entity.Like;
-import com.travel.domain.map.dto.response.MapResponse;
 import com.travel.domain.product.entity.Product;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
