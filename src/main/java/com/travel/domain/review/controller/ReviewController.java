@@ -1,6 +1,5 @@
 package com.travel.domain.review.controller;
 
-import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.review.dto.response.AccommodationReviewResponseList;
 import com.travel.domain.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;

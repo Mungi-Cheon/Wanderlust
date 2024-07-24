@@ -1,5 +1,12 @@
 package com.travel.domain.product.controller;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationImageResponse;
 import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
@@ -9,6 +16,9 @@ import com.travel.domain.product.dto.response.ProductImageResponse;
 import com.travel.domain.product.dto.response.ProductOptionResponse;
 import com.travel.domain.product.dto.response.ProductResponse;
 import com.travel.domain.product.service.ProductService;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,17 +29,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -97,7 +96,6 @@ class ProductControllerTest {
             .images(productImageResponse)
             .count(2)
             .build();
-
     }
 
     private ProductImageResponse createProductImageResponse() {
@@ -160,13 +158,16 @@ class ProductControllerTest {
             accommodationImageResponse, accommodationOptionResponse, productResponseList
         );
         //when
-        when(productService.getAccommodationDetail(eq(accommodationId), eq(checkInDate), eq(checkOutDate), eq(personNumber)))
+        when(productService
+                .getAccommodationDetail(eq(accommodationId), eq(checkInDate),
+                        eq(checkOutDate), eq(personNumber)))
             .thenReturn(accommodationDetailListResponse);
 
         mvc.perform(get("/api/accommodations/{accommodationId}", accommodationId))
             .andExpect(status().isOk())
             .andDo(print());
-        then(productService).should().getAccommodationDetail(accommodationId, checkInDate, checkOutDate, personNumber);
+        then(productService).should()
+                .getAccommodationDetail(accommodationId, checkInDate, checkOutDate, personNumber);
 
     }
 
@@ -180,12 +181,17 @@ class ProductControllerTest {
             = createProductDetailResponse(productImageResponse, productOptionResponse);
 
         //when
-        when(productService.getProductDetail(accommodationId, productId, checkInDate, checkOutDate, personNumber))
+        when(productService
+                .getProductDetail(accommodationId, productId,
+                        checkInDate, checkOutDate, personNumber))
             .thenReturn(productDetailResponse);
 
-        mvc.perform(get("/api/accommodations/{accommodationId}/{productId}", accommodationId, productId))
+        mvc.perform(get("/api/accommodations/{accommodationId}/{productId}",
+                        accommodationId, productId))
             .andExpect(status().isOk())
             .andDo(print());
-        then(productService).should().getProductDetail(accommodationId, productId, checkInDate, checkOutDate, personNumber);
+        then(productService).should()
+                .getProductDetail(accommodationId, productId,
+                        checkInDate, checkOutDate, personNumber);
     }
 }
