@@ -23,7 +23,10 @@ public enum ErrorType {
     NONEXISTENT_MEMBER(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다."),
     DUPLICATED_MEMBER(HttpStatus.BAD_REQUEST, "이미 존재하는 사용자입니다."),
     NOT_CORRECT_PASSWORD(HttpStatus.BAD_REQUEST,  "비밀번호가 일치하지 않습니다."),
+    DUPLICATED_REVIEW(HttpStatus.BAD_REQUEST, "이미 작성하셨습니다. "),
+    FAILED_TO_CREATE_REVIEW(HttpStatus.BAD_REQUEST,"체크아웃 후에 리뷰를 작성해주세요"),
     ADDRESS_IS_EMPTY(HttpStatus.BAD_REQUEST, "주소가 없습니다"),
+    ALREADY_IN_CART(HttpStatus.BAD_REQUEST, "해당 품목이 장바구니에 이미 존재합니다."),
 
     // auth
     TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰이 존재하지 않음"),
