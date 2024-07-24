@@ -74,6 +74,11 @@ public class AuthReviewController {
             reviewService.deleteReview(tokenUserId, accommodationId, reviewId));
     }
 
+    @Operation(summary = "내 리뷰 조회", description = "내 리뷰를 조회합니다.")
+    @ApiResponse(description = "리뷰 조회 성공",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ReviewResponse.class)))
+
     @GetMapping
     public ResponseEntity<List<ReviewResponse>> getMyReviewList(
         @TokenMemberId Long tokenUserId) {
