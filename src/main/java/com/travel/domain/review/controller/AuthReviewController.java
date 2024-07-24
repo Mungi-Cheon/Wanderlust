@@ -1,8 +1,6 @@
 package com.travel.domain.review.controller;
 
-import com.travel.domain.member.service.MemberService;
 import com.travel.domain.review.dto.request.ReviewRequest;
-import com.travel.domain.review.dto.response.AccommodationReviewResponseList;
 import com.travel.domain.review.dto.response.DeleteReviewResponse;
 import com.travel.domain.review.dto.response.ReviewResponse;
 import com.travel.domain.review.dto.response.UpdateReviewResponse;
