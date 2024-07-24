@@ -48,4 +48,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         return findByIdAndMemberId(id, memberId).orElseThrow(
             () -> new ReservationsException(ErrorType.NOT_FOUND));
     }
+
+    default Reservation getReservationById(Long id){
+        return findById(id).orElseThrow(
+            () -> new ReservationsException(ErrorType.NOT_FOUND));
+    }
 }
