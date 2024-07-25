@@ -72,7 +72,7 @@ public class CartControllerTest {
         Mockito.when(cartService.addToCart(anyLong(), Mockito.any(CartRequest.class)))
             .thenReturn(cartResponse);
 
-        mockMvc.perform(post("/api/auth/carts")
+        mockMvc.perform(post("/api/auth/cart")
                 .header("mock-token", member.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"accommodationId\":1,"
