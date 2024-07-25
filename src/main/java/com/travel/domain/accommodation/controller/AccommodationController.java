@@ -1,21 +1,21 @@
 package com.travel.domain.accommodation.controller;
 
 import com.travel.domain.accommodation.category.Category;
+import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.service.AccommodationService;
-import com.travel.global.util.DateValidationUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.time.LocalDate;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Accommodation API", description = "숙소 API")
@@ -31,18 +31,13 @@ public class AccommodationController {
         schema = @Schema(implementation = AccommodationResponse.class)))
     @GetMapping
     public ResponseEntity<List<AccommodationResponse>> getAvailableAccommodations(
-        @RequestParam(required = false) Integer categoryId,
-        @RequestParam(required = false) LocalDate checkInDate,
-        @RequestParam(required = false) LocalDate checkOutDate,
-        @RequestParam(defaultValue = "2") int personNumber) {
+        @Valid @ModelAttribute AccommodationRequest request) {
 
-        checkInDate = DateValidationUtil.checkInDate(checkInDate);
-        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
-        
-        String category = Category.fromId(categoryId);
+        String category = Category.fromId(request.getCategoryId());
 
         List<AccommodationResponse> responses = accommodationService
-            .getAvailableAccommodations(category, checkInDate, checkOutDate, personNumber);
+            .getAvailableAccommodations(category, request.getCheckInDate(),
+                request.getCheckOutDate(), request.getPersonNumber());
 
         return ResponseEntity.ok(responses);
     }
