@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth/likes")
+@RequestMapping("/api/auth/like")
 @Tag(name = "Like API", description = "좋아요 API")
 public class LikeController {
 

@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Cart API", description = "장바구니 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth/carts")
+@RequestMapping("/api/auth/cart")
 public class CartController {
 
     private final CartService cartService;
