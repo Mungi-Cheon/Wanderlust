@@ -58,8 +58,8 @@ public class AccommodationControllerTest {
 
         mockMvc.perform(get("/api/accommodations")
                 .param("categoryId", "1")
-                .param("checkInDate", "2024-07-25")
-                .param("checkOutDate", "2024-07-26")
+                .param("checkInDate", "2024-08-25")
+                .param("checkOutDate", "2024-08-26")
                 .param("personNumber", "2")
                 .param("page", "0")
                 .param("size", "8")

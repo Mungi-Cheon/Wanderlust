@@ -108,7 +108,7 @@ public class CartControllerTest {
 
         Mockito.when(cartService.getCartByMemberId(anyLong())).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/api/auth/carts")
+        mockMvc.perform(get("/api/auth/cart")
                 .header("mock-token", member.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -125,7 +125,7 @@ public class CartControllerTest {
     void removeFromCart_Success() throws Exception {
         Mockito.doNothing().when(cartService).removeFromCart(anyLong());
 
-        mockMvc.perform(delete("/api/auth/carts/{cartId}", 1L)
+        mockMvc.perform(delete("/api/auth/cart/{cartId}", 1L)
                 .header("mock-token", member.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
