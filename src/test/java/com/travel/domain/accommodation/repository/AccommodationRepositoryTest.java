@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -41,7 +43,8 @@ class AccommodationRepositoryTest {
     @DisplayName("모든 숙소 데이터 찾기")
     void findAllAccommodations_ShouldReturnAllAccommodations() {
         // When
-        List<Accommodation> result = accommodationRepository.findAllAccommodations();
+        List<Accommodation> result = accommodationRepository.findAccommodations(null);
+
 
         // Then
         assertFalse(result.isEmpty());
@@ -52,7 +55,7 @@ class AccommodationRepositoryTest {
     @DisplayName("카테고리를 통한 숙소 데이터 찾기")
     void findByCategory_ShouldReturnAccommodations() {
         // When
-        List<Accommodation> result = accommodationRepository.findAllAccommodationsByCategory("호텔");
+        List<Accommodation> result = accommodationRepository.findAccommodationsByCategory("호텔", null);
 
         // Then
         assertFalse(result.isEmpty());

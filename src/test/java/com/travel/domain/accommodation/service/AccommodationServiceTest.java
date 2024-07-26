@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
@@ -25,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class AccommodationServiceTest {
@@ -79,17 +82,17 @@ class AccommodationServiceTest {
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 2;
 
-        when(accommodationRepository.findAllAccommodationsByCategory(any())).thenReturn(List.of(accommodation));
-        when(productRepository.findAllByAccommodationIdWithFetchJoin(any())).thenReturn(List.of(product));
-        when(productInfoPerNightRepository.existsByProductIdAndDate(any(), any())).thenReturn(true);
+        when(accommodationRepository.findAccommodationsByCategory(any(), any()))
+            .thenReturn(List.of(accommodation));
 
         // when
-        List<AccommodationResponse> result = accommodationService
-            .getAvailableAccommodations(category, checkIn, checkOut, personNumber);
+        List<AccommodationResponse> result = accommodationService.getAvailableAccommodations(
+            category, checkIn, checkOut, personNumber, null);
 
         // then
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
+        assertEquals(accommodation.getId(), result.get(0).getId());
         assertEquals(100000, result.get(0).getPrice());
     }
 
@@ -102,14 +105,13 @@ class AccommodationServiceTest {
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 2;
 
-        when(accommodationRepository.findAllAccommodationsByCategory(any())).thenReturn(List.of(accommodation));
-        when(productRepository.findAllByAccommodationIdWithFetchJoin(any())).thenReturn(List.of(product));
-        when(productInfoPerNightRepository.existsByProductIdAndDate(any(), any())).thenReturn(false);
+        when(accommodationRepository.findAccommodationsByCategory(any(), any()))
+            .thenReturn(List.of());
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
             () -> accommodationService
-                .getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, null));
 
         // then
         assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
@@ -127,7 +129,7 @@ class AccommodationServiceTest {
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
             () -> accommodationService
-                .getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, null));
 
         // then
         assertEquals(ErrorType.INVALID_CHECK_IN.getMessage(), exception.getMessage());
@@ -141,13 +143,11 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.minusDays(2);
         int personNumber = 2;
-        int page = 0;
-        int size = 10;
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
             () -> accommodationService
-                .getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, null));
 
         // then
         assertEquals(ErrorType.INVALID_CHECK_OUT.getMessage(), exception.getMessage());
@@ -161,13 +161,11 @@ class AccommodationServiceTest {
         LocalDate checkIn = LocalDate.now();
         LocalDate checkOut = checkIn.plusDays(1);
         int personNumber = 0;
-        int page = 0;
-        int size = 10;
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
             () -> accommodationService
-                .getAvailableAccommodations(category, checkIn, checkOut, personNumber));
+                .getAvailableAccommodations(category, checkIn, checkOut, personNumber, null));
 
         // then
         assertEquals(ErrorType.INVALID_NUMBER_OF_PEOPLE.getMessage(), exception.getMessage());

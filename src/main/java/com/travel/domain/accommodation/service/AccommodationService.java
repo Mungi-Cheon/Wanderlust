@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,28 +24,29 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AccommodationService {
 
-    private final ProductRepository productRepository;
     private final AccommodationRepository accommodationRepository;
     private final ProductInfoPerNightRepository productInfoPerNightRepository;
 
+    private static final int PAGE_SIZE = 8;
+
     @Cacheable(value = "accommodations",
         key = "#category + '-' + #checkIn + '-' + "
-            + "#checkOut + '-' + #personNumber")
+            + "#checkOut + '-' + #personNumber + '-' + #lastAccommodationId")
     @Transactional(readOnly = true)
     public List<AccommodationResponse> getAvailableAccommodations(
-        String category, LocalDate checkIn, LocalDate checkOut, int personNumber) {
+        String category, LocalDate checkIn, LocalDate checkOut, int personNumber, Long lastAccommodationId) {
         validateInputs(checkIn, checkOut, personNumber);
 
         List<Accommodation> accommodations;
         if (category.isEmpty()) {
-            accommodations = accommodationRepository.findAllAccommodations();
+            accommodations = accommodationRepository.findAccommodations(lastAccommodationId);
         } else {
-            accommodations = accommodationRepository.findAllAccommodationsByCategory(category);
+            accommodations = accommodationRepository.findAccommodationsByCategory(category, lastAccommodationId);
         }
 
         List<AccommodationResponse> validAccommodations = accommodations.stream()
-            .filter(
-                accommodation -> hasValidProducts(accommodation, checkIn, checkOut, personNumber))
+            .filter(accommodation -> hasValidProducts(accommodation, checkIn, checkOut, personNumber))
+            .limit(PAGE_SIZE)
             .map(AccommodationResponse::createAccommodationResponse)
             .collect(Collectors.toList());
 
@@ -67,8 +69,7 @@ public class AccommodationService {
         }
     }
 
-    private boolean hasValidProducts(Accommodation accommodation, LocalDate checkIn,
-        LocalDate checkOut, Integer personNumber) {
+    private boolean hasValidProducts(Accommodation accommodation, LocalDate checkIn, LocalDate checkOut, Integer personNumber) {
         List<Product> productEntityList = accommodation.getProducts();
 
         return productEntityList.stream()

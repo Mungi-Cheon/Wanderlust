@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -53,7 +54,7 @@ public class AccommodationControllerTest {
 
         Mockito.when(accommodationService.getAvailableAccommodations(
                 anyString(), any(LocalDate.class),
-                any(LocalDate.class), anyInt()))
+                any(LocalDate.class), anyInt(), anyLong()))
             .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/accommodations")
@@ -61,8 +62,7 @@ public class AccommodationControllerTest {
                 .param("checkInDate", "2024-08-25")
                 .param("checkOutDate", "2024-08-26")
                 .param("personNumber", "2")
-                .param("page", "0")
-                .param("size", "8")
+                .param("lastAccommodationId", "0")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(1)))
