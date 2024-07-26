@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql:8.0.38
+    restart: always
+    command:
+      - --lower_case_table_names=1
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    container_name: mysql
+    environment:
+      - MYSQL_DATABASE=root
+      - MYSQL_ROOT_PASSWORD=1234
+    ports:
+      - "3306:3306"
+    volumes: #데이터 저장
+      - C:\Users\khn21\dockermysql:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  app-data:
+  mysql-data:
+  redis-data:

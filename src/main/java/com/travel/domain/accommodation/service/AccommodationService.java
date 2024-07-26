@@ -4,9 +4,11 @@ import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.product.entity.Product;
+import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.type.ErrorType;
 import com.travel.global.util.DateValidationUtil;
 import java.time.LocalDate;
@@ -67,8 +69,7 @@ public class AccommodationService {
 
     private boolean hasValidProducts(Accommodation accommodation, LocalDate checkIn,
         LocalDate checkOut, Integer personNumber) {
-        List<Product> productEntityList = productRepository
-            .findAllByAccommodationIdWithFetchJoin(accommodation.getId());
+        List<Product> productEntityList = accommodation.getProducts();
 
         return productEntityList.stream()
             .filter(product -> product.getMaximumNumber() >= personNumber)
@@ -76,8 +77,10 @@ public class AccommodationService {
     }
 
     private boolean areAllDatesAvailable(Long productId, LocalDate checkIn, LocalDate checkOut) {
-        return checkIn.datesUntil(checkOut)
-            .allMatch(date ->
-                productInfoPerNightRepository.existsByProductIdAndDate(productId, date));
+        List<ProductInfoPerNight> perNights = productInfoPerNightRepository
+            .findByProductIdAndDateRange(productId, checkIn, checkOut);
+
+        return perNights.stream()
+            .allMatch(perNight -> perNight.getCount() > 0);
     }
 }

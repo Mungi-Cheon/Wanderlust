@@ -15,12 +15,18 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
 
     @Query(value = "SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +
-        "LEFT JOIN FETCH a.options")
+        "LEFT JOIN FETCH a.options " +
+        "LEFT JOIN FETCH a.products p " +
+        "LEFT JOIN FETCH p.productImage " +
+        "LEFT JOIN FETCH p.productOption ")
     List<Accommodation> findAllAccommodations();
 
     @Query(value = "SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +
         "LEFT JOIN FETCH a.options " +
+        "LEFT JOIN FETCH a.products p " +
+        "LEFT JOIN FETCH p.productImage " +
+        "LEFT JOIN FETCH p.productOption " +
         "WHERE a.category = :category")
     List<Accommodation> findAllAccommodationsByCategory(@Param("category") String category);
 
