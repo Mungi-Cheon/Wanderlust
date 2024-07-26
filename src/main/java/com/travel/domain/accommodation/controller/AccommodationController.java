@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Accommodation API", description = "숙소 API")
@@ -31,13 +32,14 @@ public class AccommodationController {
         schema = @Schema(implementation = AccommodationResponse.class)))
     @GetMapping
     public ResponseEntity<List<AccommodationResponse>> getAvailableAccommodations(
-        @Valid @ModelAttribute AccommodationRequest request) {
+        @Valid @ModelAttribute AccommodationRequest request,
+        @RequestParam(required = false) Long lastAccommodationId) {
 
         String category = Category.fromId(request.getCategoryId());
 
         List<AccommodationResponse> responses = accommodationService
             .getAvailableAccommodations(category, request.getCheckInDate(),
-                request.getCheckOutDate(), request.getPersonNumber());
+                request.getCheckOutDate(), request.getPersonNumber(), lastAccommodationId);
 
         return ResponseEntity.ok(responses);
     }

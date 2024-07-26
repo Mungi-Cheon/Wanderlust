@@ -5,6 +5,7 @@ import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.type.ErrorType;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,14 +16,27 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
 
     @Query(value = "SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +
-        "LEFT JOIN FETCH a.options")
-    List<Accommodation> findAllAccommodations();
+        "LEFT JOIN FETCH a.options " +
+        "LEFT JOIN FETCH a.products p " +
+        "LEFT JOIN FETCH p.productImage " +
+        "LEFT JOIN FETCH p.productOption " +
+        "WHERE (:lastAccommodationId IS NULL OR a.id > :lastAccommodationId) " +
+        "ORDER BY a.id ASC")
+    List<Accommodation> findAccommodations(
+        @Param("lastAccommodationId") Long lastAccommodationId);
 
     @Query(value = "SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +
         "LEFT JOIN FETCH a.options " +
-        "WHERE a.category = :category")
-    List<Accommodation> findAllAccommodationsByCategory(@Param("category") String category);
+        "LEFT JOIN FETCH a.products p " +
+        "LEFT JOIN FETCH p.productImage " +
+        "LEFT JOIN FETCH p.productOption " +
+        "WHERE (a.category = :category) " +
+        "AND (:lastAccommodationId IS NULL OR a.id > :lastAccommodationId) " +
+        "ORDER BY a.id ASC")
+    List<Accommodation> findAccommodationsByCategory(
+        @Param("category") String category,
+        @Param("lastAccommodationId") Long lastAccommodationId);
 
     @Query("SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +

@@ -15,6 +15,8 @@ public class CartResponse {
 
     private String productName;
 
+    private String productImageUrl;
+
     private int productStandardNumber;
 
     private int productMaximumNumber;
@@ -38,6 +40,7 @@ public class CartResponse {
         return CartResponse.builder()
             .accommodationName(cart.getAccommodation().getName())
             .productName(cart.getProduct().getName())
+            .productImageUrl(cart.getProduct().getProductImage().getImageUrl1())
             .productStandardNumber(cart.getProduct().getStandardNumber())
             .productMaximumNumber(cart.getProduct().getMaximumNumber())
             .checkInDate(cart.getCheckInDate())

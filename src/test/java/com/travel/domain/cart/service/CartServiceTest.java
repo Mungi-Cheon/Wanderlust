@@ -9,6 +9,7 @@ import com.travel.domain.cart.repository.CartRepository;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
 import com.travel.domain.product.entity.Product;
+import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
@@ -66,6 +67,8 @@ class CartServiceTest {
 
     private ProductInfoPerNight productInfoPerNightInValid;
 
+    private ProductImage productImage;
+
     private Cart cart;
 
     private CartRequest cartRequest;
@@ -93,9 +96,15 @@ class CartServiceTest {
             .count(0)
             .build();
 
+        productImage = ProductImage.builder()
+            .id(1L)
+            .imageUrl1("url")
+            .build();
+
         productValid = Product.builder()
             .id(1L)
             .name("Deluxe Room")
+            .productImage(productImage)
             .productInfoPerNightsList(List.of(productInfoPerNightValid))
             .build();
 
