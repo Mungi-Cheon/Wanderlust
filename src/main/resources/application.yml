@@ -30,6 +30,11 @@ spring:
             enable: true
         debug: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 kakao:
   rest:
     api:

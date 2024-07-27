@@ -20,6 +20,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.7.0
+        with:
+          redis-version: 7
+
       - name: 테스트를 실행을 위한 application.yml(test) 환경변수 설정
         uses: microsoft/variable-substitution@v1
         with:
