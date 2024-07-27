@@ -10,10 +10,10 @@ import org.redisson.config.Config;
 @Configuration
 public class RedisConfig {
 
-    @Value("${redis.host}")
+    @Value("${spring.data.redis.host}")
     private String redisHost;
 
-    @Value("${redis.port}")
+    @Value("${spring.data.redis.port}")
     private int redisPort;
 
     private static final String REDISSON_HOST_PREFIX = "redis://";
