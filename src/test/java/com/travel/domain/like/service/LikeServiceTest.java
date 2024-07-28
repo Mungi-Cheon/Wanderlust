@@ -14,6 +14,7 @@ import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.entity.AccommodationImage;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.like.dto.request.LikeRequest;
+import com.travel.domain.like.dto.response.LikeQueryResponse;
 import com.travel.domain.like.dto.response.LikeResponse;
 import com.travel.domain.like.entity.Like;
 import com.travel.domain.like.repository.LikeRepository;
@@ -86,11 +87,11 @@ class LikeServiceTest {
         // given
         Long memberId = 1L;
         LikeRequest request = new LikeRequest(1L);
+        LikeQueryResponse likeQueryResponse = new LikeQueryResponse(null, 0);
 
         when(memberRepository.findById(any())).thenReturn(Optional.of(member));
         when(accommodationRepository.findById(any())).thenReturn(Optional.of(accommodation));
-        when(likeRepository.findByMemberAndAccommodation(any(), any())).thenReturn(Optional.empty());
-        when(likeRepository.countByAccommodation(any())).thenReturn(1);
+        when(likeRepository.findLikeAndCountByMemberAndAccommodation(any(), any())).thenReturn(likeQueryResponse);
 
         // when
         LikeResponse response = likeService.clickLike(memberId, request);
@@ -108,11 +109,11 @@ class LikeServiceTest {
         // given
         Long memberId = 1L;
         LikeRequest request = new LikeRequest(1L);
+        LikeQueryResponse likeQueryResponse = new LikeQueryResponse(like, 1);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
         when(accommodationRepository.findById(request.getAccommodationId())).thenReturn(Optional.of(accommodation));
-        when(likeRepository.findByMemberAndAccommodation(member, accommodation)).thenReturn(Optional.of(like));
-        when(likeRepository.countByAccommodation(accommodation)).thenReturn(0);
+        when(likeRepository.findLikeAndCountByMemberAndAccommodation(any(), any())).thenReturn(likeQueryResponse);
 
         // when
         LikeResponse response = likeService.clickLike(memberId, request);

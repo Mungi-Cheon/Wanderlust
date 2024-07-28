@@ -29,9 +29,7 @@ public class AccommodationService {
 
     private static final int PAGE_SIZE = 8;
 
-    @Cacheable(value = "accommodations",
-        key = "#category + '-' + #checkIn + '-' + "
-            + "#checkOut + '-' + #personNumber + '-' + #lastAccommodationId")
+    @Cacheable(value = "accommodations", keyGenerator = "customKeyGenerator")
     @Transactional(readOnly = true)
     public List<AccommodationResponse> getAvailableAccommodations(
         String category, LocalDate checkIn, LocalDate checkOut, int personNumber, Long lastAccommodationId) {
