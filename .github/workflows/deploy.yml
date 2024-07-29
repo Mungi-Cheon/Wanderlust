@@ -11,7 +11,6 @@ jobs:
     permissions:
       contents: read
 
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -26,15 +25,6 @@ jobs:
         with:
           files: ./src/main/resources/application-prod.yml
         env:
-          #          spring.datasource.url: ${{secrets.DB_URL}}
-          #          spring.datasource.username: ${{secrets.DB_USERNAME}}
-          #          spring.datasource.password: ${{secrets.DB_PASSWORD}}
-          #          spring.mail.username: ${{secrets.MAIL_USERNAME}}
-          #          spring.mail.password: ${{secrets.MAIL_PASSWORD}}
-          #          jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
-          #          jwt.issuer: ${{secrets.JWT_ISSUER}}
-          #          jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
-
           spring.datasource.url: ${{secrets.DB_URL2}}
           spring.datasource.username: ${{secrets.DB_USERNAME2}}
           spring.datasource.password: ${{secrets.DB_PASSWORD2}}
@@ -46,6 +36,9 @@ jobs:
           spring.data.redis.host: ${{secrets.REDIS_HOST}}
           spring.data.redis.port: ${{secrets.REDIS_PORT}}
           kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
+
+      - name: Env Echo
+        run: export
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
@@ -60,7 +53,6 @@ jobs:
 
       # Docker 이미지 build
       - name: docker image build
-        #        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }} .
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME2 }}/${{ secrets.DOCKER_IMAGE_NAME2 }} .
 
       # DockerHub 로그인
@@ -69,12 +61,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME2}}
           password: ${{ secrets.DOCKER_HUB_TOKEN2}}
-      #          username: ${{ secrets.DOCKER_HUB_USERNAME}}
-      #          password: ${{ secrets.DOCKER_HUB_TOKEN}}
 
       # DockerHub push
       - name: docker Hub push
-        # run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME2 }}/${{ secrets.DOCKER_IMAGE_NAME2 }}
 
       # GET GitHub IP
@@ -86,9 +75,6 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          #          aws-region: ${{ secrets.AWS_REGION }} # AWS EC2 지역명 기입
 
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID2 }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY2 }}
@@ -103,25 +89,6 @@ jobs:
       - name: AWS EC2 Connection
         uses: appleboy/ssh-action@v0.1.6
         with:
-          #          host: ${{ secrets.EC2_HOST }}
-          #          username: ${{ secrets.EC2_USERNAME }}
-          ##          key: ${{ secrets.EC2_KEY }}
-          #          port: ${{ secrets.EC2_SSH_PORT }}
-          #          timeout: 60s
-
-          #          script: | #Docker Image명 기입, port 기입
-          #            whoami
-          #            sudo docker stop ${{ secrets.DOCKER_IMAGE_NAME }}
-          #            whoami
-          #            sudo docker rm ${{ secrets.DOCKER_IMAGE_NAME }}
-          #            whoami
-          #            sudo docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
-          #
-          #            sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
-          #            whoami
-          #            sudo docker run -it -d -p 8080:8080 --name ${{ secrets.DOCKER_IMAGE_NAME }} ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
-          #            sudo docker run -v /src/main/resources/application-prod.yml:/config/application-prod.yml -it -d -p 8080:8080 --name springboot-prac ${{ secrets.DOCKER_IMAGE_NAME }} springboot-prac --spring.config.location=file:/config/application-prod.yml
-
           host: ${{ secrets.EC2_HOST2 }}
           username: ${{ secrets.EC2_USERNAME2 }}
           key: ${{ secrets.EC2_KEY2 }}
@@ -138,7 +105,6 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME2 }}/${{ secrets.DOCKER_IMAGE_NAME2 }}
             whoami
             sudo docker run -it -d -p 8080:8080 --name ${{ secrets.DOCKER_IMAGE_NAME2 }} ${{ secrets.DOCKER_HUB_USERNAME2 }}/${{ secrets.DOCKER_IMAGE_NAME2 }}
-        
         
         # REMOVE Github IP FROM security group (9)
       - name: Remove IP FROM security group
