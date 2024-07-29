@@ -36,6 +36,18 @@ jobs:
           spring.data.redis.host: ${{secrets.REDIS_HOST}}
           spring.data.redis.port: ${{secrets.REDIS_PORT}}
           kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
+        run: |
+          echo "DB_URL2: $spring.datasource.url"
+          echo "DB_USERNAME2: $spring.datasource.username"
+          echo "DB_PASSWORD2: $spring.datasource.password"
+          echo "MAIL_USERNAME2: $spring.mail.username"
+          echo "MAIL_PASSWORD2: $spring.mail.password"
+          echo "JWT_SECRET_KEY: $jwt.secret-key"
+          echo "JWT_ISSUER: $jwt.issuer"
+          echo "JWT_ACCESS_TOKEN_EXPIRED_TIME: $jwt.access-token-expire-time"
+          echo "REDIS_HOST: $spring.data.redis.host"
+          echo "REDIS_PORT: $spring.data.redis.port"
+          echo "KAKAO_REST_API_KEY: $kakao.rest.api.key"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
