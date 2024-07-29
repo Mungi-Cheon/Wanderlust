@@ -43,6 +43,8 @@ jobs:
           jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
           jwt.issuer: ${{secrets.JWT_ISSUER}}
           jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
+          redis.host: ${{secrets.REDIS_HOST}}
+          redis.port: ${{secrets.REDIS_PORT}}
           kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
 
       - name: Setup Gradle

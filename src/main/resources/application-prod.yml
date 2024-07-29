@@ -5,10 +5,14 @@ spring:
     username: ${username}
     password: ${password}
 
-
   mail:
     username: ${mail_username}
     password: ${mail_password}
+
+  data:
+    redis:
+      host: ${redis_host}
+      port: ${redis_port}
 
 jwt:
   secret-key: ${jwt_secret_key}

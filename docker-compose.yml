@@ -1,0 +1,26 @@
+version: '3'
+services:
+  app:
+    image: ${DOCKER_HUB_USERNAME2}/${DOCKER_IMAGE_NAME2}
+    container_name: "travel-redis"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=${secrets.EC2_HOST2}
+      - REDIS_PORT=6379
+    networks:
+      - spring-redis-network
+
+  redis:
+    container_name: "travel-boot"
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - spring-redis-network
+
+networks:
+  spring-redis-network:
+    driver: bridge
