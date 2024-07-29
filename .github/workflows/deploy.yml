@@ -43,8 +43,8 @@ jobs:
           jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
           jwt.issuer: ${{secrets.JWT_ISSUER}}
           jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
-          redis.host: ${{secrets.REDIS_HOST}}
-          redis.port: ${{secrets.REDIS_PORT}}
+          spring.data.redis.host: ${{secrets.REDIS_HOST}}
+          spring.data.redis.port: ${{secrets.REDIS_PORT}}
           kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
 
       - name: Setup Gradle
@@ -138,8 +138,8 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME2 }}/${{ secrets.DOCKER_IMAGE_NAME2 }}
             whoami
             sudo docker run -it -d -p 8080:8080 --name ${{ secrets.DOCKER_IMAGE_NAME2 }} ${{ secrets.DOCKER_HUB_USERNAME2 }}/${{ secrets.DOCKER_IMAGE_NAME2 }}
-
-
+        
+        
         # REMOVE Github IP FROM security group (9)
       - name: Remove IP FROM security group
         run: |
