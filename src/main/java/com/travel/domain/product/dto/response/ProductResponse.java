@@ -19,7 +19,7 @@ public class ProductResponse {
 
     private String checkOutTime;
 
-    private int pricePerNight;
+    private int price;
 
     private int standardNumber;
 
@@ -37,7 +37,7 @@ public class ProductResponse {
             .name(product.getName())
             .checkInTime(product.getCheckInTime())
             .checkOutTime(product.getCheckOutTime())
-            .pricePerNight(product.getProductInfoPerNightsList().get(0).getPrice())
+            .price(product.getProductInfoPerNightsList().get(0).getPrice())
             .standardNumber(product.getStandardNumber())
             .maximumNumber(product.getMaximumNumber())
             .images(productImageResponse)
