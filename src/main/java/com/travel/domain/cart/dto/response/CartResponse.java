@@ -11,15 +11,17 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class CartResponse {
+    private Long id;
+
     private String accommodationName;
 
     private String productName;
 
     private String productImageUrl;
 
-    private int productStandardNumber;
+    private int standardNumber;
 
-    private int productMaximumNumber;
+    private int maximumNumber;
 
     private LocalDate checkInDate;
 
@@ -38,11 +40,12 @@ public class CartResponse {
         int price = cart.getProduct().getProductInfoPerNightsList().get(0).getPrice();
 
         return CartResponse.builder()
+            .id(cart.getId())
             .accommodationName(cart.getAccommodation().getName())
             .productName(cart.getProduct().getName())
             .productImageUrl(cart.getProduct().getProductImage().getImageUrl1())
-            .productStandardNumber(cart.getProduct().getStandardNumber())
-            .productMaximumNumber(cart.getProduct().getMaximumNumber())
+            .standardNumber(cart.getProduct().getStandardNumber())
+            .maximumNumber(cart.getProduct().getMaximumNumber())
             .checkInDate(cart.getCheckInDate())
             .checkOutDate(cart.getCheckOutDate())
             .personNumber(cart.getPersonNumber())

@@ -21,7 +21,7 @@ public class ProductDetailResponse {
 
     private int totalPrice;
 
-    private int pricePerNight;
+    private int price;
 
     private int numberOfStay;
 
@@ -37,7 +37,7 @@ public class ProductDetailResponse {
 
 
     public static ProductDetailResponse from(Product product, String accommodationName,
-        int pricePerNight, int totalPrice,
+        int price, int totalPrice,
         int numberOfStay, ProductImageResponse productImageResponse,
         ProductOptionResponse productOptionResponse) {
         return ProductDetailResponse.builder()
@@ -45,7 +45,7 @@ public class ProductDetailResponse {
             .name(product.getName())
             .accommodationName(accommodationName)
             .description(product.getDescription())
-            .pricePerNight(pricePerNight)
+            .price(price)
             .totalPrice(totalPrice)
             .numberOfStay(numberOfStay)
             .standardNumber(product.getStandardNumber())
