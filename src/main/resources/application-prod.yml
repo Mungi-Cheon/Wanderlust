@@ -1,30 +1,30 @@
 # 해당 application-prod 는 배포를 위한 yml 파일입니다. 절대 Never 수정하시면 안됩니다.
-#spring:
-#  datasource:
-#    url: ${url}
-#    username: ${username}
-#    password: ${password}
-#
-#  mail:
-#    username: ${mail_username}
-#    password: ${mail_password}
-#
-#  data:
-#    redis:
-#      host: ${redis_host}
-#      port: ${redis_port}
-#
-#jwt:
-#  secret-key: ${jwt_secret_key}
-#  issuer: ${jwt_issuer}
-#  access-token-expire-time: ${jwt_access_token_expired_time}
-#
-#kakao:
-#  rest:
-#    api:
-#      key: ${KAKAO_REST_API_KEY}
+spring:
+  datasource:
+    url: ${url}
+    username: ${username}
+    password: ${password}
 
-# 스웨거 때문에 존재
+  mail:
+    username: ${mail_username}
+    password: ${mail_password}
+
+  data:
+    redis:
+      host: ${redis_host}
+      port: ${redis_port}
+
+jwt:
+  secret-key: ${jwt_secret_key}
+  issuer: ${jwt_issuer}
+  access-token-expire-time: ${jwt_access_token_expired_time}
+
+kakao:
+  rest:
+    api:
+      key: ${KAKAO_REST_API_KEY}
+
+#  스웨거 때문에 존재
 #servers:
 #  url: ${servers-url}
 
@@ -40,24 +40,3 @@
 #
 #    region:
 #      static: ${s3-region-static}
-
-spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-  mail:
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST}
-      port: ${SPRING_DATA_REDIS_PORT}
-jwt:
-  secret-key: ${JWT_SECRET_KEY}
-  issuer: ${JWT_ISSUER}
-  access-token-expire-time: ${JWT_ACCESS_TOKEN_EXPIRE_TIME}
-kakao:
-  rest:
-    api:
-      key: ${KAKAO_REST_API_KEY}
