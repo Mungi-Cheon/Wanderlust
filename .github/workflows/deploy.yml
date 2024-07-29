@@ -25,18 +25,29 @@ jobs:
         with:
           files: ./src/main/resources/application-prod.yml
         env:
-          spring.datasource.url: ${{secrets.DB_URL2}}
-          spring.datasource.username: ${{secrets.DB_USERNAME2}}
-          spring.datasource.password: ${{secrets.DB_PASSWORD2}}
-          spring.mail.username: ${{secrets.MAIL_USERNAME2}}
-          spring.mail.password: ${{secrets.MAIL_PASSWORD2}}
-          jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
-          jwt.issuer: ${{secrets.JWT_ISSUER}}
-          jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
-          spring.data.redis.host: ${{secrets.REDIS_HOST}}
-          spring.data.redis.port: ${{secrets.REDIS_PORT}}
-          kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
-      
+          #          spring.datasource.url: ${{secrets.DB_URL2}}
+          #          spring.datasource.username: ${{secrets.DB_USERNAME2}}
+          #          spring.datasource.password: ${{secrets.DB_PASSWORD2}}
+          #          spring.mail.username: ${{secrets.MAIL_USERNAME2}}
+          #          spring.mail.password: ${{secrets.MAIL_PASSWORD2}}
+          #          jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
+          #          jwt.issuer: ${{secrets.JWT_ISSUER}}
+          #          jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
+          #          spring.data.redis.host: ${{secrets.REDIS_HOST}}
+          #          spring.data.redis.port: ${{secrets.REDIS_PORT}}
+          #          kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
+          SPRING_DATASOURCE_URL: ${{ secrets.DB_URL2 }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME2 }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD2 }}
+          SPRING_MAIL_USERNAME: ${{ secrets.MAIL_USERNAME2 }}
+          SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD2 }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+          JWT_ACCESS_TOKEN_EXPIRE_TIME: ${{ secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME }}
+          SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          SPRING_DATA_REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+
       - name: echo env
         run: |
           echo "DB_URL2: $spring.datasource.url"
