@@ -36,6 +36,8 @@ jobs:
           spring.data.redis.host: ${{secrets.REDIS_HOST}}
           spring.data.redis.port: ${{secrets.REDIS_PORT}}
           kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
+      
+      - name: echo env
         run: |
           echo "DB_URL2: $spring.datasource.url"
           echo "DB_USERNAME2: $spring.datasource.username"
