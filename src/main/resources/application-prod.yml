@@ -25,8 +25,8 @@ kakao:
       key: ${KAKAO_REST_API_KEY}
 
 #  스웨거 때문에 존재
-#servers:
-#  url: ${servers-url}
+servers:
+  url: ${servers-url}
 
 ## s3 이미지 저장
 #cloud:
