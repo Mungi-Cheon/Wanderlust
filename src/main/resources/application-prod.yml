@@ -28,6 +28,10 @@ kakao:
 servers:
   url: ${servers-url}
 
+logging:
+  level:
+    root: INFO
+
 ## s3 이미지 저장
 #cloud:
 #  aws:
