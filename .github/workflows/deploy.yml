@@ -25,29 +25,29 @@ jobs:
         with:
           files: ./src/main/resources/application-prod.yml
         env:
-          #          spring.datasource.url: ${{secrets.DB_URL2}}
-          #          spring.datasource.username: ${{secrets.DB_USERNAME2}}
-          #          spring.datasource.password: ${{secrets.DB_PASSWORD2}}
-          #          spring.mail.username: ${{secrets.MAIL_USERNAME2}}
-          #          spring.mail.password: ${{secrets.MAIL_PASSWORD2}}
-          #          jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
-          #          jwt.issuer: ${{secrets.JWT_ISSUER}}
-          #          jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
-          #          spring.data.redis.host: ${{secrets.REDIS_HOST}}
-          #          spring.data.redis.port: ${{secrets.REDIS_PORT}}
-          #          kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
+          spring.datasource.url: ${{secrets.DB_URL2}}
+          spring.datasource.username: ${{secrets.DB_USERNAME2}}
+          spring.datasource.password: ${{secrets.DB_PASSWORD2}}
+          spring.mail.username: ${{secrets.MAIL_USERNAME}}
+          spring.mail.password: ${{secrets.MAIL_PASSWORD}}
+          jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
+          jwt.issuer: ${{secrets.JWT_ISSUER}}
+          jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
+          spring.data.redis.host: ${{secrets.REDIS_HOST}}
+          spring.data.redis.port: ${{secrets.REDIS_PORT}}
+          kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
 
-          url: ${{secrets.DB_URL2}}
-          username: ${{secrets.DB_USERNAME2}}
-          password: ${{secrets.DB_PASSWORD2}}
-          mail_username: ${{secrets.MAIL_USERNAME2}}
-          mail_password: ${{secrets.MAIL_PASSWORD2}}
-          jwt_secret_key: ${{secrets.JWT_SECRET_KEY}}
-          jwt_issuer: ${{secrets.JWT_ISSUER}}
-          jwt_access_token_expired_time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
-          redis_host: ${{secrets.REDIS_HOST}}
-          redis_port: ${{secrets.REDIS_PORT}}
-          KAKAO_REST_API_KEY: ${{secrets.KAKAO_REST_API_KEY}}
+      #          url: ${{secrets.DB_URL2}}
+      #          username: ${{secrets.DB_USERNAME2}}
+      #          password: ${{secrets.DB_PASSWORD2}}
+      #          mail_username: ${{secrets.MAIL_USERNAME2}}
+      #          mail_password: ${{secrets.MAIL_PASSWORD2}}
+      #          jwt_secret_key: ${{secrets.JWT_SECRET_KEY}}
+      #          jwt_issuer: ${{secrets.JWT_ISSUER}}
+      #          jwt_access_token_expired_time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
+      #          redis_host: ${{secrets.REDIS_HOST}}
+      #          redis_port: ${{secrets.REDIS_PORT}}
+      #          KAKAO_REST_API_KEY: ${{secrets.KAKAO_REST_API_KEY}}
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
