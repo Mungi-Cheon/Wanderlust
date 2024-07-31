@@ -43,15 +43,15 @@ public class ReviewService {
         List<Review> reviewList = accommodation.getReviews();
 
         List<ReviewResponse> reviewResponseList = reviewList.stream()
-                .map(ReviewResponse::from)
-                .collect(Collectors.toList());
+            .map(ReviewResponse::from)
+            .collect(Collectors.toList());
 
         return AccommodationReviewResponseList.from(
-                accommodation.getImages().getThumbnail(),
-                accommodation.getId(),
-                accommodation.getName(),
-                accommodation.getGrade(),
-                reviewResponseList);
+            accommodation.getImages().getThumbnail(),
+            accommodation.getId(),
+            accommodation.getName(),
+            accommodation.getGrade(),
+            reviewResponseList);
     }
 
     @Transactional(readOnly = true)
@@ -60,29 +60,29 @@ public class ReviewService {
         List<Review> reviewList = member.getReviews();
 
         return reviewList.stream()
-                .map(ReviewResponse::from)
-                .collect(Collectors.toList());
+            .map(ReviewResponse::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
     public ReviewResponse createReview(Long memberId, Long accommodationId,
-            ReviewRequest reviewRequest) {
+        ReviewRequest reviewRequest) {
         Accommodation accommodation = findAccommodation(accommodationId);
         Member member = findMember(memberId);
         Reservation reservation = findReservation(reviewRequest.getReservationId());
         Long productId = reservation.getProduct().getId();
 
         productRepository.findByIdAndAccommodationId(productId, accommodationId)
-                .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
+            .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
         //중복 리뷰 검증
         if (reviewRepository.existsByReservationId(reservation.getId())) {
             throw new ReviewException(ErrorType.DUPLICATED_REVIEW);
         }
         //체크아웃 시간, 작성 시간 검증
-        LocalDate checkOutTime = reservation.getCheckOutDate();
-        LocalDate createdAt = LocalDate.now();
-        validInputs(checkOutTime, createdAt);
+//        LocalDate checkOutTime = reservation.getCheckOutDate();
+//        LocalDate createdAt = LocalDate.now();
+//        validInputs(checkOutTime, createdAt);
 
         Review review = Review.from(reviewRequest, accommodation, member, reservation);
         Review saved = reviewRepository.save(review);
@@ -91,7 +91,7 @@ public class ReviewService {
 
     @Transactional
     public UpdateReviewResponse updateReview(Long memberId, Long accommodationId,
-            ReviewRequest reviewRequest, Long reviewId) {
+        ReviewRequest reviewRequest, Long reviewId) {
         findAccommodation(accommodationId);
         findMember(memberId);
         Reservation reservation = findReservation(reviewRequest.getReservationId());
@@ -106,7 +106,7 @@ public class ReviewService {
 
     @Transactional
     public DeleteReviewResponse deleteReview(Long memberId,
-            Long accommodationId, Long reviewId) {
+        Long accommodationId, Long reviewId) {
         findMember(memberId);
         Review review = findByIdAndAccommodationId(reviewId, accommodationId);
         reviewRepository.delete(review);
@@ -117,13 +117,13 @@ public class ReviewService {
     @Transactional
     public void updateGrade() {
         accommodationRepository.findAll().stream()
-                .peek(accommodation -> {
-                    List<Review> reviews = reviewRepository
-                            .getByAccommodationId(accommodation.getId());
-                    BigDecimal newGrade = calculateGrade(reviews, accommodation);
-                    accommodation.updateGrade(newGrade);
-                })
-                .forEach(accommodationRepository::save);
+            .peek(accommodation -> {
+                List<Review> reviews = reviewRepository
+                    .getByAccommodationId(accommodation.getId());
+                BigDecimal newGrade = calculateGrade(reviews, accommodation);
+                accommodation.updateGrade(newGrade);
+            })
+            .forEach(accommodationRepository::save);
     }
 
     private Accommodation findAccommodation(Long accommodationId) {
@@ -157,8 +157,8 @@ public class ReviewService {
             return accommodation.getGrade(); //return BigDecimal.ZERO;
         }
         BigDecimal totalGrade = reviews.stream()
-                .map(Review::getGrade)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            .map(Review::getGrade)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return totalGrade.divide(BigDecimal.valueOf(reviews.size()), 1, RoundingMode.HALF_UP);
     }
