@@ -2,7 +2,7 @@ package com.travel.domain.member.controller;
 
 import com.travel.domain.member.dto.request.LoginRequest;
 import com.travel.domain.member.dto.request.SignupRequest;
-import com.travel.domain.member.dto.response.LoginDto;
+import com.travel.domain.member.dto.response.LoginResponse;
 import com.travel.domain.member.dto.response.MemberResponse;
 import com.travel.domain.member.service.MemberService;
 import com.travel.global.annotation.TokenMemberId;
@@ -44,14 +44,12 @@ public class MemberController {
     @Operation(summary = "로그인 ", description = "이메일과 비밀번호로 로그인합니다.")
     @ApiResponse(description = "로그인 성공",
         content = @Content(mediaType = "application/json",
-            schema = @Schema(implementation = LoginDto.class)))
+            schema = @Schema(implementation = LoginResponse.class)))
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
-        @RequestBody @Valid LoginRequest loginRequest,
-        HttpServletResponse response) {
-        LoginDto loginDto = memberService.login(loginRequest);
-        response.setHeader("access-token", loginDto.accessToken());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<LoginResponse> login(
+        @RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
+        LoginResponse loginResponse = memberService.login(loginRequest, response);
+        return ResponseEntity.ok().body(loginResponse);
     }
 
     @Operation(summary = "회원 탈퇴", description = "회원 계정을 삭제합니다.")
