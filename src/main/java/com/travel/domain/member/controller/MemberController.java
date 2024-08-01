@@ -47,18 +47,18 @@ public class MemberController {
         content = @Content(mediaType = "application/json",
             schema = @Schema(implementation = LoginResponse.class)))
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-        @RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
-        LoginResponse loginResponse = memberService.login(loginRequest, response);
+    public ResponseEntity<LoginResponse> login(HttpServletRequest request,
+        HttpServletResponse response,
+        @RequestBody @Valid LoginRequest loginRequest) {
+        LoginResponse loginResponse = memberService.login(request, response, loginRequest);
         return ResponseEntity.ok().body(loginResponse);
     }
 
     @Operation(summary = "회원 탈퇴", description = "회원 계정을 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
     @DeleteMapping("/mypage/unregister")
-    public ResponseEntity<Void> unregister(HttpServletRequest request, HttpServletResponse response,
-        @TokenMemberId Long tokenMemberId) {
-        memberService.deleteMember(request, response, tokenMemberId);
+    public ResponseEntity<Void> unregister(@TokenMemberId Long tokenMemberId) {
+        memberService.deleteMember(tokenMemberId);
         return ResponseEntity.ok().build();
     }
 }

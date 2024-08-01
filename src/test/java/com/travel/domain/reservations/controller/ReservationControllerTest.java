@@ -1,6 +1,5 @@
 package com.travel.domain.reservations.controller;
 
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.then;
@@ -10,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +24,6 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
 import com.travel.domain.reservations.dto.response.ReservationListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.service.ReservationService;
-import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -77,12 +75,13 @@ class ReservationControllerTest {
         when(reservationService.getReservationHistories(member.getId()))
             .thenReturn(listResponse);
 
+        String content = mapper.writeValueAsString(listResponse);
+
         // When & Then
         mockMvc.perform(get("/api/auth/reservation/history")
-                .cookie(new Cookie("mock-token", String.valueOf(member.getId())))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON))
+                .header("mock-token", member.getId()))
             .andExpect(status().isOk())
+            .andExpect(content().json(content))  // JSON 응답이 비어있지 않음을 확인
             .andDo(print());
         then(reservationService).should().getReservationHistories(member.getId());
     }
@@ -100,24 +99,20 @@ class ReservationControllerTest {
         ReservationListResponse responseList = ReservationListResponse.from(List.of(response));
 
         when(reservationService.createReservation(any(ReservationListRequest.class),
-            eq(member.getId()))).thenReturn(responseList);
+            eq(member.getId())))
+            .thenReturn(responseList);
 
-        String content = mapper.writeValueAsString(reservationListRequest);
+        String content = mapper.writeValueAsString(responseList);
 
         // When & Then
         mockMvc.perform(post("/api/auth/reservation")
-                .cookie(new Cookie("mock-token", String.valueOf(member.getId())))
-                .content(content)
+                .header("mock-token", member.getId())
+                .content(mapper.writeValueAsString(reservationListRequest))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.reservation_response_list[0].id").value(66L))
-            .andExpect(jsonPath("$.reservation_response_list[0].person_number", is(2)))
-            .andExpect(jsonPath("$.reservation_response_list[0].total_price", is(600000)))
-            .andExpect(jsonPath("$.reservation_response_list[0].check_in_date").value(
-                checkInDate.toString()))
-            .andExpect(jsonPath("$.reservation_response_list[0].check_out_date").value(
-                checkOutDate.toString()));
+            .andExpect(content().json(content))  // JSON 응답이 비어있지 않음을 확인
+            .andDo(print());
     }
 
     @Test
@@ -126,32 +121,25 @@ class ReservationControllerTest {
         Member member = createMember();
         ReservationCancelRequest request = createCancelRequest();
         ReservationCancelResponse response = createCancelResponse();
+
         when(reservationService.cancelReservation(any(), any(ReservationCancelRequest.class)))
             .thenReturn(response);
 
-        String content = mapper.writeValueAsString(request);
+        String content = mapper.writeValueAsString(response);
 
         int price = 150000;
         int totalPrice = calcNight() * price;
 
+        // When & Then
         mockMvc.perform(delete("/api/auth/reservation")
-                .cookie(new Cookie("mock-token", String.valueOf(member.getId())))
-                .content(content)
+                .header("mock-token", member.getId())
+                .content(mapper.writeValueAsString(request))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1L))
-            .andExpect(jsonPath("$.check_in_date").value(checkInDate.toString()))
-            .andExpect(jsonPath("$.check_out_date").value(checkOutDate.toString()))
-            .andExpect(jsonPath("$.night").value(2))
-            .andExpect(jsonPath("$.person_number").value(2))
-            .andExpect(jsonPath("$.price").value(price))
-            .andExpect(jsonPath("$.total_price").value(totalPrice))
-            .andExpect(jsonPath("$.room_type").value("VIP"))
-            .andExpect(jsonPath("$.standard_number").value(2))
-            .andExpect(jsonPath("$.maximum_number").value(4));
+            .andExpect(content().json(content))  // JSON 응답이 비어있지 않음을 확인
+            .andDo(print());
     }
-
 
     private Member createMember() {
         return Member
@@ -230,4 +218,5 @@ class ReservationControllerTest {
     private int calcNight() {
         return (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
     }
+
 }
