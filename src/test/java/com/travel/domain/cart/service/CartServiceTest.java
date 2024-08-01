@@ -137,7 +137,7 @@ class CartServiceTest {
     void addToCart_success() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(Optional.of(productValid));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.of(productValid));
         when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(productInfoPerNightValid));
         when(cartRepository.findByMemberIdAndProductId(anyLong(), anyLong())).thenReturn(Optional.empty());
@@ -155,7 +155,7 @@ class CartServiceTest {
     void addToCart_alreadyInCart() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(Optional.of(productValid));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.of(productValid));
         when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(productInfoPerNightValid));
         when(cartRepository.findByMemberIdAndProductId(anyLong(), anyLong())).thenReturn(Optional.of(cart));
@@ -191,7 +191,7 @@ class CartServiceTest {
     void addToCart_productNotFound() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(Optional.empty());
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         ProductException exception = assertThrows(ProductException.class, () -> cartService.addToCart(1L, cartRequest));
 
@@ -203,7 +203,7 @@ class CartServiceTest {
     void addToCart_unavailableProduct() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(Optional.of(productInValid));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.of(productInValid));
         when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(productInfoPerNightInValid));
 
