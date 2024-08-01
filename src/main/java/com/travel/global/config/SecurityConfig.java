@@ -34,6 +34,22 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final TokenMemberIdResolver tokenMemberIdResolver;
 
+    private final List<String> PASS_EQUAL_URL = List.of(
+        "/api/auth/login",
+        "/api/auth/signup",
+        "/swagger-ui/index.html",
+        "/",
+        "favicon.ico",
+        "/error"
+
+    );
+
+    private final List<String> PASS_STARTS_WITH_URL = List.of(
+        "/api/accommodations",
+        "/swagger-ui",
+        "/v3/api-docs"
+    );
+
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -63,7 +79,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                     .requestMatchers("/", "/swagger-ui/**", "/swagger-ui/index.html",
                         "/v3/api-docs/**", "favicon.ico", "/error").permitAll()
                     .anyRequest().authenticated())
-            .addFilterBefore(new JwtFilter(jwtUtil, cookieUtil, getPublicPathList()),
+            .addFilterBefore(
+                new JwtFilter(jwtUtil, cookieUtil, PASS_EQUAL_URL, PASS_STARTS_WITH_URL),
                 UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -82,14 +99,5 @@ public class SecurityConfig implements WebMvcConfigurer {
             .maxAge(1728000L)
             .allowedHeaders("*")
             .exposedHeaders("*");
-    }
-
-    private List<String> getPublicPathList() {
-        return List.of(
-            "/api/auth/login", "/api/auth/signup",
-            "/api/accommodations/**", "/api/review/**",
-            "/", "/swagger-ui/**", "/swagger-ui/index.html",
-            "/v3/api-docs/**", "favicon.ico", "/error"
-        );
     }
 }

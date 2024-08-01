@@ -28,12 +28,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
-    private final List<String> excludeUrls;
+    private final List<String> equalUrls;
+    private final List<String> startsWithUrls;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        return excludeUrls.stream().anyMatch(path::equalsIgnoreCase);
+        return equalUrls.stream().anyMatch(path::equalsIgnoreCase) || startsWithUrls.stream()
+            .anyMatch(path::startsWith);
     }
 
     @Override
