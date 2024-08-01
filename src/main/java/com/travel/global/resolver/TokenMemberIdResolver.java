@@ -5,7 +5,6 @@ import static com.travel.global.security.type.TokenType.ACCESS;
 import com.travel.global.annotation.TokenMemberId;
 import com.travel.global.exception.MemberException;
 import com.travel.global.exception.type.ErrorType;
-import com.travel.global.util.CookieUtil;
 import com.travel.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @RequiredArgsConstructor
 public class TokenMemberIdResolver implements HandlerMethodArgumentResolver {
 
-    private final CookieUtil cookieUtil;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -37,14 +35,25 @@ public class TokenMemberIdResolver implements HandlerMethodArgumentResolver {
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
 
-        String accessToken = cookieUtil.getTokenFromCookies(request.getCookies(),
-            ACCESS.getName());
+        Long memberId = extractMemberId(request);
+        validateMemberId(memberId);
 
-        Object memberId = jwtUtil.getAccessTokenMemberId(accessToken);
+        return memberId;
+    }
 
+    private Long extractMemberId(HttpServletRequest request) {
+        String accessToken = request.getHeader(ACCESS.getName());
+
+        if (accessToken != null) {
+            return jwtUtil.getAccessTokenMemberId(accessToken);
+        } else {
+            return (Long) request.getAttribute("memberId");
+        }
+    }
+
+    private void validateMemberId(Long memberId) {
         if (memberId == null) {
             throw new MemberException(ErrorType.INVALID_EMAIL_AND_PASSWORD);
         }
-        return Long.parseLong(memberId.toString());
     }
 }

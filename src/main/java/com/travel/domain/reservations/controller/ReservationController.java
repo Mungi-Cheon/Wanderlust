@@ -48,7 +48,6 @@ public class ReservationController {
     public ResponseEntity<ReservationListResponse> reservation(
         @TokenMemberId Long tokenMemberId,
         @Valid @RequestBody ReservationListRequest requestList) {
-        System.out.println("tokenMemberId = " + tokenMemberId);
         ReservationListResponse response = reservationService
             .createReservation(requestList, tokenMemberId);
         return ResponseEntity.ok(response);

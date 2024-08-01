@@ -158,6 +158,7 @@ public class ReservationService {
             rhList.add(
                 ReservationHistoryResponse.from(
                     reservation,
+                    reservation.getAccommodation().getId(),
                     reservation.getAccommodation().getName(),
                     product.getType(),
                     product.getStandardNumber(),

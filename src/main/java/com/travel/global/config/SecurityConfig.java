@@ -3,7 +3,6 @@ package com.travel.global.config;
 import com.travel.global.resolver.TokenMemberIdResolver;
 import com.travel.global.security.CustomAuthenticationEntryPoint;
 import com.travel.global.security.filter.JwtFilter;
-import com.travel.global.util.CookieUtil;
 import com.travel.global.util.JwtUtil;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,24 +29,30 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig implements WebMvcConfigurer {
 
     private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final TokenMemberIdResolver tokenMemberIdResolver;
 
+//    private final List<String> PASS_EQUAL_URL = List.of(
+//        "/api/auth/login",
+//        "/api/auth/signup",
+//        "/swagger-ui/index.html",
+//        "/",
+//        "favicon.ico",
+//        "/error"
+//
+//    );
+//
+//    private final List<String> PASS_STARTS_WITH_URL = List.of(
+//        "/api/accommodations",
+//        "/swagger-ui",
+//        "/v3/api-docs"
+//    );
+
     private final List<String> PASS_EQUAL_URL = List.of(
-        "/api/auth/login",
-        "/api/auth/signup",
-        "/swagger-ui/index.html",
-        "/",
-        "favicon.ico",
-        "/error"
-
-    );
-
-    private final List<String> PASS_STARTS_WITH_URL = List.of(
-        "/api/accommodations",
-        "/swagger-ui",
-        "/v3/api-docs"
+        "/api/auth/login", "/api/auth/signup",
+        "/api/accommodations/**", "/api/review/**",
+        "/", "/swagger-ui/**", "/swagger-ui/index.html",
+        "/v3/api-docs/**", "favicon.ico", "/error"
     );
 
 
@@ -80,7 +85,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         "/v3/api-docs/**", "favicon.ico", "/error").permitAll()
                     .anyRequest().authenticated())
             .addFilterBefore(
-                new JwtFilter(jwtUtil, cookieUtil, PASS_EQUAL_URL, PASS_STARTS_WITH_URL),
+                new JwtFilter(jwtUtil, PASS_EQUAL_URL),
                 UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
