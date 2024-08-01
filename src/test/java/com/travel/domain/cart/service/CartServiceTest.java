@@ -136,11 +136,16 @@ class CartServiceTest {
     @DisplayName("장바구니 추가 성공")
     void addToCart_success() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
-        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.of(productValid));
-        when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
+        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
+            Optional.of(accommodation));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(), anyLong())).thenReturn(
+            Optional.of(productValid));
+        when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(),
+            any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(productInfoPerNightValid));
-        when(cartRepository.findByMemberIdAndProductId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(cartRepository.findByMemberIdAndProductId(anyLong(), anyLong())).thenReturn(
+            Optional.empty());
 
         CartResponse response = cartService.addToCart(1L, cartRequest);
 
@@ -155,7 +160,8 @@ class CartServiceTest {
     void addToCart_alreadyInCart() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.of(productValid));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(), anyLong())).thenReturn(Optional.of(productValid));
         when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(productInfoPerNightValid));
         when(cartRepository.findByMemberIdAndProductId(anyLong(), anyLong())).thenReturn(Optional.of(cart));
@@ -170,18 +176,21 @@ class CartServiceTest {
     void addToCart_memberNotFound() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        MemberException exception = assertThrows(MemberException.class, () -> cartService.addToCart(1L, cartRequest));
+        MemberException exception = assertThrows(MemberException.class,
+            () -> cartService.addToCart(1L, cartRequest));
 
-        assertEquals(ErrorType.NONEXISTENT_MEMBER.getMessage(), exception.getMessage());
+        assertEquals(ErrorType.INVALID_EMAIL_AND_PASSWORD.getMessage(), exception.getMessage());
     }
 
     @Test
     @DisplayName("장바구니 추가 실패 - 숙소 없음")
     void addToCart_accommodationNotFound() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
-        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.empty());
+        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
+            Optional.empty());
 
-        AccommodationException exception = assertThrows(AccommodationException.class, () -> cartService.addToCart(1L, cartRequest));
+        AccommodationException exception = assertThrows(AccommodationException.class,
+            () -> cartService.addToCart(1L, cartRequest));
 
         assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
     }
@@ -190,10 +199,13 @@ class CartServiceTest {
     @DisplayName("장바구니 추가 실패 - 상품 없음")
     void addToCart_productNotFound() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
-        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
+            Optional.of(accommodation));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(), anyLong())).thenReturn(Optional.empty());
 
-        ProductException exception = assertThrows(ProductException.class, () -> cartService.addToCart(1L, cartRequest));
+        ProductException exception = assertThrows(ProductException.class,
+            () -> cartService.addToCart(1L, cartRequest));
 
         assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
     }
@@ -202,12 +214,17 @@ class CartServiceTest {
     @DisplayName("장바구니 추가 실패 - 예약 가능하지 않음")
     void addToCart_unavailableProduct() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
-        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
-        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(anyLong(), anyLong())).thenReturn(Optional.of(productInValid));
-        when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
+        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
+            Optional.of(accommodation));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(),anyLong())).thenReturn(
+            Optional.of(productInValid));
+        when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(),
+            any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(productInfoPerNightInValid));
 
-        ReservationsException exception = assertThrows(ReservationsException.class, () -> cartService.addToCart(1L, cartRequest));
+        ReservationsException exception = assertThrows(ReservationsException.class,
+            () -> cartService.addToCart(1L, cartRequest));
 
         assertEquals(ErrorType.INCLUDES_FULLY_BOOKED_PRODUCT.getMessage(), exception.getMessage());
     }
@@ -240,7 +257,8 @@ class CartServiceTest {
     void removeFromCart_notFound() {
         when(cartRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        CartException exception = assertThrows(CartException.class, () -> cartService.removeFromCart(1L));
+        CartException exception = assertThrows(CartException.class,
+            () -> cartService.removeFromCart(1L));
 
         assertEquals(ErrorType.NOT_FOUND.getMessage(), exception.getMessage());
     }

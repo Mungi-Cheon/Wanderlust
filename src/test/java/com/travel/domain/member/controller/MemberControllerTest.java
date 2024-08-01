@@ -1,11 +1,20 @@
 package com.travel.domain.member.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.domain.member.dto.request.LoginRequest;
 import com.travel.domain.member.dto.request.SignupRequest;
-import com.travel.domain.member.dto.response.LoginDto;
+import com.travel.domain.member.dto.response.LoginResponse;
 import com.travel.domain.member.dto.response.MemberResponse;
 import com.travel.domain.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,16 +27,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-import java.net.URI;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +51,7 @@ public class MemberControllerTest {
     private SignupRequest signupRequest;
     private LoginRequest loginRequest;
     private MemberResponse memberResponse;
-    private LoginDto loginDto;
+    private LoginResponse loginResponse;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +71,7 @@ public class MemberControllerTest {
             .name("nickname")
             .build();
 
-        loginDto = new LoginDto("access-token-value");
+        loginResponse = new LoginResponse("access-token-value");
     }
 
     @Test
@@ -92,13 +91,14 @@ public class MemberControllerTest {
     @Test
     @DisplayName("로그인 성공 테스트")
     void login_success() throws Exception {
-        given(memberService.login(any(LoginRequest.class))).willReturn(loginDto);
+        given(memberService.login(any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(LoginRequest.class))).willReturn(loginResponse);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk())
-            .andExpect(header().string("access-token", loginDto.accessToken()))
+            .andExpect(jsonPath("$.access_token").value(loginResponse.accessToken()))
             .andDo(print());
     }
 

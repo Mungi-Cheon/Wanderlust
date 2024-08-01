@@ -3,7 +3,6 @@ package com.travel.domain.member.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.travel.domain.member.entity.Member;
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-
 class MemberRepositoryTest {
 
     @Autowired
@@ -47,20 +45,5 @@ class MemberRepositoryTest {
         Optional<Member> foundMember = memberRepository.findByEmail("test@example.com");
         assertThat(foundMember).isPresent();
         assertThat(foundMember.get().getEmail()).isEqualTo(member.getEmail());
-    }
-
-    @Test
-    @DisplayName("이메일로 사용자 찾기 - 내림차순 정렬")
-    void findByEmailOrderByIdDesc() {
-        Member anotherMember = Member.builder()
-            .email("test@example.com")
-            .name("anotherMember")
-            .password("password1234")
-            .build();
-        memberRepository.save(anotherMember);
-
-        List<Member> foundMembers = memberRepository.findByEmailOrderByIdDesc("test@example.com");
-        assertThat(foundMembers).isNotEmpty();
-        assertThat(foundMembers.get(0).getName()).isEqualTo("anotherMember");
     }
 }

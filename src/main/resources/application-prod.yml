@@ -5,10 +5,14 @@ spring:
     username: ${username}
     password: ${password}
 
-
   mail:
     username: ${mail_username}
     password: ${mail_password}
+
+  data:
+    redis:
+      host: ${redis_host}
+      port: ${redis_port}
 
 jwt:
   secret-key: ${jwt_secret_key}
@@ -20,9 +24,13 @@ kakao:
     api:
       key: ${KAKAO_REST_API_KEY}
 
-# 스웨거 때문에 존재
+#  스웨거 때문에 존재
 servers:
   url: ${servers-url}
+
+logging:
+  level:
+    root: INFO
 
 ## s3 이미지 저장
 #cloud:

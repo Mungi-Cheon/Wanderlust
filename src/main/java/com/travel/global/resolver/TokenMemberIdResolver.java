@@ -1,8 +1,12 @@
 package com.travel.global.resolver;
 
+import static com.travel.global.security.type.TokenType.ACCESS;
+
 import com.travel.global.annotation.TokenMemberId;
 import com.travel.global.exception.MemberException;
 import com.travel.global.exception.type.ErrorType;
+import com.travel.global.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -14,6 +18,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 @RequiredArgsConstructor
 public class TokenMemberIdResolver implements HandlerMethodArgumentResolver {
+
+    private final JwtUtil jwtUtil;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -27,12 +33,27 @@ public class TokenMemberIdResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        Object memberId = webRequest.getAttribute("memberId", NativeWebRequest.SCOPE_REQUEST);
+        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
 
-        if (memberId == null) {
-            throw new MemberException(ErrorType.NONEXISTENT_MEMBER);
+        Long memberId = extractMemberId(request);
+        validateMemberId(memberId);
+
+        return memberId;
+    }
+
+    private Long extractMemberId(HttpServletRequest request) {
+        String accessToken = request.getHeader(ACCESS.getName());
+
+        if (accessToken != null) {
+            return jwtUtil.getAccessTokenMemberId(accessToken);
+        } else {
+            return (Long) request.getAttribute("memberId");
         }
+    }
 
-        return Long.parseLong(memberId.toString());
+    private void validateMemberId(Long memberId) {
+        if (memberId == null) {
+            throw new MemberException(ErrorType.INVALID_EMAIL_AND_PASSWORD);
+        }
     }
 }

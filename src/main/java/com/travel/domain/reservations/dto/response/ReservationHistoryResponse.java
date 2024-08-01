@@ -21,6 +21,8 @@ public class ReservationHistoryResponse {
 
     private Integer personNumber;
 
+    private Long accommodationId;
+
     private String accommodationName;
 
     private String roomType;
@@ -35,14 +37,16 @@ public class ReservationHistoryResponse {
 
     private Integer totalPrice;
 
-    public static ReservationHistoryResponse from(Reservation entity, String accommodationName
-        , String roomType, Integer standardNumber, Integer maximumNumber, String imageUrl) {
+    public static ReservationHistoryResponse from(Reservation entity, Long accommodationId,
+        String accommodationName, String roomType, Integer standardNumber,
+        Integer maximumNumber, String imageUrl) {
         return ReservationHistoryResponse.builder()
             .id(entity.getId())
             .checkInDate(entity.getCheckInDate())
             .checkOutDate(entity.getCheckOutDate())
             .night(entity.getNight())
             .personNumber(entity.getPersonNumber())
+            .accommodationId(accommodationId)
             .accommodationName(accommodationName)
             .roomType(roomType)
             .standardNumber(standardNumber)

@@ -19,13 +19,12 @@ import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.type.ErrorType;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class CartService {
     @Transactional
     public CartResponse addToCart(Long memberId, CartRequest cartRequest) {
         Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new MemberException(ErrorType.NONEXISTENT_MEMBER));
+            .orElseThrow(() -> new MemberException(ErrorType.INVALID_EMAIL_AND_PASSWORD));
         Accommodation accommodation = accommodationRepository.
             findByIdJoinImagesAndOptions(cartRequest.getAccommodationId())
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
@@ -52,11 +51,13 @@ public class CartService {
                 cartRequest.getAccommodationId(),cartRequest.getProductId())
             .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
-        List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(cartRequest.getProductId(),
+        List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(
+            cartRequest.getProductId(),
             cartRequest.getCheckInDate(), cartRequest.getCheckOutDate());
         AvailableToCart(productInfoList);
 
-        Optional<Cart> existingCart = cartRepository.findByMemberIdAndProductId(memberId, cartRequest.getProductId());
+        Optional<Cart> existingCart = cartRepository.findByMemberIdAndProductId(memberId,
+            cartRequest.getProductId());
         if (existingCart.isPresent()) {
             throw new CartException(ErrorType.ALREADY_IN_CART);
         }

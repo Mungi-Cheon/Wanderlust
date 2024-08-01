@@ -30,6 +30,7 @@ import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
+import com.travel.global.util.JwtUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -60,6 +61,9 @@ class ProductServiceTest {
 
     @MockBean
     KakaoMapService kakaoMapService;
+
+    @MockBean
+    JwtUtil jwtUtil;
 
     Long accommodationId = 1L;
     Long productId = 1L;
@@ -470,7 +474,8 @@ class ProductServiceTest {
         List<Product> productList = new ArrayList<>();
         accommodation = createAccommodation(accommodationOption, accommodationImage, productList);
 
-        when(accommodationRepository.findAccommodationById(accommodationId)).thenReturn(accommodation);
+        when(accommodationRepository.findAccommodationById(accommodationId)).thenReturn(
+            accommodation);
 
         ProductException exception = assertThrows(ProductException.class, () -> {
             productService.getProductDetail(accommodationId, nonExistentAccommodationId,
