@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
@@ -14,9 +15,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByEmail(String email);
 
-    List<Member> findByEmailOrderByIdDesc(String email);
-
     List<Member> findByDeletedAtIsNotNullAndDeletedAtBefore(LocalDateTime dateTime);
+
+    @Query(value = "delete from Member where email = :email ")
+    void deleteByEmail(String email);
 
     default Member getMember(Long memberId) {
         return findById(memberId).orElseThrow(
