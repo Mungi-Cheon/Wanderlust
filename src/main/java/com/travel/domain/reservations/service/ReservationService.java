@@ -89,10 +89,12 @@ public class ReservationService {
             reservationRepository.checkExistReservation(memberId, productId, checkInDate,
                 checkOutDate);
 
-            Product product = productRepository.getByIdJoinImagesAndOption(productId);
-            List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(productId,
-                checkInDate, checkOutDate.minusDays(1));
-            decreaseCountByOne(productInfoList);
+      Product product = productRepository.
+              getByAccommodationIdAndProductIdJoinImagesAndOption(
+                      request.getAccommodationId(),productId);
+      List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(productId,
+              checkInDate, checkOutDate.minusDays(1));
+      decreaseCountByOne(productInfoList);
 
             Reservation reservation = createReservation(
                 member, accommodation,

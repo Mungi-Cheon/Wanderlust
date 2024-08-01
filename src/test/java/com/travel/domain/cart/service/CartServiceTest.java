@@ -1,15 +1,5 @@
 package com.travel.domain.cart.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.cart.dto.request.CartRequest;
@@ -29,9 +19,6 @@ import com.travel.global.exception.MemberException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.type.ErrorType;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +26,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
@@ -144,7 +138,8 @@ class CartServiceTest {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
             Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(), anyLong())).thenReturn(
             Optional.of(productValid));
         when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(),
             any(LocalDate.class), any(LocalDate.class)))
@@ -164,18 +159,14 @@ class CartServiceTest {
     @DisplayName("장바구니 추가 실패 - 이미 존재하는 상품")
     void addToCart_alreadyInCart() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
-        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
-            Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(
-            Optional.of(productValid));
-        when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(),
-            any(LocalDate.class), any(LocalDate.class)))
+        when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(Optional.of(accommodation));
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(), anyLong())).thenReturn(Optional.of(productValid));
+        when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(productInfoPerNightValid));
-        when(cartRepository.findByMemberIdAndProductId(anyLong(), anyLong())).thenReturn(
-            Optional.of(cart));
+        when(cartRepository.findByMemberIdAndProductId(anyLong(), anyLong())).thenReturn(Optional.of(cart));
 
-        CartException exception = assertThrows(CartException.class,
-            () -> cartService.addToCart(1L, cartRequest));
+        CartException exception = assertThrows(CartException.class, () -> cartService.addToCart(1L, cartRequest));
 
         assertEquals(ErrorType.ALREADY_IN_CART.getMessage(), exception.getMessage());
     }
@@ -210,7 +201,8 @@ class CartServiceTest {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
             Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(Optional.empty());
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(), anyLong())).thenReturn(Optional.empty());
 
         ProductException exception = assertThrows(ProductException.class,
             () -> cartService.addToCart(1L, cartRequest));
@@ -224,7 +216,8 @@ class CartServiceTest {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
         when(accommodationRepository.findByIdJoinImagesAndOptions(anyLong())).thenReturn(
             Optional.of(accommodation));
-        when(productRepository.findByIdJoinImagesAndOption(anyLong())).thenReturn(
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                anyLong(),anyLong())).thenReturn(
             Optional.of(productInValid));
         when(productInfoPerNightRepository.findByProductIdAndDateRange(anyLong(),
             any(LocalDate.class), any(LocalDate.class)))
