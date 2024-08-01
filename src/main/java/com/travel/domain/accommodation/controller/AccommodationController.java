@@ -49,17 +49,4 @@ public class AccommodationController {
 
         return ResponseEntity.ok(responses);
     }
-
-//    @Operation(summary = "숙소 검색", description = "조건에 맞게 숙소를 검색합니다.")
-//    @ApiResponse(content = @Content(mediaType = "application/json",
-//        schema = @Schema(implementation = AccommodationResponse.class)))
-//    @GetMapping("/search")
-//    public ResponseEntity<List<AccommodationResponse>> searchAccommodations(
-//        @ModelAttribute AccommodationRequest request,
-//        @RequestParam(required = false) String keyword, Long lastAccommodationId)
-//    {
-//        List<AccommodationResponse> responses = accommodationService.searchAccommodations(keyword,
-//            checkIn, checkOut, personNumber,lastAccommodationId);
-//        return ResponseEntity.ok(responses);
-//    }
 }

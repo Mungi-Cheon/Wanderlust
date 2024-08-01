@@ -99,35 +99,6 @@ public class AccommodationService {
         elasticSearchUtil.bulkIndexAccommodation(accommodations);
     }
 
-//    public List<AccommodationResponse> searchAccommodations(String keyword, LocalDate checkIn, LocalDate checkOut, int personNumber) {
-//
-//        List<AccommodationSearch> searchResults = accommodationSearchRepository.findAccommodationsByname(keyword);
-//
-//        List<Accommodation> accommodations = searchResults.stream()
-//            .map(result -> accommodationRepository.findByIdWithAllDetails(result.getId()).orElse(null))
-//            .toList();
-//
-////        if (checkIn != null && checkOut != null && personNumber > 0) {
-////            accommodations = accommodations.stream()
-////                .filter(accommodation -> accommodation != null && hasValidProducts(accommodation, checkIn, checkOut, personNumber))
-////                .collect(Collectors.toList());
-////        } else if (checkIn != null && checkOut != null) {
-////            accommodations = accommodations.stream()
-////                .filter(accommodation -> accommodation != null && hasValidProducts(accommodation, checkIn, checkOut, 0))
-////                .collect(Collectors.toList());
-////        } else if (personNumber > 0) {
-////            accommodations = accommodations.stream()
-////                .filter(accommodation -> accommodation != null && hasValidProducts(accommodation, null, null, personNumber))
-////                .collect(Collectors.toList());
-////        }
-//
-//        return accommodations.stream()
-//            .map(AccommodationResponse::createAccommodationResponse)
-//            .collect(Collectors.toList());
-//    }
-
-
-
     private List<Long> getIdByKeyword(String keyword) {
         List<Long> idList;
         if (keyword!=null) {
