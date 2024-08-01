@@ -29,7 +29,7 @@ public enum ErrorType {
 
     // auth
     TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "토큰이 존재하지 않음"),
-    INVALID_TOKEN(HttpStatus.NOT_FOUND, "토큰이 유효하지않습니다."),
+    INVALID_TOKEN(HttpStatus.FORBIDDEN, "토큰이 유효하지않습니다."),
     TOKEN_AUTHORIZATION_FAIL(HttpStatus.FORBIDDEN, "토큰 인증 실패"),
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "토큰이 만료되었습니다.");
 

@@ -5,7 +5,6 @@ import static com.travel.global.security.type.TokenType.MOCK;
 
 import com.travel.global.exception.AuthException;
 import com.travel.global.exception.type.ErrorType;
-import com.travel.global.util.CookieUtil;
 import com.travel.global.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,6 +17,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,15 +27,13 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
     private final List<String> equalUrls;
-    private final List<String> startsWithUrls;
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return equalUrls.stream().anyMatch(path::equalsIgnoreCase) || startsWithUrls.stream()
-            .anyMatch(path::startsWith);
+        return equalUrls.stream().anyMatch(equalUrl -> antPathMatcher.match(equalUrl, path));
     }
 
     @Override
@@ -52,25 +50,26 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String accessToken = cookieUtil.getTokenFromCookies(request.getCookies(),
-            ACCESS.getName());
-
-        if (accessToken == null) {
-            String mockToken = cookieUtil.getTokenFromCookies(request.getCookies(),
-                MOCK.getName());
+        String accessToken = request.getHeader(ACCESS.getName());
+        long memberId = 0L;
+        if (accessToken != null) {
+            memberId = jwtUtil.getAccessTokenMemberId(accessToken);
+        } else {
+            String mockToken = request.getHeader(MOCK.getName());
             if (mockToken == null) {
                 throw new AuthException(ErrorType.TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND);
             }
-            setRequestContext(Long.valueOf(mockToken));
-            return;
+            memberId = Long.parseLong(mockToken);
+            setRequestContext(memberId);
         }
+        setSecurityContext(memberId);
+        filterChain.doFilter(request, response);
+    }
 
-        long memberId = jwtUtil.getAccessTokenMemberId(accessToken);
+    private void setSecurityContext(Long memberId) {
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(memberId, null, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        filterChain.doFilter(request, response);
     }
 
     private void setRequestContext(Long memberId) {

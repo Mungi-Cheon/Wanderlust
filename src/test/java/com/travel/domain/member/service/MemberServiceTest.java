@@ -16,8 +16,8 @@ import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
 import com.travel.global.exception.MemberException;
 import com.travel.global.security.token.service.TokenService;
-import com.travel.global.util.CookieUtil;
 import com.travel.global.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,11 +45,9 @@ class MemberServiceTest {
     @Mock
     private JwtUtil jwtUtil;
 
-    @Mock
-    private CookieUtil cookieUtil;
-
     private SignupRequest signupRequest;
     private LoginRequest loginRequest;
+    private HttpServletRequest httpRequest;
     private HttpServletResponse httpResponse;
     private Member member;
 
@@ -59,6 +57,7 @@ class MemberServiceTest {
 
         signupRequest = new SignupRequest("test@example.com", "password123", "nickname");
         loginRequest = new LoginRequest("test@example.com", "password123");
+        httpRequest = mock(HttpServletRequest.class);
         httpResponse = mock(HttpServletResponse.class);
 
         member = Member.builder()
@@ -98,7 +97,7 @@ class MemberServiceTest {
         when(passwordEncoder.matches(loginRequest.getPassword(), member.getPassword()))
             .thenReturn(true);
         when(jwtUtil.generateAccessToken(member.getId())).thenReturn("accessToken");
-        LoginResponse response = memberService.login(loginRequest, httpResponse);
+        LoginResponse response = memberService.login(httpRequest, httpResponse, loginRequest);
 
         assertThat(response.accessToken()).isEqualTo("accessToken");
     }
@@ -107,7 +106,7 @@ class MemberServiceTest {
     @DisplayName("로그인 실패 테스트 - 회원 없음")
     void login_Fail_MemberNotFound() {
         when(memberRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(member));
-        assertThatThrownBy(() -> memberService.login(loginRequest, httpResponse))
+        assertThatThrownBy(() -> memberService.login(httpRequest, httpResponse, loginRequest))
             .isInstanceOf(MemberException.class)
             .hasMessage(INVALID_EMAIL_AND_PASSWORD.getMessage());
     }
@@ -119,7 +118,7 @@ class MemberServiceTest {
         when(passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())).thenReturn(
             false);
 
-        assertThatThrownBy(() -> memberService.login(loginRequest, httpResponse))
+        assertThatThrownBy(() -> memberService.login(httpRequest, httpResponse, loginRequest))
             .isInstanceOf(MemberException.class)
             .hasMessage(INVALID_EMAIL_AND_PASSWORD.getMessage());
     }

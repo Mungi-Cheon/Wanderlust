@@ -13,6 +13,7 @@ import com.travel.domain.member.dto.request.SignupRequest;
 import com.travel.domain.member.dto.response.LoginResponse;
 import com.travel.domain.member.dto.response.MemberResponse;
 import com.travel.domain.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -90,8 +91,8 @@ public class MemberControllerTest {
     @Test
     @DisplayName("로그인 성공 테스트")
     void login_success() throws Exception {
-        given(memberService.login(any(LoginRequest.class),
-            any(HttpServletResponse.class))).willReturn(loginResponse);
+        given(memberService.login(any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(LoginRequest.class))).willReturn(loginResponse);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
