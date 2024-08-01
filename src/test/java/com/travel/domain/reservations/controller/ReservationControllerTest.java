@@ -25,6 +25,7 @@ import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
 import com.travel.domain.reservations.dto.response.ReservationListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.service.ReservationService;
+import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -78,7 +79,9 @@ class ReservationControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/auth/reservation/history")
-                .header("mock-token", member.getId()))
+                .cookie(new Cookie("mock-token", String.valueOf(member.getId())))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andDo(print());
         then(reservationService).should().getReservationHistories(member.getId());
@@ -103,7 +106,7 @@ class ReservationControllerTest {
 
         // When & Then
         mockMvc.perform(post("/api/auth/reservation")
-                .header("mock-token", member.getId())
+                .cookie(new Cookie("mock-token", String.valueOf(member.getId())))
                 .content(content)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -132,7 +135,7 @@ class ReservationControllerTest {
         int totalPrice = calcNight() * price;
 
         mockMvc.perform(delete("/api/auth/reservation")
-                .header("mock-token", member.getId())
+                .cookie(new Cookie("mock-token", String.valueOf(member.getId())))
                 .content(content)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
