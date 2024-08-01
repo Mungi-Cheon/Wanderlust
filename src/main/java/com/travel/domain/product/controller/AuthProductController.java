@@ -1,5 +1,6 @@
 package com.travel.domain.product.controller;
 
+import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.product.service.ProductService;
 import com.travel.global.annotation.TokenMemberId;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,12 +37,12 @@ public class AuthProductController {
     public ResponseEntity<AccommodationDetailListResponse> getAccommodationDetailByAuth(
         @TokenMemberId Long tokenUserId,
         @PathVariable Long accommodationId,
-        @RequestParam(required = false) LocalDate checkInDate,
-        @RequestParam(required = false) LocalDate checkOutDate,
-        @RequestParam(defaultValue = "2") int personNumber
+        @ModelAttribute AccommodationRequest request,
+        @RequestParam(required = false, defaultValue = "2") int personNumber
     ) {
-        checkInDate = DateValidationUtil.checkInDate(checkInDate);
-        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
+        LocalDate checkInDate = DateValidationUtil.checkInDate(request.getCheckInDate());
+        LocalDate checkOutDate = DateValidationUtil.checkOutDate(request.getCheckInDate()
+            , request.getCheckOutDate());
 
         var response = productService
             .getAccommodationDetailByAuth(accommodationId, checkInDate, checkOutDate, personNumber, tokenUserId);

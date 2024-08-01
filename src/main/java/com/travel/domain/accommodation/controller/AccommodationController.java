@@ -4,12 +4,13 @@ import com.travel.domain.accommodation.category.Category;
 import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.service.AccommodationService;
+import com.travel.global.util.DateValidationUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,15 +33,33 @@ public class AccommodationController {
         schema = @Schema(implementation = AccommodationResponse.class)))
     @GetMapping
     public ResponseEntity<List<AccommodationResponse>> getAvailableAccommodations(
-        @Valid @ModelAttribute AccommodationRequest request,
-        @RequestParam(required = false) Long lastAccommodationId) {
+        @ModelAttribute AccommodationRequest request,
+        @RequestParam(required = false, defaultValue = "2") int personNumber) {
 
         String category = Category.fromId(request.getCategoryId());
 
+       LocalDate checkInDate = DateValidationUtil.checkInDate(request.getCheckInDate());
+       LocalDate checkOutDate = DateValidationUtil.checkOutDate(request.getCheckInDate()
+           , request.getCheckOutDate());
+
         List<AccommodationResponse> responses = accommodationService
-            .getAvailableAccommodations(category, request.getCheckInDate(),
-                request.getCheckOutDate(), request.getPersonNumber(), lastAccommodationId);
+            .getAvailableAccommodations(request.getKeyword(),category, checkInDate,
+                checkOutDate, personNumber,
+                request.getLastAccommodationId());
 
         return ResponseEntity.ok(responses);
     }
+
+//    @Operation(summary = "숙소 검색", description = "조건에 맞게 숙소를 검색합니다.")
+//    @ApiResponse(content = @Content(mediaType = "application/json",
+//        schema = @Schema(implementation = AccommodationResponse.class)))
+//    @GetMapping("/search")
+//    public ResponseEntity<List<AccommodationResponse>> searchAccommodations(
+//        @ModelAttribute AccommodationRequest request,
+//        @RequestParam(required = false) String keyword, Long lastAccommodationId)
+//    {
+//        List<AccommodationResponse> responses = accommodationService.searchAccommodations(keyword,
+//            checkIn, checkOut, personNumber,lastAccommodationId);
+//        return ResponseEntity.ok(responses);
+//    }
 }

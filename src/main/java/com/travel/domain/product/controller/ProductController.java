@@ -1,5 +1,6 @@
 package com.travel.domain.product.controller;
 
+import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductSimpleResponse;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,12 +39,11 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<AccommodationDetailListResponse> getAccommodationDetail(
         @PathVariable Long accommodationId,
-        @RequestParam(required = false) LocalDate checkInDate,
-        @RequestParam(required = false) LocalDate checkOutDate,
-        @RequestParam(defaultValue = "2") int personNumber
-    ) {
-        checkInDate = DateValidationUtil.checkInDate(checkInDate);
-        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
+        @ModelAttribute AccommodationRequest request,
+        @RequestParam(required = false, defaultValue = "2") int personNumber){
+        LocalDate checkInDate = DateValidationUtil.checkInDate(request.getCheckInDate());
+        LocalDate checkOutDate = DateValidationUtil.checkOutDate(request.getCheckInDate()
+            , request.getCheckOutDate());
 
         var response = productService
             .getAccommodationDetail(accommodationId, checkInDate, checkOutDate, personNumber);
@@ -59,12 +60,12 @@ public class ProductController {
     public ResponseEntity<ProductDetailResponse> getProductDetail(
         @PathVariable Long accommodationId,
         @PathVariable Long productId,
-        @RequestParam(required = false) LocalDate checkInDate,
-        @RequestParam(required = false) LocalDate checkOutDate,
-        @RequestParam(defaultValue = "2") Integer personNumber
+        @ModelAttribute AccommodationRequest request,
+        @RequestParam(required = false, defaultValue = "2") int personNumber
     ) {
-        checkInDate = DateValidationUtil.checkInDate(checkInDate);
-        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
+        LocalDate checkInDate = DateValidationUtil.checkInDate(request.getCheckInDate());
+        LocalDate checkOutDate = DateValidationUtil.checkOutDate(request.getCheckInDate()
+            , request.getCheckOutDate());
 
         var response = productService.getProductDetail(accommodationId, productId,
             checkInDate, checkOutDate, personNumber);
@@ -83,5 +84,4 @@ public class ProductController {
         var response = productService.getSearchProduct(accommodationId, keyword);
         return ResponseEntity.ok(response);
     }
-
 }
