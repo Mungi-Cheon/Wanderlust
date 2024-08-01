@@ -10,17 +10,14 @@ import com.travel.domain.like.entity.Like;
 import com.travel.domain.like.repository.LikeRepository;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
-import com.travel.global.annotation.DistributedLock;
 import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.MemberException;
 import com.travel.global.exception.type.ErrorType;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +34,7 @@ public class LikeService {
     @CacheEvict(value = "likedAccommodations", key = "#userId")
     public LikeResponse clickLike(Long userId, LikeRequest request) {
         Member member = memberRepository.findById(userId)
-            .orElseThrow(() -> new MemberException(ErrorType.NONEXISTENT_MEMBER));
+            .orElseThrow(() -> new MemberException(ErrorType.INVALID_EMAIL_AND_PASSWORD));
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
 
@@ -67,7 +64,7 @@ public class LikeService {
     @Cacheable(value = "likedAccommodations", key = "#userId")
     public List<AccommodationResponse> getLikedAccommodations(Long userId) {
         Member member = memberRepository.findById(userId)
-            .orElseThrow(() -> new MemberException(ErrorType.NONEXISTENT_MEMBER));
+            .orElseThrow(() -> new MemberException(ErrorType.INVALID_EMAIL_AND_PASSWORD));
         List<Accommodation> likedAccommodations = likeRepository.findByMember(member).stream()
             .map(Like::getAccommodation)
             .toList();

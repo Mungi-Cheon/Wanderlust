@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,9 +56,9 @@ public class MemberController {
     @Operation(summary = "회원 탈퇴", description = "회원 계정을 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
     @DeleteMapping("/mypage/unregister")
-    public ResponseEntity<Void> unregister(
+    public ResponseEntity<Void> unregister(HttpServletRequest request, HttpServletResponse response,
         @TokenMemberId Long tokenMemberId) {
-        memberService.deleteMember(tokenMemberId);
+        memberService.deleteMember(request, response, tokenMemberId);
         return ResponseEntity.ok().build();
     }
 }

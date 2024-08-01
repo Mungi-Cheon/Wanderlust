@@ -15,8 +15,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByEmail(String email);
 
-    List<Member> findByEmailOrderByIdDesc(String email);
-
     List<Member> findByDeletedAtIsNotNullAndDeletedAtBefore(LocalDateTime dateTime);
 
     @Query(value = "delete from Member where email = :email ")

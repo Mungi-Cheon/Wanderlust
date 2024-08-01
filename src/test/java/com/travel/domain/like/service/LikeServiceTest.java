@@ -91,7 +91,8 @@ class LikeServiceTest {
 
         when(memberRepository.findById(any())).thenReturn(Optional.of(member));
         when(accommodationRepository.findById(any())).thenReturn(Optional.of(accommodation));
-        when(likeRepository.findLikeAndCountByMemberAndAccommodation(any(), any())).thenReturn(likeQueryResponse);
+        when(likeRepository.findLikeAndCountByMemberAndAccommodation(any(), any())).thenReturn(
+            likeQueryResponse);
 
         // when
         LikeResponse response = likeService.clickLike(memberId, request);
@@ -112,8 +113,10 @@ class LikeServiceTest {
         LikeQueryResponse likeQueryResponse = new LikeQueryResponse(like, 1);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        when(accommodationRepository.findById(request.getAccommodationId())).thenReturn(Optional.of(accommodation));
-        when(likeRepository.findLikeAndCountByMemberAndAccommodation(any(), any())).thenReturn(likeQueryResponse);
+        when(accommodationRepository.findById(request.getAccommodationId())).thenReturn(
+            Optional.of(accommodation));
+        when(likeRepository.findLikeAndCountByMemberAndAccommodation(any(), any())).thenReturn(
+            likeQueryResponse);
 
         // when
         LikeResponse response = likeService.clickLike(memberId, request);
@@ -139,7 +142,7 @@ class LikeServiceTest {
             () -> likeService.clickLike(memberId, request));
 
         // then
-        assertEquals(ErrorType.NONEXISTENT_MEMBER.getMessage(), exception.getMessage());
+        assertEquals(ErrorType.INVALID_EMAIL_AND_PASSWORD.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -150,7 +153,8 @@ class LikeServiceTest {
         LikeRequest request = new LikeRequest(1L);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        when(accommodationRepository.findById(request.getAccommodationId())).thenReturn(Optional.empty());
+        when(accommodationRepository.findById(request.getAccommodationId())).thenReturn(
+            Optional.empty());
 
         // when
         AccommodationException exception = assertThrows(AccommodationException.class,
@@ -191,6 +195,6 @@ class LikeServiceTest {
             () -> likeService.getLikedAccommodations(memberId));
 
         // then
-        assertEquals(ErrorType.NONEXISTENT_MEMBER.getMessage(), exception.getMessage());
+        assertEquals(ErrorType.INVALID_EMAIL_AND_PASSWORD.getMessage(), exception.getMessage());
     }
 }

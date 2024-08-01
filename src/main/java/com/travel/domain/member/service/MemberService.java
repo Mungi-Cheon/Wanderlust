@@ -1,8 +1,7 @@
 package com.travel.domain.member.service;
 
 import static com.travel.global.exception.type.ErrorType.DUPLICATED_MEMBER;
-import static com.travel.global.exception.type.ErrorType.NONEXISTENT_MEMBER;
-import static com.travel.global.exception.type.ErrorType.NOT_CORRECT_PASSWORD;
+import static com.travel.global.exception.type.ErrorType.INVALID_EMAIL_AND_PASSWORD;
 import static com.travel.global.security.type.TokenType.ACCESS;
 import static com.travel.global.security.type.TokenType.REFRESH;
 
@@ -12,12 +11,12 @@ import com.travel.domain.member.dto.response.LoginResponse;
 import com.travel.domain.member.dto.response.MemberResponse;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
-import com.travel.global.annotation.TokenMemberId;
 import com.travel.global.exception.MemberException;
-import com.travel.global.security.jwt.JwtUtil;
+import com.travel.global.security.token.service.TokenService;
 import com.travel.global.security.type.TokenType;
 import com.travel.global.util.CookieUtil;
-import jakarta.servlet.http.Cookie;
+import com.travel.global.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +39,8 @@ public class MemberService {
 
     private final CookieUtil cookieUtil;
 
+    private final TokenService tokenService;
+
     public MemberResponse signup(SignupRequest request) {
         String email = request.getEmail();
 
@@ -55,30 +56,45 @@ public class MemberService {
     }
 
     public LoginResponse login(LoginRequest request, HttpServletResponse response) {
-        List<Member> members = memberRepository.findByEmailOrderByIdDesc(request.getEmail());
-        if (members.isEmpty()) {
-            throw new MemberException(NONEXISTENT_MEMBER);
-        }
+        Member member = memberRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new MemberException(INVALID_EMAIL_AND_PASSWORD));
 
-        Member member = members.get(0);
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new MemberException(NOT_CORRECT_PASSWORD);
+            throw new MemberException(INVALID_EMAIL_AND_PASSWORD);
         }
 
-        String accessToken = jwtUtil.generateAccessToken(member.getId());
-        String refreshToken = jwtUtil.generateRefreshToken(member.getId());
+        String refreshToken = tokenService.getRefreshToken(member.getEmail());
+        String accessToken = null;
+        if (refreshToken == null) {
+            refreshToken = jwtUtil.generateRefreshToken(member.getId());
+        }
+        accessToken = jwtUtil.generateAccessToken(member.getId());
+
         generateToken(response, ACCESS, accessToken);
         generateToken(response, REFRESH, refreshToken);
+
+        tokenService.saveRefreshToken(member.getEmail(), refreshToken);
 
         return new LoginResponse(accessToken);
     }
 
     @Transactional
-    public void deleteMember(@TokenMemberId Long tokenMemberId) {
+    public void deleteMember(HttpServletRequest request, HttpServletResponse response,
+        Long tokenMemberId) {
         Member member = memberRepository.findById(tokenMemberId)
-            .orElseThrow(() -> new MemberException(NONEXISTENT_MEMBER));
+            .orElseThrow(() -> new MemberException(INVALID_EMAIL_AND_PASSWORD));
+        String refreshToken = cookieUtil.getTokenFromCookies(request.getCookies(),
+            REFRESH.getName());
+
+        tokenService.removeToken(member.getEmail());
+        deleteCookies(response);
 
         memberRepository.delete(member);
+    }
+
+    private void deleteCookies(HttpServletResponse response) {
+        cookieUtil.removeCookie(response, REFRESH.getName());
+        cookieUtil.removeCookie(response, ACCESS.getName());
     }
 
     @Transactional
@@ -93,16 +109,12 @@ public class MemberService {
     }
 
     private void generateToken(HttpServletResponse response, TokenType tokenType, String token) {
-        Cookie cookie = null;
 
         if (tokenType.getName().equals(ACCESS.getName())) {
-            cookie = cookieUtil.createAccessTokenCookie(tokenType.getName(),
-                token);
+            cookieUtil.createAccessTokenCookie(response, tokenType.getName(), token);
         } else {
-            cookie = cookieUtil.createRefreshTokenCookie(tokenType.getName(),
-                token);
+            cookieUtil.createRefreshTokenCookie(response, tokenType.getName(), token);
         }
-        response.addCookie(cookie);
     }
 }
 

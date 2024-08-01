@@ -5,8 +5,8 @@ import static com.travel.global.security.type.TokenType.ACCESS;
 import com.travel.global.annotation.TokenMemberId;
 import com.travel.global.exception.MemberException;
 import com.travel.global.exception.type.ErrorType;
-import com.travel.global.security.jwt.JwtUtil;
 import com.travel.global.util.CookieUtil;
+import com.travel.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -43,7 +43,7 @@ public class TokenMemberIdResolver implements HandlerMethodArgumentResolver {
         Object memberId = jwtUtil.getAccessTokenMemberId(accessToken);
 
         if (memberId == null) {
-            throw new MemberException(ErrorType.NONEXISTENT_MEMBER);
+            throw new MemberException(ErrorType.INVALID_EMAIL_AND_PASSWORD);
         }
         return Long.parseLong(memberId.toString());
     }

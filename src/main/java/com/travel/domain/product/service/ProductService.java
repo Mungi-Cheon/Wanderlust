@@ -9,12 +9,15 @@ import com.travel.domain.accommodation.dto.response.AccommodationOptionResponse;
 import com.travel.domain.accommodation.entity.Accommodation;
 import com.travel.domain.accommodation.repository.AccommodationRepository;
 import com.travel.domain.like.repository.LikeRepository;
-import com.travel.domain.map.dto.response.DocumentResponse;
 import com.travel.domain.map.dto.response.MapResponse;
 import com.travel.domain.map.service.KakaoMapService;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
-import com.travel.domain.product.dto.response.*;
+import com.travel.domain.product.dto.response.ProductDetailResponse;
+import com.travel.domain.product.dto.response.ProductImageResponse;
+import com.travel.domain.product.dto.response.ProductOptionResponse;
+import com.travel.domain.product.dto.response.ProductResponse;
+import com.travel.domain.product.dto.response.ProductSimpleResponse;
 import com.travel.domain.product.entity.Product;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
@@ -23,15 +26,11 @@ import com.travel.global.exception.AccommodationException;
 import com.travel.global.exception.MemberException;
 import com.travel.global.exception.ProductException;
 import com.travel.global.exception.type.ErrorType;
-
-import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -255,7 +254,7 @@ public class ProductService {
     private Boolean getLikedStatus(Accommodation accommodation, Long userId) {
         if (userId != null) {
             Member member = memberRepository.findById(userId)
-                .orElseThrow(() -> new MemberException(ErrorType.NONEXISTENT_MEMBER));
+                .orElseThrow(() -> new MemberException(ErrorType.INVALID_EMAIL_AND_PASSWORD));
             return likeRepository.findByMemberAndAccommodation(member, accommodation).isPresent();
         }
         return false;
