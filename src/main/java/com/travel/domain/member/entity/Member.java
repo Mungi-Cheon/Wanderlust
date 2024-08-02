@@ -2,7 +2,6 @@ package com.travel.domain.member.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.travel.domain.review.entity.Review;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -31,13 +30,10 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(length = 100)
     private String password;
 
-    @Column(unique = true, nullable = false, updatable = false, length = 100)
     private String email;
 
     private String socialType;
