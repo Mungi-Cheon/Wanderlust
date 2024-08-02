@@ -16,6 +16,11 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
 
     @Query("SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options ")
+    List<Accommodation> findAll();
+
+    @Query("SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
         "LEFT JOIN FETCH a.options " +
         "WHERE a.id = :id")
     Optional<Accommodation> findByIdJoinImagesAndOptions(@Param("id") Long id);

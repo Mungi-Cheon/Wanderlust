@@ -7,5 +7,5 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 public interface AccommodationSearchRepository extends ElasticsearchRepository
     <AccommodationSearch, Long> {
 
-    List<AccommodationSearch> findAccommodationsByname(String keyword);
+    List<AccommodationSearch> findAccommodationsByName(String keyword);
 }

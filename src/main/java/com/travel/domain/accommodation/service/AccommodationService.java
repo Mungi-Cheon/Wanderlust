@@ -10,6 +10,7 @@ import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.global.exception.AccommodationException;
+import com.travel.global.exception.ProductException;
 import com.travel.global.exception.ReservationsException;
 import com.travel.global.exception.type.ErrorType;
 import com.travel.global.util.DateValidationUtil;
@@ -32,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccommodationService {
 
     private final AccommodationRepository accommodationRepository;
-    private final ProductInfoPerNightRepository productInfoPerNightRepository;
     private final AccommodationSearchRepository accommodationSearchRepository;
     private final ElasticSearchUtil elasticSearchUtil;
 
@@ -81,16 +81,11 @@ public class AccommodationService {
 
         return productEntityList.stream()
             .filter(product -> product.getMaximumNumber() >= personNumber)
-            .anyMatch(product -> areAllDatesAvailable(accommodation, product.getId(), checkIn, checkOut));
+            .anyMatch(product -> areAllDatesAvailable(product, checkIn, checkOut));
     }
 
-    public boolean areAllDatesAvailable(Accommodation accommodation, Long productId, LocalDate checkIn, LocalDate checkOut) {
-        Product targetProduct = accommodation.getProducts().stream()
-            .filter(product -> product.getId().equals(productId))
-            .findFirst()
-            .get();
-
-        List<ProductInfoPerNight> perNights = targetProduct.getProductInfoPerNightsList();
+    public boolean areAllDatesAvailable(Product product, LocalDate checkIn, LocalDate checkOut) {
+        List<ProductInfoPerNight> perNights = product.getProductInfoPerNightsList();
 
         return perNights.stream()
             .filter(perNight -> !perNight.getDate().isBefore(checkIn) && !perNight.getDate().isAfter(checkOut.minusDays(1)))
@@ -107,7 +102,7 @@ public class AccommodationService {
     private List<Long> getIdByKeyword(String keyword) {
         List<Long> idList;
         if (keyword!=null) {
-            List<AccommodationSearch> searches = accommodationSearchRepository.findAccommodationsByname(keyword);
+            List<AccommodationSearch> searches = accommodationSearchRepository.findAccommodationsByName(keyword);
             idList = searches.stream().map(AccommodationSearch::getId).toList();
         } else {
             idList = new ArrayList<>();
