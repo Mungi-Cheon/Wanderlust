@@ -36,28 +36,29 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
 
-    @MockBean
+    @Mock
     private CartRepository cartRepository;
 
-    @MockBean
+    @Mock
     private MemberRepository memberRepository;
 
-    @MockBean
+    @Mock
     private AccommodationRepository accommodationRepository;
 
-    @MockBean
+    @Mock
     private ProductRepository productRepository;
 
-    @MockBean
+    @Mock
     private ProductInfoPerNightRepository productInfoPerNightRepository;
 
-    @MockBean
+    @InjectMocks
     private CartService cartService;
 
     private Member member;
