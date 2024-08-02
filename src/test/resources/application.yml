@@ -31,6 +31,20 @@ spring:
       host: localhost
       port: 6379
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            redirect-uri: ${google_redirect_url}
+            authorization-grant-type: authorization_code
+            client-id: ${client_id}
+            client-secret: ${client_secret}
+            client-name: google
+            scope:
+              - email
+              - profile
+
 kakao:
   rest:
     api:
