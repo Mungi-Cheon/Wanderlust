@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.service.AccommodationService;
+import com.travel.global.util.DateValidationUtil;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -53,11 +54,12 @@ public class AccommodationControllerTest {
         List<AccommodationResponse> mockResponse = List.of(accommodationResponse);
 
         Mockito.when(accommodationService.getAvailableAccommodations(
-                anyString(), any(LocalDate.class),
+                anyString(), anyString(), any(LocalDate.class),
                 any(LocalDate.class), anyInt(), anyLong()))
             .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/accommodations")
+                .param("keyword", "Test")
                 .param("categoryId", "1")
                 .param("checkInDate", "2024-08-25")
                 .param("checkOutDate", "2024-08-26")

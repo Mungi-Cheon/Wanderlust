@@ -48,7 +48,7 @@ public class AccommodationService {
         List<Long> categoryIdList = getIdByCategory(category);
         List<Long> commonIdList = getCommonId(keywordIdList, categoryIdList);
 
-        List<Accommodation> accommodations = accommodationRepository.findByIdList(commonIdList,
+        List<Accommodation> accommodations = accommodationRepository.findAccommodationsByIdList(commonIdList,
             lastAccommodationId);
 
         List<AccommodationResponse> validAccommodations = accommodations.stream()
@@ -81,14 +81,19 @@ public class AccommodationService {
 
         return productEntityList.stream()
             .filter(product -> product.getMaximumNumber() >= personNumber)
-            .anyMatch(product -> areAllDatesAvailable(product.getId(), checkIn, checkOut));
+            .anyMatch(product -> areAllDatesAvailable(accommodation, product.getId(), checkIn, checkOut));
     }
 
-    private boolean areAllDatesAvailable(Long productId, LocalDate checkIn, LocalDate checkOut) {
-        List<ProductInfoPerNight> perNights = productInfoPerNightRepository
-            .findByProductIdAndDateRange(productId, checkIn, checkOut);
+    public boolean areAllDatesAvailable(Accommodation accommodation, Long productId, LocalDate checkIn, LocalDate checkOut) {
+        Product targetProduct = accommodation.getProducts().stream()
+            .filter(product -> product.getId().equals(productId))
+            .findFirst()
+            .get();
+
+        List<ProductInfoPerNight> perNights = targetProduct.getProductInfoPerNightsList();
 
         return perNights.stream()
+            .filter(perNight -> !perNight.getDate().isBefore(checkIn) && !perNight.getDate().isAfter(checkOut.minusDays(1)))
             .allMatch(perNight -> perNight.getCount() > 0);
     }
 
