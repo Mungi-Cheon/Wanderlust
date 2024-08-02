@@ -1,16 +1,16 @@
 package com.travel.domain.member.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.travel.domain.member.dto.request.SignupRequest;
 import com.travel.domain.review.entity.Review;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,11 +31,16 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(nullable = false, length = 50)
     private String name;
 
+    @Column(length = 100)
     private String password;
 
+    @Column(unique = true, nullable = false, updatable = false, length = 100)
     private String email;
+
+    private String socialType;
 
     private LocalDateTime deletedAt;
 
@@ -43,11 +48,17 @@ public class Member {
     @JsonManagedReference
     private List<Review> reviews;
 
-    public static Member from(SignupRequest request, String password) {
+    public static Member from(String email, String name, String password, String type) {
         return Member.builder()
-            .email(request.getEmail())
-            .name(request.getName())
+            .email(email)
+            .name(name)
             .password(password)
+            .socialType(type)
             .build();
+    }
+
+    public Member update(String name) {
+        this.name = name;
+        return this;
     }
 }
