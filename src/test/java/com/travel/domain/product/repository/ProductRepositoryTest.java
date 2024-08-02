@@ -217,15 +217,15 @@ class ProductRepositoryTest {
             .id(productId)
             .build();
 
-        when(productRepository.findByIdJoinImagesAndOption(productId))
+        when(productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(accommodationId,productId))
             .thenReturn(Optional.of(product));
 
         Optional<Product> result =
-            productRepository.findByIdJoinImagesAndOption(productId);
+            productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(accommodationId,productId);
 
         assertTrue(result.isPresent());
         assertEquals(product, result.get());
-        verify(productRepository, times(1)).findByIdJoinImagesAndOption(productId);
+        verify(productRepository, times(1)).findByAccommodationIdAndProductIdJoinImagesAndOption(accommodationId,productId);
     }
 
     @Test

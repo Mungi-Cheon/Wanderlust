@@ -118,7 +118,7 @@ class ReservationServiceTest {
         reservation = createReservation();
 
         when(memberRepository.getMember(any())).thenReturn(member);
-        when(productRepository.getByIdJoinImagesAndOption(any()))
+        when(productRepository.getByAccommodationIdAndProductIdJoinImagesAndOption(any(), any()))
             .thenReturn(product);
         when(productInfoPerNightRepository
             .findByProductIdAndDateRangeWithPessimisticLock(anyLong(), any(), any()))
@@ -161,7 +161,7 @@ class ReservationServiceTest {
         when(memberRepository.getMember(any())).thenReturn(member);
         when(accommodationRepository.getByIdJoinImagesAndOptions(any()))
             .thenReturn(accommodation);
-        when(productRepository.getByIdJoinImagesAndOption(any()))
+        when(productRepository.getByAccommodationIdAndProductIdJoinImagesAndOption(any(), any()))
             .thenReturn(product);
         when(productInfoPerNightRepository.findByProductIdAndDateRangeWithPessimisticLock(any(),
             any(), any())).thenReturn(List.of(productInfoPerNight));

@@ -47,7 +47,8 @@ public class CartService {
         Accommodation accommodation = accommodationRepository.
             findByIdJoinImagesAndOptions(cartRequest.getAccommodationId())
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
-        Product product = productRepository.findByIdJoinImagesAndOption(cartRequest.getProductId())
+        Product product = productRepository.findByAccommodationIdAndProductIdJoinImagesAndOption(
+                cartRequest.getAccommodationId(),cartRequest.getProductId())
             .orElseThrow(() -> new ProductException(ErrorType.NOT_FOUND));
 
         List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(
