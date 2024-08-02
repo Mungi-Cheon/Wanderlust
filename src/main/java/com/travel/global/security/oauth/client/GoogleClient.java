@@ -71,25 +71,4 @@ public class GoogleClient {
         );
         return new OAuth2CustomMember(GOOGLE.getType(), response.getBody(), GOOGLE.getType(), null);
     }
-
-//    public TokenResponse getGoogleRefreshedToken(String refreshToken) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-//
-//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-//        params.add("grant_type", "refresh_token");
-//        params.add("client_id", clientId);
-//        params.add("client_secret", clientSecret);
-//        params.add("refresh_token", refreshToken);
-//
-//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-//        ResponseEntity<TokenResponse> response = restTemplate.postForEntity(TOKEN_URI, request,
-//            TokenResponse.class);
-//
-//        if (response.getStatusCode() == HttpStatus.OK) {
-//            return response.getBody();
-//        } else {
-//            throw new AuthException(ErrorType.TOKEN_AUTHORIZATION_TOKEN_NOT_FOUND);
-//        }
-//    }
 }
