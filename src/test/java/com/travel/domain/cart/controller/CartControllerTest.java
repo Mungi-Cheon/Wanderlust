@@ -1,35 +1,38 @@
 package com.travel.domain.cart.controller;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.travel.domain.cart.dto.request.CartRequest;
 import com.travel.domain.cart.dto.response.CartResponse;
 import com.travel.domain.cart.service.CartService;
+import com.travel.domain.config.TestConfig;
 import com.travel.domain.member.entity.Member;
-import com.travel.global.exception.type.ErrorType;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.time.LocalDate;
-import java.util.List;
-
 @SpringBootTest
+@Import(TestConfig.class)
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 public class CartControllerTest {
@@ -76,10 +79,10 @@ public class CartControllerTest {
                 .header("mock-token", member.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"accommodationId\":1,"
-                        + "\"productId\":1,"
-                        + "\"checkInDate\":\"2024-07-01\","
-                        + "\"checkOutDate\":\"2024-07-05\","
-                        + "\"personNumber\":2}"))
+                    + "\"productId\":1,"
+                    + "\"checkInDate\":\"2024-07-01\","
+                    + "\"checkOutDate\":\"2024-07-05\","
+                    + "\"personNumber\":2}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.accommodation_name", is("Test Hotel")))
             .andExpect(jsonPath("$.product_name", is("Deluxe Room")))

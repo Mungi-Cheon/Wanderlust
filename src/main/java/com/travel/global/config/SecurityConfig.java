@@ -48,11 +48,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 //        "/v3/api-docs"
 //    );
 
-    private final List<String> PASS_EQUAL_URL = List.of(
+    private final List<String> PASS_URL = List.of(
         "/api/auth/login", "/api/auth/signup",
         "/api/accommodations/**", "/api/review/**",
         "/", "/swagger-ui/**", "/swagger-ui/index.html",
-        "/v3/api-docs/**", "favicon.ico", "/error"
+        "/v3/api-docs/**", "favicon.ico", "/error",
+        "/api/auth/google/**"
     );
 
 
@@ -80,12 +81,12 @@ public class SecurityConfig implements WebMvcConfigurer {
                 config -> config.authenticationEntryPoint(customAuthenticationEntryPoint))
             .authorizeHttpRequests(auth ->
                 auth.requestMatchers("/api/auth/login", "/api/auth/signup",
-                        "/api/accommodations/**", "/api/review/**").permitAll()
+                        "/api/accommodations/**", "/api/review/**", "/api/auth/google/**").permitAll()
                     .requestMatchers("/", "/swagger-ui/**", "/swagger-ui/index.html",
                         "/v3/api-docs/**", "favicon.ico", "/error").permitAll()
                     .anyRequest().authenticated())
             .addFilterBefore(
-                new JwtFilter(jwtUtil, PASS_EQUAL_URL),
+                new JwtFilter(jwtUtil, PASS_URL),
                 UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

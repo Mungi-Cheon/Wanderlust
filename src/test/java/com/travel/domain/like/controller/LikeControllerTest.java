@@ -11,15 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
-import com.travel.domain.accommodation.entity.Accommodation;
-import com.travel.domain.accommodation.entity.AccommodationImage;
+import com.travel.domain.config.TestConfig;
 import com.travel.domain.like.dto.request.LikeRequest;
 import com.travel.domain.like.dto.response.LikeResponse;
-import com.travel.domain.like.entity.Like;
 import com.travel.domain.like.service.LikeService;
 import com.travel.domain.member.entity.Member;
-import com.travel.domain.product.entity.Product;
-import com.travel.domain.product.entity.ProductInfoPerNight;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,11 +27,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
+@Import(TestConfig.class)
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 public class LikeControllerTest {
