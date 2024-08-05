@@ -20,13 +20,20 @@ public class JwtUtil {
     private final Algorithm algorithm;
     private final String issuer;
     private final JWTVerifier verifier;
+    private final Long accessExpireTime;
+    private final Long refreshExpireTime;
 
     public JwtUtil(
         @Value("${jwt.secret-key}") String secretKey,
-        @Value("${jwt.issuer}") String issuer) {
+        @Value("${jwt.issuer}") String issuer,
+        @Value("${access-token-expire-time}") Long accessExpireTime,
+        @Value("${refresh-token-expire-time}") Long refreshExpireTime
+    ) {
         this.algorithm = Algorithm.HMAC256(secretKey);
         this.issuer = issuer;
         this.verifier = JWT.require(algorithm).withIssuer(issuer).build();
+        this.accessExpireTime = accessExpireTime;
+        this.refreshExpireTime = refreshExpireTime;
     }
 
     public String generateAccessToken(Long memberId) {
@@ -34,7 +41,8 @@ public class JwtUtil {
             .withSubject(memberId.toString())
             .withIssuer(issuer)
             .withIssuedAt(new Date())
-            .withExpiresAt(new Date(System.currentTimeMillis() + 86400000)) // 1 day expiration
+            .withExpiresAt(
+                new Date(System.currentTimeMillis() + accessExpireTime)) // 1 day expiration
             .sign(algorithm);
     }
 
@@ -43,7 +51,8 @@ public class JwtUtil {
             .withSubject(memberId.toString())
             .withIssuer(issuer)
             .withIssuedAt(new Date())
-            .withExpiresAt(new Date(System.currentTimeMillis() + 604800000L)) // 7 days expiration
+            .withExpiresAt(
+                new Date(System.currentTimeMillis() + refreshExpireTime)) // 7 days expiration
             .sign(algorithm);
     }
 
