@@ -26,8 +26,8 @@ public class JwtUtil {
     public JwtUtil(
         @Value("${jwt.secret-key}") String secretKey,
         @Value("${jwt.issuer}") String issuer,
-        @Value("${access-token-expire-time}") Long accessExpireTime,
-        @Value("${refresh-token-expire-time}") Long refreshExpireTime
+        @Value("${jwt.access-token-expired-time}") Long accessExpireTime,
+        @Value("${jwt.refresh-token-expired-time}") Long refreshExpireTime
     ) {
         this.algorithm = Algorithm.HMAC256(secretKey);
         this.issuer = issuer;
