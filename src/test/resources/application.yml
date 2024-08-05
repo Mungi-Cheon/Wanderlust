@@ -53,4 +53,5 @@ kakao:
 jwt:
   secret-key: ${jwt_secret_key}
   issuer: ${jwt_issuer}
-  access-token-expire-time: ${jwt_access_token_expired_time}
+  access-token-expired-time: ${jwt_access_token_expired_time}
+  refresh-token-expired-time: ${jwt_refresh_token_expired_time}
