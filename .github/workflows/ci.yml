@@ -39,8 +39,8 @@ jobs:
           spring.security.oauth2.client.registration.google.client-secret: ${{secrets.GOOGLE_CLIENT_SECRET}}
           spring.elasticsearch.username: ${{secrets.ELASTICSEARCH_USERNAME}}
           spring.elasticsearch.password: ${{secrets.ELASTICSEARCH_PASSWORD}}
-          spring.elasticsearch.host: ${{secrets.EC2_HOST2}}
-          spring.elasticsearch.port: ${{secrets.PORT}}
+          spring.elasticsearch.host: ${{secrets.ELASTICSEARCH_HOST}}
+          spring.elasticsearch.port: ${{secrets.ELASTICSEARCH_PORT}}
           spring.elasticsearch.fingerprint: ${{secrets.ELASTICSEARCH_FINGERPRINT}}
           jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
           jwt.issuer: ${{secrets.JWT_ISSUER}}
