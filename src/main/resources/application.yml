@@ -29,12 +29,26 @@ spring:
       host: localhost
       port: 6379
 
-    elasticsearch:
-      username: ${elasticsearch_username}
-      password: ${elasticsearch_password}
-      host: localhost
-      port: 9200
-      fingerprint: ${elasticsearch_fingerprint}
+  elasticsearch:
+    username: ${elasticsearch_username}
+    password: ${elasticsearch_password}
+    host: ${elasticsearch_host}
+    port: ${elasticsearch_port}
+    fingerprint: ${elasticsearch_fingerprint}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            redirect-uri: ${google_redirect_url}
+            authorization-grant-type: authorization_code
+            client-id: ${client_id}
+            client-secret: ${client_secret}
+            client-name: google
+            scope:
+              - email
+              - profile
 
 kakao:
   rest:
