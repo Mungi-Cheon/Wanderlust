@@ -35,9 +35,15 @@ jobs:
           spring.security.oauth2.client.registration.google.redirect-uri: ${{secrets.GOOGLE_REDIRECT_URI}}
           spring.security.oauth2.client.registration.google.client-id: ${{secrets.GOOGLE_CLIENT_ID}}
           spring.security.oauth2.client.registration.google.client-secret: ${{secrets.GOOGLE_CLIENT_SECRET}}
+          spring.elasticsearch.username: ${{secrets.ELASTICSEARCH_USERNAME}}
+          spring.elasticsearch.password: ${{secrets.ELASTICSEARCH_PASSWORD}}
+          spring.elasticsearch.host: ${{secrets.EC2_HOST2}}
+          spring.elasticsearch.port: ${{secrets.PORT}}
+          spring.elasticsearch.fingerprint: ${{secrets.ELASTICSEARCH_FINGERPRINT}}
           jwt.secret-key: ${{secrets.JWT_SECRET_KEY}}
           jwt.issuer: ${{secrets.JWT_ISSUER}}
-          jwt.access-token-expire-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
+          jwt.access-token-expired-time: ${{secrets.JWT_ACCESS_TOKEN_EXPIRED_TIME}}
+          jwt.refresh-token-expired-time: ${{secrets.JWT_REFRESH_TOKEN_EXPIRED_TIME}}
           kakao.rest.api.key: ${{secrets.KAKAO_REST_API_KEY}}
 
       - name: Setup Gradle
