@@ -84,4 +84,16 @@ public class AuthReviewController {
             @TokenMemberId Long tokenUserId) {
         return ResponseEntity.ok(reviewService.getMyReviewList(tokenUserId));
     }
+
+    @Operation(summary = "특정 숙소 id의 내 리뷰 조회", description = "특정 숙소 id의 내 리뷰를 조회합니다.")
+    @ApiResponse(description = "특정 숙소 id의 내 리뷰 조회 성공",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ReviewResponse.class)))
+    @GetMapping("/{accommodationId}")
+    public ResponseEntity<AccommodationReviewResponseList> getReview(
+            @TokenMemberId Long tokenUserId,
+            @PathVariable Long accommodationId) {
+        return ResponseEntity.ok(reviewService.getReview(tokenUserId, accommodationId));
+    }
+
 }

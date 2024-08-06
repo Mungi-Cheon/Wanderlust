@@ -55,6 +55,26 @@ public class ReviewService {
             accommodation.getGrade(),
             reviewResponseList);
     }
+    @Transactional(readOnly = true)
+    public AccommodationReviewResponseList getReview(Long memberId, Long accommodationId) {
+        Member member = findMember(memberId);
+        Accommodation accommodation = findAccommodation(accommodationId);
+        Review review = member.getReviews().stream()
+                .filter(r -> accommodation.getId().equals(r.getAccommodation().getId()))
+                .findAny()
+                .orElse(null);
+
+        List<ReviewResponse> reviewResponseList = Stream.of(review)
+                .filter(Objects::nonNull)
+                .map(ReviewResponse::from)
+                .toList();
+
+        return AccommodationReviewResponseList.from(
+                accommodation.getImages().getThumbnail(),
+                accommodation.getId(),
+                accommodation.getName(),
+                accommodation.getGrade(), reviewResponseList);
+    }
 
     @Transactional(readOnly = true)
     public List<ReviewResponse> getMyReviewList(Long memberId) {
