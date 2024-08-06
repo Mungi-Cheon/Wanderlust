@@ -1,6 +1,7 @@
 package com.travel.domain.review.controller;
 
 import com.travel.domain.review.dto.request.ReviewRequest;
+import com.travel.domain.review.dto.response.AccommodationReviewResponseList;
 import com.travel.domain.review.dto.response.DeleteReviewResponse;
 import com.travel.domain.review.dto.response.ReviewResponse;
 import com.travel.domain.review.dto.response.UpdateReviewResponse;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Auth Review API", description = "리뷰 API")
 @RestController
-@RequestMapping("api/auth/review/{accommodationId}")
+@RequestMapping("api/auth/review")
 @RequiredArgsConstructor
 public class AuthReviewController {
 
@@ -34,56 +35,53 @@ public class AuthReviewController {
 
     @Operation(summary = "리뷰 작성", description = "리뷰를 작성합니다.")
     @ApiResponse(description = "리뷰 작성 성공",
-        content = @Content(mediaType = "application/json",
-            schema = @Schema(implementation = ReviewResponse.class)))
-    @PostMapping
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ReviewResponse.class)))
+    @PostMapping("/{accommodationId}")
     public ResponseEntity<ReviewResponse> createReview(
-        @TokenMemberId Long tokenUserId,
-        @PathVariable Long accommodationId,
-        @RequestBody @Valid ReviewRequest reviewRequest) {
+            @TokenMemberId Long tokenUserId,
+            @PathVariable Long accommodationId,
+            @RequestBody @Valid ReviewRequest reviewRequest) {
 
         return ResponseEntity.ok(reviewService.createReview(tokenUserId, accommodationId,
-            reviewRequest));
+                reviewRequest));
     }
 
     @Operation(summary = "리뷰 수정", description = "리뷰를 수정합니다.")
     @ApiResponse(description = "리뷰 수정 성공",
-        content = @Content(mediaType = "application/json",
-            schema = @Schema(implementation = UpdateReviewResponse.class)))
-    @PutMapping("/{reviewId}")
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UpdateReviewResponse.class)))
+    @PutMapping("/{accommodationId}/{reviewId}")
     public ResponseEntity<UpdateReviewResponse> updateReview(
-        @TokenMemberId Long tokenUserId,
-        @PathVariable Long accommodationId,
-        @PathVariable Long reviewId,
-        @RequestBody @Valid ReviewRequest reviewRequest) {
+            @TokenMemberId Long tokenUserId,
+            @PathVariable Long accommodationId,
+            @PathVariable Long reviewId,
+            @RequestBody @Valid ReviewRequest reviewRequest) {
         return ResponseEntity.ok(reviewService.updateReview(tokenUserId, accommodationId,
-            reviewRequest, reviewId));
+                reviewRequest, reviewId));
     }
 
     @Operation(summary = "리뷰 삭제", description = "리뷰를 삭제합니다.")
     @ApiResponse(description = "리뷰 삭제 성공",
-        content = @Content(mediaType = "application/json",
-            schema = @Schema(implementation = DeleteReviewResponse.class)))
-    @DeleteMapping("/{reviewId}")
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = DeleteReviewResponse.class)))
+    @DeleteMapping("/{accommodationId}/{reviewId}")
     public ResponseEntity<DeleteReviewResponse> deleteReview(
-        @TokenMemberId Long tokenUserId,
-        @PathVariable Long accommodationId,
-        @PathVariable Long reviewId) {
+            @TokenMemberId Long tokenUserId,
+            @PathVariable Long accommodationId,
+            @PathVariable Long reviewId) {
 
         return ResponseEntity.ok(
-            reviewService.deleteReview(tokenUserId, accommodationId, reviewId));
+                reviewService.deleteReview(tokenUserId, accommodationId, reviewId));
     }
 
     @Operation(summary = "내 리뷰 조회", description = "내 리뷰를 조회합니다.")
     @ApiResponse(description = "리뷰 조회 성공",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ReviewResponse.class)))
-
     @GetMapping
     public ResponseEntity<List<ReviewResponse>> getMyReviewList(
-        @TokenMemberId Long tokenUserId) {
-
+            @TokenMemberId Long tokenUserId) {
         return ResponseEntity.ok(reviewService.getMyReviewList(tokenUserId));
     }
-
 }
