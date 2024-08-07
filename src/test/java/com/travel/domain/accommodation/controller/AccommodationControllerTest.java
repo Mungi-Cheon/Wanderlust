@@ -12,11 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.service.AccommodationService;
+import com.travel.global.config.ElasticSearchConfig;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class AccommodationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @InjectMocks
+    private ElasticSearchConfig config;
 
     @MockBean
     private AccommodationService accommodationService;

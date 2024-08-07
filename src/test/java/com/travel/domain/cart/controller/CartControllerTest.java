@@ -14,12 +14,14 @@ import com.travel.domain.cart.dto.response.CartResponse;
 import com.travel.domain.cart.service.CartService;
 import com.travel.domain.config.TestConfig;
 import com.travel.domain.member.entity.Member;
+import com.travel.global.config.ElasticSearchConfig;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,9 @@ public class CartControllerTest {
 
     @MockBean
     private CartService cartService;
+
+    @InjectMocks
+    private ElasticSearchConfig config;
 
     private Member member;
 
