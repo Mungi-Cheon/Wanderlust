@@ -8,10 +8,11 @@ import lombok.Builder;
 public record MemberResponse(
 
     @Schema(example = "fastfam@google.com")
-    String email, String name) {
+    Long id, String email, String name) {
 
     public static MemberResponse from(Member member) {
         return new MemberResponse(
+            member.getId(),
             member.getEmail(),
             member.getName());
     }

@@ -14,10 +14,32 @@ spring:
       host: ${redis_host}
       port: ${redis_port}
 
+  elasticsearch:
+    username: ${elasticsearch_username}
+    password: ${elasticsearch_password}
+    host: ${elasticsearch_host}
+    port: ${elasticsearch_port}
+    fingerprint: ${elasticsearch_fingerprint}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            redirect-uri: ${google_redirect_url}
+            authorization-grant-type: authorization_code
+            client-id: ${client_id}
+            client-secret: ${client_secret}
+            client-name: google
+            scope:
+              - email
+              - profile
+
 jwt:
   secret-key: ${jwt_secret_key}
   issuer: ${jwt_issuer}
-  access-token-expire-time: ${jwt_access_token_expired_time}
+  access-token-expired-time: ${jwt_access_token_expired_time}
+  refresh-token-expired-time: ${jwt_refresh_token_expired_time}
 
 kakao:
   rest:
