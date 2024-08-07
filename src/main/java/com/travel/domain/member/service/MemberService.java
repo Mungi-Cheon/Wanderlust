@@ -1,5 +1,6 @@
 package com.travel.domain.member.service;
 
+import static com.travel.domain.member.type.SocialType.COMMON;
 import static com.travel.global.exception.type.ErrorType.DUPLICATED_MEMBER;
 import static com.travel.global.exception.type.ErrorType.INVALID_EMAIL_AND_PASSWORD;
 import static com.travel.global.exception.type.ErrorType.INVALID_TOKEN;
@@ -46,7 +47,7 @@ public class MemberService {
         }
 
         String password = passwordEncoder.encode(request.getPassword());
-        Member newMember = Member.from(request, password);
+        Member newMember = Member.from(email, request.getName(), password, COMMON.getType());
 
         Member savedMember = memberRepository.save(newMember);
         return MemberResponse.from(savedMember);
@@ -61,6 +62,45 @@ public class MemberService {
             throw new MemberException(INVALID_EMAIL_AND_PASSWORD);
         }
 
+        String refreshToken = validateRefreshToken(httpRequest, member);
+
+        String accessToken = jwtUtil.generateAccessToken(member.getId());
+
+        addHeader(httpResponse, accessToken, refreshToken);
+
+        tokenService.saveRefreshToken(member.getEmail(), refreshToken);
+        return new LoginResponse(accessToken);
+    }
+
+    public Member oauthSignup(SignupRequest request, String type) {
+        String email = request.getEmail();
+        if (memberRepository.existsByEmail(email)) {
+            throw new MemberException(DUPLICATED_MEMBER);
+        }
+
+        String password = passwordEncoder.encode(request.getPassword());
+        Member newMember = Member.from(email, request.getName(), password, type);
+        return memberRepository.save(newMember);
+    }
+
+    public LoginResponse oauthLogin(HttpServletRequest httpRequest,
+        HttpServletResponse httpResponse,
+        LoginRequest request) {
+        Member member = memberRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new MemberException(INVALID_EMAIL_AND_PASSWORD));
+
+        String refreshToken = validateRefreshToken(httpRequest, member);
+        String accessToken = jwtUtil.generateAccessToken(member.getId());
+
+        addHeader(httpResponse, accessToken, refreshToken);
+
+        tokenService.saveRefreshToken(member.getEmail(), refreshToken);
+
+        log.info("refresh token: {}", refreshToken);
+        return new LoginResponse(accessToken);
+    }
+
+    private String validateRefreshToken(HttpServletRequest httpRequest, Member member) {
         String headerRefreshToken = httpRequest.getHeader(REFRESH.getName());
         String refreshToken = tokenService.getRefreshToken(member.getEmail());
         if (refreshToken == null) {
@@ -71,13 +111,7 @@ public class MemberService {
             throw new MemberException(INVALID_TOKEN);
         }
 
-        String accessToken = null;
-        accessToken = jwtUtil.generateAccessToken(member.getId());
-
-        addHeader(httpResponse, accessToken, refreshToken);
-
-        tokenService.saveRefreshToken(member.getEmail(), refreshToken);
-        return new LoginResponse(accessToken);
+        return refreshToken;
     }
 
     @Transactional
@@ -86,7 +120,6 @@ public class MemberService {
             .orElseThrow(() -> new MemberException(INVALID_EMAIL_AND_PASSWORD));
 
         tokenService.removeToken(member.getEmail());
-
         memberRepository.delete(member);
     }
 

@@ -21,7 +21,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +54,26 @@ public class ReviewService {
             accommodation.getName(),
             accommodation.getGrade(),
             reviewResponseList);
+    }
+    @Transactional(readOnly = true)
+    public AccommodationReviewResponseList getReview(Long memberId, Long accommodationId) {
+        Member member = findMember(memberId);
+        Accommodation accommodation = findAccommodation(accommodationId);
+        Review review = member.getReviews().stream()
+                .filter(r -> accommodation.getId().equals(r.getAccommodation().getId()))
+                .findAny()
+                .orElse(null);
+
+        List<ReviewResponse> reviewResponseList = Stream.of(review)
+                .filter(Objects::nonNull)
+                .map(ReviewResponse::from)
+                .toList();
+
+        return AccommodationReviewResponseList.from(
+                accommodation.getImages().getThumbnail(),
+                accommodation.getId(),
+                accommodation.getName(),
+                accommodation.getGrade(), reviewResponseList);
     }
 
     @Transactional(readOnly = true)
