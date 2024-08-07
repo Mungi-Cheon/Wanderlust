@@ -25,12 +25,12 @@ spring:
         debug: true
 
   data:
-    elasticsearch:
-      username: ${elasticsearch_username}
-      password: ${elasticsearch_password}
-      host: localhost
-      port: 9200
-      fingerprint: ${elasticsearch_fingerprint}
+    #    elasticsearch:
+    #      username: ${elasticsearch_username}
+    #      password: ${elasticsearch_password}
+    #      host: localhost
+    #      port: 9200
+    #      fingerprint: ${elasticsearch_fingerprint}
 
     redis:
       host: localhost

@@ -1,24 +1,20 @@
 package com.travel.domain.product.controller;
 
-import com.travel.domain.accommodation.dto.request.AccommodationRequest;
 import com.travel.domain.accommodation.dto.response.AccommodationDetailListResponse;
 import com.travel.domain.product.dto.response.ProductDetailResponse;
 import com.travel.domain.product.dto.response.ProductSimpleResponse;
 import com.travel.domain.product.service.ProductService;
 import com.travel.global.util.DateValidationUtil;
-
-import java.time.LocalDate;
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,15 +31,16 @@ public class ProductController {
     @Operation(summary = "객실 리스트 조회", description = "숙박 아이디 별 객실을 조회합니다")
     @ApiResponse(description = "객실 리스트 조회 성공",
         content = @Content(mediaType = "application/json",
-        schema = @Schema(implementation = AccommodationDetailListResponse.class)))
+            schema = @Schema(implementation = AccommodationDetailListResponse.class)))
     @GetMapping
     public ResponseEntity<AccommodationDetailListResponse> getAccommodationDetail(
         @PathVariable Long accommodationId,
-        @ModelAttribute AccommodationRequest request,
-        @RequestParam(required = false, defaultValue = "2") int personNumber){
-        LocalDate checkInDate = DateValidationUtil.checkInDate(request.getCheckInDate());
-        LocalDate checkOutDate = DateValidationUtil.checkOutDate(request.getCheckInDate()
-            , request.getCheckOutDate());
+        @RequestParam(required = false) LocalDate checkInDate,
+        @RequestParam(required = false) LocalDate checkOutDate,
+        @RequestParam(defaultValue = "2") int personNumber
+    ) {
+        checkInDate = DateValidationUtil.checkInDate(checkInDate);
+        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
 
         var response = productService
             .getAccommodationDetail(accommodationId, checkInDate, checkOutDate, personNumber);
@@ -55,17 +52,17 @@ public class ProductController {
     @Operation(summary = "객실 디테일 조회", description = "객실 디테일을 조회합니다")
     @ApiResponse(description = "객실 디테일 조회 성공",
         content = @Content(mediaType = "application/json",
-        schema = @Schema(implementation = ProductDetailResponse.class)))
+            schema = @Schema(implementation = ProductDetailResponse.class)))
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDetailResponse> getProductDetail(
         @PathVariable Long accommodationId,
         @PathVariable Long productId,
-        @ModelAttribute AccommodationRequest request,
-        @RequestParam(required = false, defaultValue = "2") int personNumber
+        @RequestParam(required = false) LocalDate checkInDate,
+        @RequestParam(required = false) LocalDate checkOutDate,
+        @RequestParam(defaultValue = "2") Integer personNumber
     ) {
-        LocalDate checkInDate = DateValidationUtil.checkInDate(request.getCheckInDate());
-        LocalDate checkOutDate = DateValidationUtil.checkOutDate(request.getCheckInDate()
-            , request.getCheckOutDate());
+        checkInDate = DateValidationUtil.checkInDate(checkInDate);
+        checkOutDate = DateValidationUtil.checkOutDate(checkInDate, checkOutDate);
 
         var response = productService.getProductDetail(accommodationId, productId,
             checkInDate, checkOutDate, personNumber);
@@ -75,7 +72,7 @@ public class ProductController {
     @Operation(summary = "객실 이름 검색 조회", description = "검색 이름에 해당하는 객실 리스트를 조회합니다")
     @ApiResponse(description = "객실 리스트 성공",
         content = @Content(mediaType = "application/json",
-        schema = @Schema(implementation = ProductSimpleResponse.class)))
+            schema = @Schema(implementation = ProductSimpleResponse.class)))
     @GetMapping("/search")
     public ResponseEntity<List<ProductSimpleResponse>> getSearchProduct(
         @PathVariable Long accommodationId,
@@ -84,4 +81,5 @@ public class ProductController {
         var response = productService.getSearchProduct(accommodationId, keyword);
         return ResponseEntity.ok(response);
     }
+
 }
