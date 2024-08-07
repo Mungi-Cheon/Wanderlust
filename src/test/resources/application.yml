@@ -31,12 +31,12 @@ spring:
       host: localhost
       port: 6379
 
-  elasticsearch:
-    username: ${elasticsearch_username}
-    password: ${elasticsearch_password}
-    host: ${elasticsearch_host}
-    port: ${elasticsearch_port}
-    fingerprint: ${elasticsearch_fingerprint}
+    elasticsearch:
+      username: ${elasticsearch_username}
+      password: ${elasticsearch_password}
+      host: ${elasticsearch_host}
+      port: ${elasticsearch_port}
+      fingerprint: ${elasticsearch_fingerprint}
 
   security:
     oauth2:
