@@ -47,7 +47,7 @@ public class ElasticSearchConfig {
         SSLContext sslContext = TransportUtils
             .sslContextFromCaFingerprint(fingerprint);
 
-        return RestClient.builder(new HttpHost(host, port, "http"))
+        return RestClient.builder(new HttpHost(host, port, "https"))
             .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
                 .setSSLContext(sslContext)
                 .setDefaultCredentialsProvider(credentialsProvider)
@@ -57,7 +57,8 @@ public class ElasticSearchConfig {
 
     @Bean
     public ElasticsearchClient elasticsearchClient(RestClient restClient) {
-        RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        RestClientTransport transport = new RestClientTransport(restClient,
+            new JacksonJsonpMapper());
         return new ElasticsearchClient(transport);
     }
 }
