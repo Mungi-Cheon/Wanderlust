@@ -38,10 +38,22 @@ class AccommodationRepositoryTest {
     }
 
     @Test
+    @DisplayName("모든 숙소 데이터 찾기")
+    void findAllAccommodations_ShouldReturnAllAccommodations() {
+        // When
+        List<Accommodation> result = accommodationRepository.findAccommodations(null);
+
+        // Then
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+    }
+
+    @Test
     @DisplayName("카테고리를 통한 숙소 데이터 찾기")
     void findByCategory_ShouldReturnAccommodations() {
         // When
-        List<Accommodation> result = accommodationRepository.findAccommodationsByCategory("호텔");
+        List<Accommodation> result = accommodationRepository.findAccommodationsByCategory("호텔",
+            null);
 
         // Then
         assertFalse(result.isEmpty());
@@ -49,10 +61,11 @@ class AccommodationRepositoryTest {
     }
 
     @Test
-    @DisplayName("ID로 숙소 데이터 찾기, 이미지 및 옵션 포함")
-    void findByIdJoinAndImagesOptions_ShouldReturnAccommodationWithImagesAndOptions() {
+    @DisplayName("ID로 숙소 데이터 찾기, 이미지 및 옵션 포함, 비관적 잠금")
+    void findByIdJoinAndImagesOptionsWithPessimisticLock_ShouldReturnAccommodationWithImagesAndOptions() {
         // When
-        Optional<Accommodation> result = accommodationRepository.findByIdJoinImagesAndOptions(accommodation1.getId());
+        Optional<Accommodation> result = accommodationRepository.
+            findByIdJoinImagesAndOptions(accommodation1.getId());
 
         // Then
         assertTrue(result.isPresent());
@@ -61,24 +74,13 @@ class AccommodationRepositoryTest {
 
     @Test
     @DisplayName("숙소 ID로 숙소 찾기")
-    void findAccommodationById(){
+    void findAccommodationById() {
         Long id = accommodation1.getId();
-        // When
-        Accommodation result = accommodationRepository.findAccommodationById(id);
+        //When
+        accommodation1 = accommodationRepository.findAccommodationById(id);
 
-        // Then
-        assertEquals(id, result.getId());
-        assertEquals("호텔", result.getCategory());
-    }
-
-    @Test
-    @DisplayName("ID 리스트로 숙소 데이터 찾기")
-    void findAccommodationsByIdList_ShouldReturnAccommodations() {
-        // When
-        List<Accommodation> result = accommodationRepository.findAccommodationsByIdList(List.of(accommodation1.getId(), accommodation2.getId()), null);
-
-        // Then
-        assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
+        //Then
+        assertEquals(id, accommodation1.getId());
+        assertEquals("호텔", accommodation1.getCategory());
     }
 }
