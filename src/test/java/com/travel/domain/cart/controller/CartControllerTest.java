@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.travel.domain.accommodation.controller.AccommodationController;
 import com.travel.domain.cart.dto.request.CartRequest;
 import com.travel.domain.cart.dto.response.CartResponse;
 import com.travel.domain.cart.service.CartService;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,9 @@ public class CartControllerTest {
 
     @MockBean
     private CartService cartService;
+
+    @InjectMocks
+    private AccommodationController controller;
 
     private Member member;
 

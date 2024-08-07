@@ -14,29 +14,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccommodationRepository extends JpaRepository<Accommodation, Long> {
 
-    @Query(value = "SELECT a FROM Accommodation a " +
+    @Query("SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +
-        "LEFT JOIN FETCH a.options " +
-        "LEFT JOIN FETCH a.products p " +
-        "LEFT JOIN FETCH p.productImage " +
-        "LEFT JOIN FETCH p.productOption " +
-        "WHERE (:lastAccommodationId IS NULL OR a.id > :lastAccommodationId) " +
-        "ORDER BY a.id ASC")
-    List<Accommodation> findAccommodations(
-        @Param("lastAccommodationId") Long lastAccommodationId);
-
-    @Query(value = "SELECT a FROM Accommodation a " +
-        "LEFT JOIN FETCH a.images " +
-        "LEFT JOIN FETCH a.options " +
-        "LEFT JOIN FETCH a.products p " +
-        "LEFT JOIN FETCH p.productImage " +
-        "LEFT JOIN FETCH p.productOption " +
-        "WHERE (a.category = :category) " +
-        "AND (:lastAccommodationId IS NULL OR a.id > :lastAccommodationId) " +
-        "ORDER BY a.id ASC")
-    List<Accommodation> findAccommodationsByCategory(
-        @Param("category") String category,
-        @Param("lastAccommodationId") Long lastAccommodationId);
+        "LEFT JOIN FETCH a.options ")
+    List<Accommodation> findAll();
 
     @Query("SELECT a FROM Accommodation a " +
         "LEFT JOIN FETCH a.images " +
@@ -56,4 +37,28 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
         return findById(accommodationId)
             .orElseThrow(() -> new AccommodationException(ErrorType.NOT_FOUND));
     }
+
+    @Query(value = "SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options " +
+        "LEFT JOIN FETCH a.products p " +
+        "LEFT JOIN FETCH p.productImage " +
+        "LEFT JOIN FETCH p.productOption " +
+        "WHERE a.id IN :idList " +
+        "AND (:lastAccommodationId IS NULL OR a.id > :lastAccommodationId) " +
+        "ORDER BY a.id ASC")
+    List<Accommodation> findAccommodationsByIdList(
+        @Param("idList") List<Long> idList,
+        @Param("lastAccommodationId") Long lastAccommodationId);
+
+    @Query(value = "SELECT a FROM Accommodation a " +
+        "LEFT JOIN FETCH a.images " +
+        "LEFT JOIN FETCH a.options " +
+        "LEFT JOIN FETCH a.products p " +
+        "LEFT JOIN FETCH p.productImage " +
+        "LEFT JOIN FETCH p.productOption " +
+        "WHERE (:category IS NULL OR a.category = :category) " +
+        "ORDER BY a.id ASC")
+    List<Accommodation> findAccommodationsByCategory(
+        @Param("category") String category);
 }

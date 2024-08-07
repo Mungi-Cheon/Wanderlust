@@ -12,31 +12,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.travel.domain.accommodation.dto.response.AccommodationResponse;
 import com.travel.domain.accommodation.service.AccommodationService;
-import com.travel.domain.config.TestConfig;
+import com.travel.global.config.ElasticSearchConfig;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
-@Import(TestConfig.class)
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 public class AccommodationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @InjectMocks
+    private ElasticSearchConfig config;
 
     @MockBean
     private AccommodationService accommodationService;
@@ -56,11 +58,12 @@ public class AccommodationControllerTest {
         List<AccommodationResponse> mockResponse = List.of(accommodationResponse);
 
         Mockito.when(accommodationService.getAvailableAccommodations(
-                anyString(), any(LocalDate.class),
+                anyString(), anyString(), any(LocalDate.class),
                 any(LocalDate.class), anyInt(), anyLong()))
             .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/accommodations")
+                .param("keyword", "Test")
                 .param("categoryId", "1")
                 .param("checkInDate", "2024-08-25")
                 .param("checkOutDate", "2024-08-26")

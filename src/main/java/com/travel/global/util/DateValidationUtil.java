@@ -1,8 +1,12 @@
 package com.travel.global.util;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class DateValidationUtil {
+
+  static String format = "yyyy-MM-dd";
 
   public static boolean isCheckInValid(LocalDate checkIn) {
     LocalDate now = LocalDate.now();
@@ -13,17 +17,26 @@ public class DateValidationUtil {
     return checkOut.isAfter(checkIn);
   }
 
-  public static LocalDate checkInDate(LocalDate checkInDate) {
+  public static LocalDate checkInDate(String checkInDate) {
     if (checkInDate == null) {
-      checkInDate = LocalDate.now();
+      return LocalDate.now();
+    } else {
+      return convertStringToLocalDate(checkInDate, format);
     }
-    return checkInDate;
   }
 
-  public static LocalDate checkOutDate(LocalDate checkInDate, LocalDate checkOutDate) {
+  public static LocalDate checkOutDate(String checkInDate, String checkOutDate) {
+    LocalDate checkIn = checkInDate(checkInDate);
     if (checkOutDate == null) {
-      checkOutDate = checkInDate.plusDays(1);
+      return checkIn.plusDays(1);
+    } else {
+      return convertStringToLocalDate(checkOutDate, format);
     }
-    return checkOutDate;
+  }
+
+  public static LocalDate convertStringToLocalDate(String dateString, String format)
+      throws DateTimeParseException {DateTimeFormatter formatter = DateTimeFormatter
+      .ofPattern(format);
+    return LocalDate.parse(dateString, formatter);
   }
 }

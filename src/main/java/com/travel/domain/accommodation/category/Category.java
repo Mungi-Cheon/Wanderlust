@@ -24,6 +24,6 @@ public enum Category {
             .filter(value -> value.getId().equals(id))
             .findAny()
             .map(Category::getName)
-            .orElse(StringUtils.EMPTY);
+            .orElse(null);
     }
 }
