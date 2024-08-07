@@ -9,12 +9,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.travel.domain.accommodation.controller.AccommodationController;
 import com.travel.domain.cart.dto.request.CartRequest;
 import com.travel.domain.cart.dto.response.CartResponse;
 import com.travel.domain.cart.service.CartService;
 import com.travel.domain.config.TestConfig;
 import com.travel.domain.member.entity.Member;
-import com.travel.global.config.ElasticSearchConfig;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,7 @@ public class CartControllerTest {
     private CartService cartService;
 
     @InjectMocks
-    private ElasticSearchConfig config;
+    private AccommodationController controller;
 
     private Member member;
 
