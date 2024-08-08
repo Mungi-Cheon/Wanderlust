@@ -10,11 +10,10 @@ import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
 import com.travel.domain.reservations.dto.request.ReservationCancelRequest;
-import com.travel.domain.reservations.dto.request.ReservationListRequest;
+import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationCancelResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
-import com.travel.domain.reservations.dto.response.ReservationListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
@@ -25,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -72,54 +70,44 @@ public class ReservationService {
 
     @CacheEvict(value = "accommodations", allEntries = true)
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public ReservationListResponse createReservation(ReservationListRequest requestList,
+    public ReservationResponse createReservation(ReservationRequest request,
         Long memberId) {
-        List<Reservation> reservationList = new ArrayList<>();
         Member member = memberRepository.getMember(memberId);
 
-        requestList.getRequestList().forEach(request -> {
-            LocalDate checkInDate = request.getCheckInDate();
-            LocalDate checkOutDate = request.getCheckOutDate();
-            int nights = calcNight(checkInDate, checkOutDate);
-            long productId = request.getProductId();
+        LocalDate checkInDate = request.getCheckInDate();
+        LocalDate checkOutDate = request.getCheckOutDate();
+        int nights = calcNight(checkInDate, checkOutDate);
+        long productId = request.getProductId();
 
-            Accommodation accommodation = accommodationRepository
-                .getByIdJoinImagesAndOptions(request.getAccommodationId());
+        Accommodation accommodation = accommodationRepository
+            .getByIdJoinImagesAndOptions(request.getAccommodationId());
 
-            reservationRepository.checkExistReservation(memberId, productId, checkInDate,
-                checkOutDate);
+        reservationRepository.checkExistReservation(memberId, productId, checkInDate,
+            checkOutDate);
 
-      Product product = productRepository.
-              getByAccommodationIdAndProductIdJoinImagesAndOption(
-                      request.getAccommodationId(),productId);
-      List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(productId,
-              checkInDate, checkOutDate.minusDays(1));
-      decreaseCountByOne(productInfoList);
+        Product product = productRepository.
+            getByAccommodationIdAndProductIdJoinImagesAndOption(
+                request.getAccommodationId(), productId);
+        List<ProductInfoPerNight> productInfoList = findProductInfoPerNightList(productId,
+            checkInDate, checkOutDate.minusDays(1));
+        decreaseCountByOne(productInfoList);
 
-            Reservation reservation = createReservation(
-                member, accommodation,
-                product, request.getPersonNumber(),
-                productInfoList.get(0).getPrice(), nights,
-                checkInDate, checkOutDate
-            );
+        Reservation reservation = createReservation(
+            member, accommodation,
+            product, request.getPersonNumber(),
+            productInfoList.get(0).getPrice(), nights,
+            checkInDate, checkOutDate
+        );
 
-            reservationList.add(reservation);
-        });
+        Reservation saved = reservationRepository.save(reservation);
 
-        List<Reservation> savedList = reservationRepository.saveAll(reservationList);
-
-        savedList.forEach(saved -> emailService.sendReservationConfirmation(
+        emailService.sendReservationConfirmation(
             member.getEmail(),
             saved,
             MAIL_TEMPLATE_CONFIRMATION,
             MAIL_SUBJECT_CONFIRMATION
-        ));
-
-        List<ReservationResponse> responseList = savedList.stream()
-            .map(ReservationResponse::from)
-            .collect(Collectors.toList());
-
-        return ReservationListResponse.from(responseList);
+        );
+        return ReservationResponse.from(saved);
     }
 
     @Transactional()

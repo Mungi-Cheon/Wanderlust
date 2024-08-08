@@ -1,10 +1,10 @@
 package com.travel.domain.reservations.controller;
 
 import com.travel.domain.reservations.dto.request.ReservationCancelRequest;
-import com.travel.domain.reservations.dto.request.ReservationListRequest;
+import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationCancelResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
-import com.travel.domain.reservations.dto.response.ReservationListResponse;
+import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.service.ReservationService;
 import com.travel.global.annotation.TokenMemberId;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,13 +43,13 @@ public class ReservationController {
 
     @Operation(summary = "숙소 예약", description = "숙소를 예약합니다.")
     @ApiResponse(content = @Content(mediaType = "application/json",
-        schema = @Schema(implementation = ReservationListResponse.class)))
+        schema = @Schema(implementation = ReservationResponse.class)))
     @PostMapping("/reservation")
-    public ResponseEntity<ReservationListResponse> reservation(
+    public ResponseEntity<ReservationResponse> reservation(
         @TokenMemberId Long tokenMemberId,
-        @Valid @RequestBody ReservationListRequest requestList) {
-        ReservationListResponse response = reservationService
-            .createReservation(requestList, tokenMemberId);
+        @Valid @RequestBody ReservationRequest request) {
+        ReservationResponse response = reservationService
+            .createReservation(request, tokenMemberId);
         return ResponseEntity.ok(response);
     }
 

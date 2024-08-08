@@ -18,10 +18,8 @@ import com.travel.domain.product.entity.ProductImage;
 import com.travel.domain.product.entity.ProductInfoPerNight;
 import com.travel.domain.product.repository.ProductInfoPerNightRepository;
 import com.travel.domain.product.repository.ProductRepository;
-import com.travel.domain.reservations.dto.request.ReservationListRequest;
 import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
-import com.travel.domain.reservations.dto.response.ReservationListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.entity.Reservation;
 import com.travel.domain.reservations.repository.ReservationRepository;
@@ -126,27 +124,24 @@ class ReservationServiceTest {
 
         when(accommodationRepository.getByIdJoinImagesAndOptions(
             any())).thenReturn(accommodation);
-        when(reservationRepository.saveAll(any())).thenReturn(List.of(reservation));
+        when(reservationRepository.save(any())).thenReturn(reservation);
 
         ReservationRequest req = new ReservationRequest(
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
-        ReservationListRequest reqList = new ReservationListRequest(List.of(req));
-        ReservationListResponse result = reservationService.createReservation(reqList,
+        ReservationResponse result = reservationService.createReservation(req,
             member.getId());
 
         verify(memberRepository).getMember(any());
-        verify(reservationRepository).saveAll(any());
-
-        List<ReservationResponse> responseList = result.getReservationResponseList();
+        verify(reservationRepository).save(any());
 
         assertNotNull(result);
-        assertNotNull(responseList);
-        assertEquals(checkInDate, responseList.get(0).getCheckInDate());
-        assertEquals(checkOutDate, responseList.get(0).getCheckOutDate());
-        assertEquals(req.getPersonNumber(), responseList.get(0).getPersonNumber());
+        assertNotNull(result);
+        assertEquals(checkInDate, result.getCheckInDate());
+        assertEquals(checkOutDate, result.getCheckOutDate());
+        assertEquals(req.getPersonNumber(), result.getPersonNumber());
         int night = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         int totalPrice = night * productInfoPerNight.getPrice();
-        assertEquals(totalPrice, responseList.get(0).getTotalPrice());
+        assertEquals(totalPrice, result.getTotalPrice());
     }
 
     @Test
@@ -169,10 +164,8 @@ class ReservationServiceTest {
         ReservationRequest request = new ReservationRequest(
             accommodation.getId(), product.getId(), checkInDate, checkOutDate, 2);
 
-        ReservationListRequest reqList = new ReservationListRequest(List.of(request));
-
         ReservationsException exception = assertThrows(ReservationsException.class,
-            () -> reservationService.createReservation(reqList, member.getId()));
+            () -> reservationService.createReservation(request, member.getId()));
 
         verify(memberRepository).getMember(any());
         verify(reservationRepository).checkExistReservation(any(), any(), any(),
