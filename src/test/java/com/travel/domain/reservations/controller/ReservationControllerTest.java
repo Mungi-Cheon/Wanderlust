@@ -16,12 +16,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.domain.member.entity.Member;
 import com.travel.domain.member.repository.MemberRepository;
 import com.travel.domain.reservations.dto.request.ReservationCancelRequest;
-import com.travel.domain.reservations.dto.request.ReservationListRequest;
 import com.travel.domain.reservations.dto.request.ReservationRequest;
 import com.travel.domain.reservations.dto.response.ReservationCancelResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryListResponse;
 import com.travel.domain.reservations.dto.response.ReservationHistoryResponse;
-import com.travel.domain.reservations.dto.response.ReservationListResponse;
 import com.travel.domain.reservations.dto.response.ReservationResponse;
 import com.travel.domain.reservations.service.ReservationService;
 import java.time.LocalDate;
@@ -93,21 +91,18 @@ class ReservationControllerTest {
         Member member = createMember();
 
         ReservationRequest reservationRequest = createReservationRequest();
-        ReservationListRequest reservationListRequest = new ReservationListRequest(
-            List.of(reservationRequest));
         ReservationResponse response = createReservationResponse();
-        ReservationListResponse responseList = ReservationListResponse.from(List.of(response));
 
-        when(reservationService.createReservation(any(ReservationListRequest.class),
+        when(reservationService.createReservation(any(ReservationRequest.class),
             eq(member.getId())))
-            .thenReturn(responseList);
+            .thenReturn(response);
 
-        String content = mapper.writeValueAsString(responseList);
+        String content = mapper.writeValueAsString(response);
 
         // When & Then
         mockMvc.perform(post("/api/auth/reservation")
                 .header("mock-token", member.getId())
-                .content(mapper.writeValueAsString(reservationListRequest))
+                .content(mapper.writeValueAsString(reservationRequest))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
